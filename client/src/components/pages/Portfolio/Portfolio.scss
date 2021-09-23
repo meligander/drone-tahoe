@@ -1,0 +1,70 @@
+.portfolio {
+	height: 100%;
+	text-align: center;
+	padding: 6rem;
+	background: linear-gradient(
+			to bottom right,
+			rgba(255, 255, 255, 0.7),
+			rgba(42, 185, 196, 0.8)
+		),
+		url('../../../img/emeraldbay.jpg');
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+
+	&-group {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		text-align: center;
+		padding: 0 4rem;
+	}
+
+	&-group-item {
+		margin: 1.5rem auto;
+	}
+	&-item {
+		height: 315px;
+		width: 560px;
+		// width: 100%;
+		// height: auto;
+
+		&-caption {
+			font-size: 1.4rem;
+			font-weight: 300;
+			margin-top: 0.6rem;
+			font-style: italic;
+		}
+	}
+}
+
+@media screen and (max-width: 1400px) {
+	.portfolio {
+		padding: 4rem 0;
+
+		&-group {
+			grid-template-columns: repeat(1, 1fr);
+			padding: 2rem 5rem;
+			margin-top: 3rem;
+		}
+
+		&-group-item {
+			margin: 1rem auto;
+			width: 100%;
+			height: 100%;
+		}
+
+		&-item {
+			// height: 315px;
+			width: 100%;
+			//   height: 100%;
+		}
+	}
+}
+
+@media screen and (max-width: 800px) {
+	.portfolio {
+		&-group {
+			padding: 0 2.4rem;
+		}
+	}
+}

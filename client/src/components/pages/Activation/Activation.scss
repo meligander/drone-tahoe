@@ -1,0 +1,36 @@
+@import '../../../sass/abstracts/variables.scss';
+
+.activation {
+	height: 62.7vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	.heading-secondary-gradient {
+		font-size: 3rem;
+	}
+
+	&-text {
+		margin: 2rem 0;
+		font-size: 2rem;
+		font-weight: 300;
+		color: $color-dark-6;
+	}
+
+	&-error {
+		&-header {
+			margin-top: -4rem;
+			margin-bottom: 2rem;
+			font-size: 4rem;
+			color: $color-gray-dark;
+			font-weight: 400;
+		}
+
+		&-text {
+			font-size: 2rem;
+			color: $color-danger;
+			font-weight: 300;
+		}
+	}
+}

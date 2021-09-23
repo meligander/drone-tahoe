@@ -1,0 +1,65 @@
+@import '../../sass/abstracts/variables.scss';
+
+.reservation-form {
+	width: 70%;
+	margin: 3.5rem auto 0;
+
+	@media screen and (max-width: 900px) {
+		width: 80vw;
+	}
+
+	@media screen and (max-width: 400px) {
+		width: 85vw;
+	}
+
+	.heading-primary-subheading {
+		margin-bottom: 1rem;
+		display: inline-block;
+	}
+
+	&__group {
+		width: 80%;
+		margin: 1.5rem auto;
+
+		@media screen and (max-width: 650px) {
+			width: 90%;
+		}
+	}
+
+	.form {
+		&__group select {
+			background-color: lighten($color-light-3, 35%);
+			margin-bottom: 0;
+		}
+
+		&__label {
+			color: $color-dark-7;
+		}
+	}
+
+	&-cancel {
+		margin-left: 2rem;
+		background-color: inherit;
+		border: none;
+		cursor: pointer;
+		transition: all 0.2s ease-out;
+		backface-visibility: hidden;
+		transform: perspective(1px) scale(0.9) translateY(4px);
+
+		.fas {
+			color: $color-dark-7;
+			font-size: 1.6rem;
+		}
+
+		&:hover {
+			backface-visibility: hidden;
+			-webkit-transform: perspective(1px) scale(1) translateY(4px);
+			transform: perspective(1px) scale(1);
+		}
+
+		&:active,
+		&:focus {
+			outline: none;
+		}
+	}
+}

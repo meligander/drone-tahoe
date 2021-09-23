@@ -1,0 +1,174 @@
+@import '../../../sass/abstracts/variables.scss';
+
+.navbar {
+	background: #242424;
+
+	height: 110px;
+	padding: 0.5rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 1.2rem;
+	position: relative;
+	top: 0;
+	z-index: 300;
+	width: 100%;
+
+	&.activate {
+		padding: 0.4rem;
+	}
+
+	&-container {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		height: 70px;
+		padding-top: 2.7rem;
+		max-width: 99%;
+		z-index: 999;
+	}
+
+	.nav {
+		&-menu {
+			display: flex;
+			list-style: none;
+			justify-content: center;
+			align-items: center;
+			//margin-left: 4rem;
+		}
+
+		&-item {
+			height: 80px;
+			font-size: 0.95rem;
+			text-transform: uppercase;
+		}
+
+		&-links {
+			color: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-decoration: none;
+			margin: 0.4rem;
+			padding: 0.3rem 0.7rem;
+			border-right: 1px solid #ffe;
+			text-align: center;
+
+			&:last-child {
+				border-right: none;
+			}
+
+			&:hover {
+				border-bottom: 4px solid #fff;
+				transition: all 0.2s ease-out;
+			}
+
+			&-mobile,
+			&-salute {
+				display: none;
+			}
+		}
+
+		&-button {
+			position: absolute;
+			right: 3rem;
+			line-height: 3.7rem;
+		}
+
+		&-salute {
+			margin-right: 13rem;
+			font-size: 1.3rem;
+			display: inline-block;
+		}
+	}
+}
+
+.menu-icon {
+	display: none;
+}
+
+.fa-bars {
+	color: #fff;
+}
+
+.fa-times {
+	color: #fff;
+	font-size: 2rem;
+}
+
+@media screen and (max-width: 960px) {
+	.navbar {
+		height: 100%;
+		position: sticky;
+
+		.nav {
+			&-menu {
+				flex-direction: column;
+				width: 100%;
+				height: 100vh;
+				top: 80px;
+				left: -100%;
+				opacity: 1;
+				transition: all 0.5s ease;
+				position: fixed;
+				margin-left: 0;
+				padding-bottom: 9rem;
+			}
+
+			&-menu.active {
+				background: #242424;
+				left: 0;
+				opacity: 1;
+				transition: all 0.5s ease;
+				z-index: 1;
+			}
+
+			&-item {
+				height: 90px;
+			}
+
+			&-links {
+				text-align: center;
+				padding: 1rem;
+				display: table;
+				font-size: 1.8rem;
+
+				&:hover {
+					background-color: #fff;
+					color: #242424;
+					border-radius: 0;
+				}
+
+				&-mobile {
+					display: inline-block;
+					margin-top: 1.5rem;
+					font-size: 1.6rem;
+				}
+
+				&-salute {
+					display: inline-block;
+					font-size: 1.8rem;
+					height: 4rem;
+
+					.btn-link {
+						color: $color-light-7;
+					}
+				}
+			}
+
+			&-salute {
+				display: none;
+			}
+		}
+
+		.menu-icon {
+			display: block;
+			position: absolute;
+			top: 0.35rem;
+			right: 0;
+			transform: translate(-100%, 60%);
+			font-size: 1.8rem;
+			cursor: pointer;
+		}
+	}
+}

@@ -1,0 +1,311 @@
+#status {
+	// visibility: hidden;
+	// background-color: rgb(61, 129, 61);
+	background-color: #4bca81;
+	color: #fff;
+	width: 25vw;
+	padding: 2rem 4rem;
+	text-align: center;
+	font-size: 1.4rem;
+	font-weight: 400;
+	// animation-name: status;
+	// animation-duration: 4s;
+	// animation-delay: 1s;
+	// animation-timing-function: ease;
+	// animation-fill-mode: forwards;
+	// animation: fadeIn 3s;
+	// animation-delay: 5s;
+	// animation-fill-mode: forwards;
+	position: fixed;
+	top: 45%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 10px;
+	line-height: 2rem;
+	transition: all 1s ease;
+	z-index: 1001;
+	display: none;
+}
+
+#confirmation {
+	// visibility: hidden;
+	animation: fadeIn 3s;
+	// animation-fill-mode: forwards;
+	background-color: rgba(0, 0, 0, 0.6);
+	height: 100vh;
+	width: 100vw;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	display: none;
+
+	// animation-name: status;
+	// animation-duration: 4s;
+	// animation-timing-function: ease;
+	// animation-fill-mode: forwards;
+}
+
+.visible {
+	visibility: visible;
+}
+
+#error {
+	background-color: rgb(233, 81, 81);
+	color: #fff;
+	display: none;
+	width: 25vw;
+	padding: 2rem 4rem;
+	text-align: center;
+	font-size: 1.4rem;
+	font-weight: 400;
+	position: fixed;
+	top: 45%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 10px;
+	line-height: 2rem;
+	transition: all 1s ease;
+	z-index: 1001;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	// 10% {
+	//   opacity: 0.5;
+	//   visibility: visible;
+	// }
+	20% {
+		opacity: 1;
+		visibility: visible;
+	}
+	// 90% {
+	//   opacity: 0.5;
+	// }
+	80% {
+		opacity: 1;
+		visibility: visible;
+	}
+	100% {
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
+@keyframes status {
+	0% {
+		opacity: 0;
+		pointer-events: all;
+	}
+	5% {
+		opacity: 1;
+	}
+
+	90% {
+		opacity: 1;
+		pointer-events: all;
+	}
+	100% {
+		opacity: 0;
+		pointer-events: none;
+		visibility: hidden;
+	}
+}
+
+// #booking {
+//   scroll-margin-top: -110px;
+// }
+
+.booking {
+	background: linear-gradient(to right, #2191f3, #1453b9);
+	content: '';
+	height: 60rem;
+	// min-height: 100%;
+	padding: 3rem;
+	position: relative;
+	justify-content: center;
+	align-items: center;
+
+	&-title {
+		text-align: center;
+		text-transform: uppercase;
+		color: #fff;
+		text-shadow: 1px 1px 1px #000;
+		margin-bottom: 1rem;
+
+		&-heading {
+			font-size: 3.2rem;
+			font-weight: 300;
+			margin-bottom: 0.7rem;
+		}
+
+		&-subheading {
+			font-size: 1.4rem;
+			font-weight: 300;
+			padding: 0 6rem;
+			margin-bottom: 0.5rem;
+		}
+	}
+
+	&-status {
+		background-color: rgba(255, 255, 255, 0.9);
+		padding: 8rem;
+		margin: 0 auto;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		font-size: 1.4rem;
+		animation: status 3s ease forwards;
+	}
+}
+
+.section-book {
+	padding: 4rem 0;
+	width: 70%;
+	max-width: 55rem;
+	// height: 100%;
+	// max-height: 100%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.book {
+	background-image: linear-gradient(
+			110deg,
+			(rgba(74, 172, 202, 0.75) 65%, rgba(255, 255, 255, 0.25) 35%)
+		),
+		url(../../../img/small/fannette.jpg);
+	background-size: cover;
+	background-position: center;
+
+	height: 100%;
+	border-radius: 3px;
+	box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.2);
+
+	&__form {
+		width: 90%;
+		padding: 2.8rem 5.2rem;
+		margin: auto;
+		height: 100%;
+	}
+}
+
+@media screen and (min-width: 1326px) {
+	.booking {
+		height: 57rem;
+		&-title {
+			&-subheading {
+				font-size: 1.4rem;
+				padding: 0 3rem;
+			}
+		}
+	}
+
+	.book {
+		&__form {
+			width: 100%;
+			padding: 2rem 4rem;
+		}
+	}
+}
+
+@media screen and (max-width: 1120px) {
+	.booking {
+		height: 60rem;
+	}
+}
+
+@media screen and (max-width: 960px) {
+	.booking {
+		padding: 2rem 0;
+		height: 66rem;
+
+		&-title {
+			&-heading {
+				font-size: 2.2rem;
+				margin: 1rem 0;
+			}
+
+			&-subheading {
+				font-size: 1rem;
+				padding: 0 1rem;
+			}
+		}
+	}
+
+	#status,
+	#error {
+		top: 50%;
+		width: 70%;
+	}
+
+	#experience {
+		width: 100%;
+		margin: 0.5rem 0 1rem;
+	}
+	.section-book {
+		padding: 3rem 0;
+		width: 90%;
+		height: 100%;
+	}
+
+	.book {
+		&__form {
+			width: 90%;
+			padding: 3rem;
+			margin: 0 auto;
+		}
+	}
+}
+
+// @media screen and (max-width: 700px) {
+//   .booking {
+//     height: 70rem;
+//   }
+// }
+
+// @media screen and (max-width: 550px) {
+//   .booking {
+//     height: 72rem;
+//   }
+// }
+
+@media screen and (max-width: 440px) {
+	.booking {
+		height: 66rem;
+
+		&-heading {
+			font-size: 2.2rem;
+			margin: 2rem 0 1rem;
+		}
+	}
+
+	.book {
+		&__form {
+			padding: 1rem;
+		}
+	}
+}
+
+@media screen and (max-width: 340px) {
+	// .booking {
+	//   height: 72rem;
+	// }
+
+	#status,
+	#error {
+		top: 50%;
+		width: 90%;
+		padding: 1rem;
+	}
+}
+@media screen and (max-width: 300px) {
+	.booking {
+		height: 71rem;
+	}
+}

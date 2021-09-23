@@ -1,0 +1,21 @@
+@import '../../../sass/abstracts/variables.scss';
+
+.alert {
+	text-align: center;
+	//padding: 0.8rem;
+	line-height: 3rem;
+	margin-bottom: 1rem;
+	width: 100%;
+	opacity: 0.8;
+	background-color: $color-gray-dark;
+	color: $color-white;
+
+	&.alert-danger {
+		background-color: $color-danger;
+		color: $color-white;
+	}
+	&.alert-success {
+		background-color: $color-success;
+		color: $color-white;
+	}
+}

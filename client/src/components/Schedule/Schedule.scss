@@ -1,0 +1,92 @@
+@import '../../sass/abstracts/variables.scss';
+
+.schedule {
+	display: flex;
+	width: 100%;
+	margin-top: 3rem;
+
+	@media screen and (max-width: 650px) {
+		flex-direction: column;
+	}
+
+	&-calendar {
+		width: 40%;
+
+		@media screen and (max-width: 650px) {
+			width: 100%;
+		}
+
+		& > * {
+			margin: 0 auto;
+		}
+	}
+
+	&-details {
+		width: 60%;
+		padding: 1rem;
+
+		@media screen and (max-width: 650px) {
+			width: 100%;
+			margin-top: 1rem;
+		}
+
+		.form {
+			align-items: start;
+		}
+
+		&-main {
+			font-size: 2rem;
+			font-weight: 300;
+			margin-bottom: 2rem;
+			color: $color-dark-7;
+
+			&.error {
+				color: $color-danger;
+			}
+		}
+
+		&-title {
+			font-size: 1.8rem;
+			font-weight: 300;
+			color: $color-dark-7;
+			margin: 0 0 1.5rem;
+		}
+
+		&-subtitle {
+			font-size: 1.7rem;
+			color: $color-dark-7;
+		}
+
+		&-info {
+			font-size: 1.5rem;
+			margin: 0.5rem 4rem;
+			font-weight: 300;
+		}
+
+		.btn {
+			margin-top: 1.5rem;
+		}
+
+		&-item {
+			text-align: center;
+			padding: 0.6rem;
+			margin: 1rem auto;
+			background-color: $color-dark-8;
+			color: $color-white;
+			border-radius: 0.5rem;
+			cursor: pointer;
+			backface-visibility: hidden;
+			width: 70%;
+			transition: all 0.2s ease-out;
+
+			@media screen and (max-width: 650px) {
+				width: 90%;
+			}
+
+			&:hover {
+				background-color: lighten($color-dark-7, 15%);
+				transform: scale(1.05);
+			}
+		}
+	}
+}

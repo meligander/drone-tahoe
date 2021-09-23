@@ -1,0 +1,333 @@
+#vrm {
+	scroll-margin-top: 40px;
+	margin: 0 auto;
+}
+
+.vrm {
+	&-header {
+		height: 60vh;
+		background: linear-gradient(to bottom, #9d4eddaf, #59189a85),
+			url(../../../img/glenn/vrm/portal-small.jpg);
+		background-size: cover;
+		background-position: center;
+		clip-path: polygon(0 0, 100% 0, 100% 42vh, 0 100%);
+		position: relative;
+		padding: 8rem;
+		color: #fff;
+		text-transform: uppercase;
+		text-align: center;
+
+		&-section {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+		&-text {
+			font-size: 2.6rem;
+			font-weight: 300;
+			margin-bottom: 1.4rem;
+		}
+
+		&-subtext {
+			text-align: center;
+			font-size: 1.6rem;
+			font-weight: 300;
+			text-transform: uppercase;
+		}
+	}
+
+	&-description {
+		padding: 1rem 12rem;
+		display: flex;
+		flex-direction: column;
+
+		&-text {
+			font-size: 2.4rem;
+			font-weight: 300;
+			margin: 1rem;
+			text-align: center;
+			line-height: 3rem;
+		}
+
+		&-img {
+			width: 100%;
+			margin: 2rem 0;
+
+			&.img1 {
+				background-image: url(../../../img/glenn/vrm/walkthrough.png);
+				background-position: center;
+				background-size: contain;
+				background-repeat: no-repeat;
+				height: 15rem;
+			}
+		}
+	}
+
+	&-section {
+		display: flex;
+		margin: 1rem 0;
+
+		&-img {
+			width: 46%;
+			margin: 0 auto;
+
+			&.img1 {
+				background-image: url(../../../img/glenn/vrm/walkthrough.png);
+				background-position: center;
+				background-size: contain;
+				background-repeat: no-repeat;
+			}
+		}
+	}
+	&-text {
+		font-size: 2.8rem;
+		font-weight: 300;
+		margin: 3rem 0;
+		width: 70%;
+		padding: 0 3rem;
+	}
+
+	&-group {
+		display: flex;
+		margin: 1rem auto;
+		text-align: center;
+		position: relative;
+		padding: 2rem 0;
+
+		&-item {
+			width: 20%;
+			height: 8rem;
+			margin: 0 2rem;
+			object-fit: contain;
+		}
+	}
+
+	&-benefits {
+		display: flex;
+		padding: 2rem 4rem;
+		width: 80%;
+		margin: -3rem auto 0;
+
+		@keyframes bubbles {
+			0% {
+				transform: scale(1);
+			}
+			50% {
+				transform: scale(1.03);
+			}
+			100% {
+				transform: scale(1);
+			}
+		}
+		&-item {
+			width: 30%;
+			display: flex;
+			flex-direction: column;
+			margin: 0 auto;
+			padding: 2rem;
+
+			&:hover {
+				animation: bubbles 0.2s ease-in-out forwards;
+			}
+
+			&-image {
+				width: 40%;
+				max-width: 6rem;
+				height: 35%;
+				margin: 1rem auto;
+				font-weight: 200;
+			}
+			&-heading {
+				text-transform: uppercase;
+				font-size: 1.6rem;
+				font-weight: 400;
+				text-align: center;
+				margin-bottom: 0.5rem;
+			}
+			&-text {
+				font-size: 1.4rem;
+				font-weight: 300;
+				text-align: center;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 1230px) {
+	.vrm {
+		&-benefits {
+			padding: 1rem;
+			width: 90%;
+
+			&-item {
+				padding: 0.5rem auto;
+			}
+		}
+	}
+}
+@media screen and (max-width: 960px) {
+	.vrm {
+		&-header {
+			height: 40vh;
+
+			padding: 4rem;
+
+			&-text {
+				font-size: 2.6rem;
+				font-weight: 300;
+			}
+		}
+
+		&-description {
+			padding: 2rem 6rem;
+
+			&-text {
+				font-size: 1.8rem;
+			}
+
+			&-img {
+				margin: 0.5rem 0;
+			}
+		}
+
+		&-title {
+			font-size: 2.6rem;
+			margin: 3rem auto 1rem;
+		}
+
+		&-section {
+			display: flex;
+			flex-direction: column;
+			margin: 1rem 0;
+		}
+		&-text {
+			font-size: 1.7rem;
+			font-weight: 300;
+			margin: 2rem auto;
+			width: 90%;
+			padding: 0 1rem;
+		}
+
+		&-group {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+
+			&-item {
+				width: 45%;
+				margin: 0 auto;
+			}
+		}
+		&-benefits {
+			flex-direction: column;
+			margin-top: 0.6rem;
+
+			&-item {
+				width: 90%;
+				padding: 1rem;
+
+				&-image {
+					margin: 0.5rem auto;
+					height: 25%;
+					width: 25%;
+				}
+				&-heading {
+					font-size: 1.4rem;
+
+					margin-bottom: 0.4rem;
+				}
+				&-text {
+					font-size: 1.3rem;
+				}
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 700px) {
+	.vrm {
+		&-header {
+			height: 40vh;
+
+			padding: 2rem 1rem;
+			// margin-top: 10rem;
+
+			&-section {
+				width: 100%;
+			}
+
+			&-text {
+				font-size: 2rem;
+			}
+
+			&-subtext {
+				font-size: 1.6rem;
+			}
+		}
+
+		&-description {
+			padding: 1rem 1.5rem;
+			margin: 0 auto;
+		}
+	}
+}
+
+@media screen and (max-width: 400px) {
+	.vrm {
+		&-header {
+			height: 40vh;
+			padding: 2rem 1rem;
+
+			&-text {
+				font-size: 1.7rem;
+			}
+
+			&-subtext {
+				font-size: 1.2rem;
+			}
+		}
+
+		&-description {
+			padding: 1rem 1.5rem;
+			margin: 0 auto;
+		}
+
+		&-title {
+			font-size: 1.6rem;
+		}
+
+		&-section {
+			margin: 0.5rem 0;
+		}
+
+		&-text {
+			font-size: 1.5rem;
+			margin: 1rem auto;
+		}
+
+		&-benefits {
+			flex-direction: column;
+			padding: 1rem;
+			width: 90%;
+			margin: 1rem;
+
+			&-item {
+				width: 100%;
+				padding: 0.5rem;
+			}
+		}
+
+		&-group {
+			flex-direction: column;
+			margin: 1rem auto;
+			text-align: center;
+			padding: 1rem 0;
+
+			&-item {
+				width: 80%;
+				height: 10rem;
+				padding: 0 1rem;
+			}
+		}
+	}
+}

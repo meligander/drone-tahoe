@@ -1,0 +1,131 @@
+@import '../../../sass/abstracts/variables.scss';
+
+.section-login {
+	position: relative;
+	overflow: hidden;
+	min-height: 85vh;
+	margin: 4rem 0;
+
+	@media screen and (max-width: 650px) {
+		min-height: 90.5vh;
+		margin: 2rem 0;
+	}
+
+	@media screen and (max-width: 500px) {
+		min-height: 90.5vh;
+		margin: 0;
+	}
+}
+
+.login {
+	min-height: inherit;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	&-card {
+		display: flex;
+		width: 80vw;
+		background-color: $color-gray-light;
+		border-radius: 0.5rem;
+		position: relative;
+		overflow: hidden;
+
+		@media screen and (max-width: 500px) {
+			width: 90vw;
+			flex-direction: column;
+		}
+
+		.form {
+			width: 50%;
+			padding: 6rem 3rem 4rem;
+
+			@media screen and (max-width: 900px) {
+				width: 65%;
+			}
+
+			@media screen and (max-width: 650px) {
+				width: 100%;
+				padding: 5rem 3rem 3rem;
+				z-index: 100;
+				background-color: inherit;
+			}
+
+			@media screen and (max-width: 500px) {
+				padding: 4rem 0 3rem;
+			}
+
+			&-section {
+				margin: 4rem auto 1rem;
+				width: 80%;
+
+				@media screen and (max-width: 500px) {
+					margin: 3rem auto 0;
+				}
+			}
+		}
+
+		&-sign {
+			font-size: 1.1rem;
+			margin-top: 1.5rem;
+			color: #fff /* darken($color-primary-dark, 10%) */;
+			font-weight: 200;
+
+			&:nth-child(3) {
+				margin-top: 0.5rem;
+			}
+		}
+
+		&-smedia {
+			margin-top: 2rem;
+		}
+	}
+
+	&-img {
+		width: 50%;
+		background-color: $color-dark-6;
+		background-image: linear-gradient(
+				rgba($color-white, 0.5),
+				rgba($color-white, 0.6)
+			),
+			url(../../../img/logoDRONE-dark-cropped-final.png);
+		background-size: contain;
+		background-position: center;
+		background-repeat: no-repeat;
+		position: relative;
+
+		@media screen and (max-width: 650px) {
+			display: none;
+		}
+
+		&-text {
+			color: $color-dark-7;
+			position: absolute;
+			font-size: 2.5rem;
+			font-weight: 300;
+			bottom: 2rem;
+			left: 2.5rem;
+			text-shadow: 0 3px 4px rgba(0, 0, 0, 0.4);
+		}
+	}
+
+	.heading-primary {
+		padding: 0;
+		width: 100%;
+		text-align: center;
+
+		&::after {
+			margin: 0 auto;
+		}
+	}
+
+	.btn-link {
+		font-size: 1rem;
+		color: $color-light-7;
+	}
+
+	.alert {
+		margin: 3rem 0 0;
+	}
+}

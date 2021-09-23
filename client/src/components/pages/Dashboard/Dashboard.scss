@@ -1,0 +1,33 @@
+@import '../../../sass/abstracts/variables.scss';
+
+.dashboard {
+	margin: 3rem 2rem;
+	min-height: 52.8vh;
+
+	.heading-primary-subheading {
+		margin-bottom: 1rem;
+	}
+
+	&-date {
+		font-size: 2rem;
+		color: $color-dark-7;
+		text-align: end;
+	}
+
+	&-info {
+		//text-align: center;
+		font-size: 1.8rem;
+		margin-bottom: 2rem;
+		font-weight: 300;
+	}
+
+	&-btns {
+		margin-top: 1rem;
+		text-align: end;
+
+		.btn {
+			font-size: 1rem;
+			padding: 0.8rem 1.2rem;
+		}
+	}
+}
