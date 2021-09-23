@@ -36,10 +36,10 @@ const Schedule = ({
 		hourTo: '',
 		value: job.price,
 		job: job.id,
-		user: '',
+		user: userId ? userId.id : loggedUser.id,
 	});
 
-	const { hourFrom, hourTo, value, user } = formData;
+	const { hourFrom, hourTo, value } = formData;
 
 	const [adminValues, setAdminValues] = useState({
 		date: new Date(),
@@ -52,13 +52,8 @@ const Schedule = ({
 	const { date, tab, toggleModal, month, year } = adminValues;
 
 	useEffect(() => {
-		if (user === '')
-			setFormData((prev) => ({
-				...prev,
-				user: userId === undefined ? loggedUser.id : userId,
-			}));
-		else checkMonthAvailability(job.id, month, year);
-	}, [checkMonthAvailability, job.id, loggedUser, month, year, user, userId]);
+		checkMonthAvailability(job.id, month, year);
+	}, [checkMonthAvailability, job.id, month, year]);
 
 	const onChangeDate = (changedDate) => {
 		setAdminValues((prev) => ({
@@ -176,15 +171,15 @@ const Schedule = ({
 										toggleModal: !toggleModal,
 									}));
 								} else {
-									registerReservation({
+									console.log(formData);
+									/* registerReservation({
 										...formData,
 										hourFrom: moment(hourFrom).format(
 											'YYYY-MM-DD[T]HH[:00:00Z]'
 										),
 										hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
 									});
-
-									complete();
+									complete(); */
 								}
 							}}
 						>

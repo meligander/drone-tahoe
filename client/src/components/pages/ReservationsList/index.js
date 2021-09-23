@@ -96,6 +96,7 @@ const ReservationsList = ({
 						toggleReservation: !toggleReservation,
 					}))
 				}
+				key={this.state.timestamp}
 			/>
 			<h2 className='heading-primary'>Reservations</h2>
 
@@ -159,7 +160,7 @@ const ReservationsList = ({
 
 					<UserField
 						selectFinalUser={(user) =>
-							setFormData((prev) => ({ ...prev, user }))
+							setFormData((prev) => ({ ...prev, user: user.id }))
 						}
 						userId={user}
 					/>

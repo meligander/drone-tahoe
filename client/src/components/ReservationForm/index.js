@@ -77,9 +77,9 @@ const ReservationForm = ({
 				)}
 				{loggedUser.type === 'admin' && (
 					<UserField
-						selectFinalUser={(user) =>
-							setAdminValues((prev) => ({ ...prev, user }))
-						}
+						selectFinalUser={(user) => {
+							setAdminValues({ job, user: user.id });
+						}}
 						reservationUser={user}
 					/>
 				)}

@@ -15,24 +15,24 @@ const UserField = ({
 		searchDisplay: false,
 	});
 	useEffect(() => {
-		if (reservationUser)
+		if (reservationUser && reservationUser.email)
 			setAdminValues((prev) => ({ ...prev, email: reservationUser.email }));
 	}, [reservationUser]);
 
 	const { email, searchDisplay } = adminValues;
 
 	const selectUser = (user) => {
-		clearUsers();
-		selectFinalUser(user.id);
 		setAdminValues((prev) => ({
 			...prev,
 			email: user.email,
 			searchDisplay: false,
 		}));
+		selectFinalUser(user);
+		clearUsers();
 	};
 
 	const cancelUser = () => {
-		selectFinalUser('');
+		selectFinalUser(null);
 		setAdminValues((prev) => ({
 			...prev,
 			email: '',
@@ -77,7 +77,6 @@ const UserField = ({
 			<label htmlFor='email' className='form__label'>
 				User's Email
 			</label>
-
 			{searchDisplay && email.length > 1 && !reservationUser && (
 				<ul
 					className={`form-search-display ${

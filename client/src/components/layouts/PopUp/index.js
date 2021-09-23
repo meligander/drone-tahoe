@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import logo from '../../../img/logoDRONE-dark-cropped-final.png';
 import ReservationForm from '../../ReservationForm';
@@ -14,9 +14,6 @@ const PopUp = ({
 	type,
 	reservation,
 }) => {
-	const [instanceKey, setInstanceKey] = useState(0);
-	const handleReset = () => setInstanceKey((i) => i + 1);
-
 	const selectType = () => {
 		switch (type) {
 			case 'confirmation':
@@ -32,7 +29,6 @@ const PopUp = ({
 						<ReservationForm
 							reservation={reservation}
 							complete={setToggleModal}
-							key={instanceKey}
 						/>
 					</div>
 				);
@@ -52,7 +48,6 @@ const PopUp = ({
 						type='button'
 						onClick={() => {
 							setToggleModal();
-							if (type === 'schedule') handleReset();
 						}}
 						className='popup-heading-btn'
 					>
