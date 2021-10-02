@@ -1,13 +1,14 @@
 const router = require('express').Router();
 const { check, validationResult } = require('express-validator');
-const Op = require('sequelize').Op;
+const sequelize = require('sequelize');
+const Op = sequelize.Op;
 
 //Middleware
 const auth = require('../../middleware/auth');
 const adminAuth = require('../../middleware/adminAuth');
 
 //Models
-const { Job } = require('../../config/db');
+const { Job, Reservation } = require('../../config/db');
 
 //@route    GET api/job/:vessel_id
 //@desc     Get type of job information
@@ -38,7 +39,7 @@ router.get('/', async (req, res) => {
 	try {
 		const filter = {
 			...(req.query.title && {
-				title: { [Op.iLike]: `%${req.query.title}%` },
+				title: { [Op.like]: sequelize.literal("'%" + req.query.title + "%'") },
 			}),
 		};
 
@@ -126,6 +127,17 @@ router.post(
 //@access   Private && Admin
 router.delete('/:job_id', [auth, adminAuth], async (req, res) => {
 	try {
+		const reservation = await Reservation.findOne({
+			where: {
+				jobId: req.params.job_id,
+			},
+		});
+
+		if (reservation)
+			return res.status(400).json({
+				msg: 'Cannot delete a job that is related to a reservation',
+			});
+
 		await Job.destroy({ where: { id: req.params.job_id } });
 
 		res.json({ msg: 'Job deleted' });

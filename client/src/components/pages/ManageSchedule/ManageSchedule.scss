@@ -1,0 +1,89 @@
+@import '../../../sass/abstracts/variables.scss';
+
+.manage-schedule {
+	margin: 3rem 4rem 2rem;
+	min-height: 54.5vh;
+
+	&-row {
+		display: flex;
+		width: 100%;
+		margin-top: 2rem;
+
+		.react-calendar {
+			margin: 0 auto;
+		}
+	}
+
+	&-calendar {
+		width: 40%;
+	}
+
+	&-details {
+		width: 60%;
+
+		&-title {
+			font-weight: 400;
+			color: $color-dark-7;
+			font-size: 1.7rem;
+			margin: 1rem 2rem 1rem;
+		}
+
+		&-res {
+			margin: 2rem 1rem 1rem;
+		}
+
+		&-item {
+			padding: 0.8rem;
+			color: $color-white;
+			border-radius: 0.8rem;
+			margin: 0.5rem 0;
+			background-color: $color-dark-8;
+			display: flex;
+			justify-content: space-around;
+			transition: all 0.2s ease-out;
+			transform: scale(0.95);
+
+			&.disabled {
+				background-color: $color-dark-2 !important;
+			}
+
+			&:hover {
+				transform: scale(1);
+				background-color: lighten($color-dark-8, 5%);
+			}
+
+			.btn-link {
+				background-color: unset;
+			}
+		}
+	}
+
+	.tooltip {
+		position: relative;
+		z-index: 10;
+
+		.tooltiptext {
+			visibility: hidden;
+			background-color: $color-light-3;
+			color: $color-white;
+			font-size: 1.6rem;
+			max-width: 100%;
+			text-align: center;
+			border-radius: 0.6rem;
+			padding: 0.5rem 1rem;
+			top: -3.3rem;
+			left: 50%;
+			transform: translateX(-50%);
+			transition: all 0.1s ease-out;
+
+			/* Position the tooltip */
+			position: absolute;
+			z-index: 50;
+		}
+
+		&:hover .tooltiptext {
+			visibility: visible;
+			transform: translateX(-50%) scale(1);
+		}
+	}
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Moment from 'react-moment';
 import moment from 'moment';
 import Calendar from 'react-calendar';
@@ -36,7 +36,7 @@ const Schedule = ({
 		hourTo: '',
 		value: job.price,
 		job: job.id,
-		user: userId ? userId.id : loggedUser.id,
+		user: userId ? userId.id : loggedUser.type !== 'admin' ? loggedUser.id : '',
 	});
 
 	const { hourFrom, hourTo, value } = formData;
@@ -54,6 +54,10 @@ const Schedule = ({
 	useEffect(() => {
 		checkMonthAvailability(job.id, month, year);
 	}, [checkMonthAvailability, job.id, month, year]);
+
+	useEffect(() => {
+		if (!reservation) setFormData((prev) => ({ ...prev, user: userId }));
+	}, [userId, reservation]);
 
 	const onChangeDate = (changedDate) => {
 		setAdminValues((prev) => ({
@@ -88,12 +92,15 @@ const Schedule = ({
 		}));
 	};
 
-	const tileDisabled = ({ date, view }) => {
-		if (view === 'month' && disabledDays.length > 0) {
-			// Check if a date React-Calendar wants to check is on the list of disabled dates
-			return disabledDays.find((dDate) => isSameDay(dDate, date));
-		}
-	};
+	const tileDisabled = useCallback(
+		({ date, view }) => {
+			if (view === 'month' && disabledDays.length > 0) {
+				// Check if a date React-Calendar wants to check is on the list of disabled dates
+				return disabledDays.find((dDate) => isSameDay(dDate, date));
+			}
+		},
+		[disabledDays]
+	);
 
 	const isSameDay = (date1, date2) => {
 		if (
@@ -171,15 +178,14 @@ const Schedule = ({
 										toggleModal: !toggleModal,
 									}));
 								} else {
-									console.log(formData);
-									/* registerReservation({
+									registerReservation({
 										...formData,
 										hourFrom: moment(hourFrom).format(
 											'YYYY-MM-DD[T]HH[:00:00Z]'
 										),
 										hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
 									});
-									complete(); */
+									complete();
 								}
 							}}
 						>

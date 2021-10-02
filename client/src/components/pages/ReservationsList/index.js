@@ -8,11 +8,11 @@ import {
 	deleteReservation,
 } from '../../../actions/reservation';
 import { loadJobs } from '../../../actions/jobs';
+import { clearUsers } from '../../../actions/user';
 
 import PopUp from '../../layouts/PopUp';
 import Alert from '../../layouts/Alert';
 
-import './ReservationsList.scss';
 import UserField from '../../UserField';
 
 const ReservationsList = ({
@@ -21,6 +21,7 @@ const ReservationsList = ({
 	loadJobs,
 	job: { jobs },
 	reservation: { reservations, error, loading },
+	clearUsers,
 }) => {
 	const [formData, setFormData] = useState({
 		hourFrom: '',
@@ -69,11 +70,11 @@ const ReservationsList = ({
 			user: '',
 			job: '',
 		});
-		loadReservations(formData, true);
+		loadReservations(formData, false);
 	};
 
 	return (
-		<div className='reservations-list'>
+		<div className='list'>
 			<PopUp
 				type='confirmation'
 				confirm={() => deleteReservation(reservation.id)}
@@ -88,7 +89,7 @@ const ReservationsList = ({
 			/>
 			<PopUp
 				type='schedule'
-				reservation={update ? reservation : null}
+				toUpdate={update ? reservation : null}
 				toggleModal={toggleReservation}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
@@ -96,7 +97,6 @@ const ReservationsList = ({
 						toggleReservation: !toggleReservation,
 					}))
 				}
-				key={this.state.timestamp}
 			/>
 			<h2 className='heading-primary'>Reservations</h2>
 
@@ -227,6 +227,7 @@ const ReservationsList = ({
 												</td>
 												<td>
 													<Link
+														onClick={clearUsers}
 														className='btn-link text-dark'
 														to={`/edit-user/${res.user.id}`}
 													>{`${res.user.name} ${res.user.lastname}`}</Link>
@@ -238,7 +239,7 @@ const ReservationsList = ({
 														onClick={() =>
 															setAdminValues((prev) => ({
 																...prev,
-																toggleReservation: !toggleDeleteConf,
+																toggleReservation: !toggleReservation,
 																reservation: res,
 																update: true,
 															}))
@@ -266,10 +267,8 @@ const ReservationsList = ({
 									</tbody>
 								</table>
 							</div>
-							<div className='reservations-list-total'>
-								<span className='reservations-list-total-title text-dark'>
-									Total:
-								</span>
+							<div className='list-total'>
+								<span className='list-total-title text-dark'>Total:</span>
 								&nbsp;
 								{reservations.length}
 							</div>
@@ -308,4 +307,5 @@ export default connect(mapStateToProps, {
 	loadReservations,
 	deleteReservation,
 	loadJobs,
+	clearUsers,
 })(ReservationsList);

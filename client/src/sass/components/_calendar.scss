@@ -112,6 +112,14 @@
 					color: lighten($color-gray-dark, 47%) !important;
 				}
 			}
+
+			&.used {
+				background-color: rgba($color-light-2, 0.73);
+			}
+
+			&.disabled {
+				background-color: rgba($color-dark-2, 0.73);
+			}
 		}
 	}
 
@@ -159,7 +167,7 @@
 		}
 
 		&--active {
-			background: $color-primary-light;
+			background: $color-primary-light !important;
 			color: $color-white !important;
 
 			&:enabled:hover,

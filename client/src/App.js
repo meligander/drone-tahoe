@@ -27,6 +27,8 @@ import Reservation from './components/pages/Reservation';
 
 import PrivateRoutes from './components/PrivateRoutes';
 import ReservationsList from './components/pages/ReservationsList';
+import JobsList from './components/pages/JobsList';
+import ManageSchedule from './components/pages/ManageSchedule';
 
 const App = () => {
 	useEffect(() => {
@@ -73,6 +75,18 @@ const App = () => {
 						exact
 						path='/reservations-list'
 						component={ReservationsList}
+						types={['admin']}
+					/>
+					<PrivateRoutes
+						exact
+						path='/jobs-list'
+						component={JobsList}
+						types={['admin']}
+					/>
+					<PrivateRoutes
+						exact
+						path='/schedule'
+						component={ManageSchedule}
 						types={['admin']}
 					/>
 				</Switch>

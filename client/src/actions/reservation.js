@@ -60,7 +60,12 @@ export const loadReservations = (filterData, bulkLoad) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		if (!bulkLoad) dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+		if (
+			!bulkLoad ||
+			(err.response.status === 401 &&
+				err.response.data.msg !== 'Unauthorized User')
+		)
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({
 			type: RESERVATIONS_ERROR,
 			payload: {

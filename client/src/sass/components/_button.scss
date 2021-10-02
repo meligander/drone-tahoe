@@ -102,6 +102,22 @@
 	&-right {
 		text-align: end;
 		margin-top: 2rem;
+
+		& > *:not(:last-child) {
+			margin-right: 3rem !important;
+		}
+	}
+
+	&-center {
+		display: flex;
+		margin-top: 2rem;
+		justify-content: space-evenly;
+		align-items: center;
+		width: 100%;
+
+		& > *:not(:last-child) {
+			margin-right: 3rem !important;
+		}
 	}
 
 	&-success {

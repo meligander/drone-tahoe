@@ -103,6 +103,7 @@ const Navbar = ({
 									className='nav-links'
 									onClick={() => {
 										closeMobileMenu();
+										clearReservations();
 										window.scrollTo(0, 0);
 									}}
 								>

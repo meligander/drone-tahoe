@@ -10,6 +10,7 @@ import {
 	JOBS_ERROR,
 	JOBS_CLEARED,
 	JOB_CLEARED,
+	JOB_DELETION_ERROR,
 } from './types';
 
 import { setAlert } from './alert';
@@ -61,7 +62,13 @@ export const loadJobs = (filterData, bulkLoad) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+		if (
+			err.response.status === 401 &&
+			err.response.data.msg !== 'Unauthorized User'
+		) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			window.scrollTo(0, 0);
+		}
 		dispatch({
 			type: JOBS_ERROR,
 			payload: {
@@ -70,7 +77,6 @@ export const loadJobs = (filterData, bulkLoad) => async (dispatch) => {
 				msg: err.response.data.msg,
 			},
 		});
-		window.scrollTo(0, 0);
 	}
 
 	if (!bulkLoad) dispatch(updateLoadingSpinner(false));
@@ -80,7 +86,7 @@ export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
 	try {
-		const res = await api.put(`/job/${job_id ? job_id : '0'}`, formData);
+		const res = await api.post(`/job/${job_id ? job_id : '0'}`, formData);
 
 		dispatch({
 			type: job_id ? JOB_UPDATED : JOB_REGISTERED,
@@ -95,14 +101,14 @@ export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;
 			errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '1'));
+				dispatch(setAlert(error.msg, 'danger', '2'));
 			});
 			dispatch({
 				type: JOBS_ERROR,
 				payload: errors,
 			});
 		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
 			dispatch({
 				type: JOBS_ERROR,
 				payload: {
@@ -132,7 +138,7 @@ export const deleteJob = (job_id) => async (dispatch) => {
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({
-			type: JOBS_ERROR,
+			type: JOB_DELETION_ERROR,
 			payload: {
 				type: err.response.statusText,
 				status: err.response.status,
@@ -140,7 +146,7 @@ export const deleteJob = (job_id) => async (dispatch) => {
 			},
 		});
 	}
-
+	window.scrollTo(0, 0);
 	dispatch(updateLoadingSpinner(false));
 };
 

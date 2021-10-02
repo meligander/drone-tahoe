@@ -5,6 +5,7 @@ import {
 	DAY_ENABLED,
 	DAYSAVAILABILITY_CLEARED,
 	DAYSAVAILABILITY_ERROR,
+	DAYS_DISABLED,
 } from '../actions/types';
 
 const initialState = {
@@ -12,6 +13,7 @@ const initialState = {
 	loadingDisabledDays: true,
 	availableHours: [],
 	disabledDays: [],
+	usedDays: [],
 	error: {},
 };
 
@@ -22,7 +24,8 @@ const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				loadingDisabledDays: false,
-				disabledDays: payload,
+				disabledDays: payload.disabledDays ? payload.disabledDays : payload,
+				...(payload.usedDays && { usedDays: payload.usedDays }),
 				error: {},
 			};
 		case DAYAVAILABILITY_LOADED:
@@ -44,8 +47,26 @@ const userReducer = (state = initialState, action) => {
 				error: payload,
 			};
 		case DAY_ENABLED:
+			const enabledDate = new Date(payload);
+			const disabledDays = state.disabledDays.filter((item) => {
+				const oldDate = new Date(item);
+
+				return oldDate.getTime() !== enabledDate.getTime();
+			});
+			return {
+				...state,
+				disabledDays,
+			};
 		case DAY_DISABLED:
-			return state;
+			return {
+				...state,
+				disabledDays: [...state.disabledDays, payload],
+			};
+		case DAYS_DISABLED:
+			return {
+				...state,
+				disabledDays: [...state.disabledDays, ...payload],
+			};
 		default:
 			return state;
 	}

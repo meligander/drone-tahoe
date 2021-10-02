@@ -15,8 +15,10 @@ const UserField = ({
 		searchDisplay: false,
 	});
 	useEffect(() => {
-		if (reservationUser && reservationUser.email)
-			setAdminValues((prev) => ({ ...prev, email: reservationUser.email }));
+		if (reservationUser) {
+			if (reservationUser.email)
+				setAdminValues((prev) => ({ ...prev, email: reservationUser.email }));
+		} else setAdminValues((prev) => ({ ...prev, email: '' }));
 	}, [reservationUser]);
 
 	const { email, searchDisplay } = adminValues;
@@ -32,7 +34,7 @@ const UserField = ({
 	};
 
 	const cancelUser = () => {
-		selectFinalUser(null);
+		selectFinalUser();
 		setAdminValues((prev) => ({
 			...prev,
 			email: '',

@@ -58,7 +58,12 @@ export const loadUsers = (filterData, search) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		if (!search) dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+		if (
+			!search ||
+			(err.response.status === 401 &&
+				err.response.data.msg !== 'Unauthorized User')
+		)
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({
 			type: USERS_ERROR,
 			payload: {

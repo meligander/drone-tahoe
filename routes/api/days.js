@@ -27,6 +27,8 @@ router.get('/:date/:job_id', async (req, res) => {
 			},
 		});
 
+		console.log(day);
+
 		if (!day) return res.json([[8, 17]]);
 
 		for (let x = 0; x < day.reservations.length; x++) {
@@ -39,7 +41,12 @@ router.get('/:date/:job_id', async (req, res) => {
 			moment(a.date, 'DD-MM-YYYY').diff(moment(b.date, 'DD-MM-YYYY'))
 		);
 
-		const job = await Job.findOne({ where: { id: req.params.job_id } });
+		const job =
+			req.params.job_id !== 'undefined'
+				? await Job.findOne({ where: { id: req.params.job_id } })
+				: {
+						time: 1,
+				  };
 
 		let finalArray = [];
 		let newArray = [];
@@ -52,22 +59,67 @@ router.get('/:date/:job_id', async (req, res) => {
 			newArray = [
 				x === 0
 					? 8
+					: reservations[x].jobId
+					? moment(reservations[x - 1].hourTo)
+							.utc()
+							.hour()
 					: moment(reservations[x - 1].hourTo)
 							.utc()
-							.hour(),
+							.hour() - 1,
 				moment(reservations[x].hourFrom).utc().hour(),
 			];
 
 			if (newArray[1] - newArray[0] > job.time) finalArray.push(newArray);
 
-			if (
-				x === reservations.length - 1 &&
-				17 - moment(reservations[x].hourTo).utc().hour() > job.time
-			)
-				finalArray.push([moment(reservations[x].hourTo).utc().hour(), 17]);
+			if (x === reservations.length - 1) {
+				const hourTo = moment(reservations[x].hourTo).utc().hour();
+
+				const validation = reservations[x].jobId
+					? 17 - hourTo > job.time
+					: 17 - hourTo >= job.time;
+
+				if (validation)
+					finalArray.push([reservations[x].jobId ? hourTo : hourTo - 1, 17]);
+			}
 		}
 
 		res.json(finalArray);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
+//@route    GET api/day/schedule/:month/:year
+//@desc     Get unavailability of a month
+//@access   Public
+router.get('/schedule/:month/:year', async (req, res) => {
+	try {
+		const monthDays = new Date(req.params.year, req.params.month, 0).getDate();
+
+		const month = req.params.month;
+		const year = req.params.year;
+
+		let usedDays = [];
+		let disabledDays = [];
+
+		const days = await Day.findAll({
+			where: {
+				date: {
+					[Op.between]: [
+						new Date(year, month, 1).setUTCHours(0, 0, 0),
+						new Date(year, month, monthDays).setUTCHours(23, 23, 59),
+					],
+				},
+			},
+		});
+
+		for (let x = 0; x < days.length; x++) {
+			if (!days[x].reservations) disabledDays.push(days[x].date);
+			else usedDays.push(days[x].date);
+		}
+
+		res.json({ disabledDays, usedDays });
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });
@@ -100,7 +152,7 @@ router.get('/:job_id/:month/:year', async (req, res) => {
 		const job = await Job.findOne({ where: { id: req.params.job_id } });
 
 		for (let x = 0; x < days.length; x++) {
-			let pass = true;
+			let pass = false;
 
 			if (days[x].reservations) {
 				for (let y = 0; y < days[x].reservations.length; y++) {
@@ -125,16 +177,17 @@ router.get('/:job_id/:month/:year', async (req, res) => {
 						moment(reservations[y].hourFrom).utc().hour(),
 					];
 
+					const validation = reservations[y].jobId
+						? 17 - moment(reservations[y].hourTo).utc().hour() > job.time
+						: 17 - moment(reservations[y].hourTo).utc().hour() >= job.time;
+
 					if (
 						newArray[1] - newArray[0] > job.time ||
-						(y === reservations.length - 1 &&
-							17 - moment(reservations[y].hourTo).utc().hour() > job.time)
+						(y === reservations.length - 1 && validation)
 					)
-						continue;
-
-					pass = false;
+						pass = true;
 				}
-			} else pass = false;
+			}
 
 			if (!pass) disabledDays.push(days[x].date);
 		}
@@ -179,6 +232,55 @@ router.post('/:date', [auth, adminAuth], async (req, res) => {
 		}
 
 		res.json({ msg: 'Date disabled' });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
+//@route    POST api/day/:date
+//@desc     Disable all dates in a date range
+//@access   Private && Admin
+router.post('/:dateFrom/:dateTo', [auth, adminAuth], async (req, res) => {
+	try {
+		let startDate = new Date(req.params.dateFrom);
+		let endDate = new Date(req.params.dateTo);
+
+		let disabledDays = [];
+
+		const days = await Day.findAll({
+			where: {
+				date: {
+					[Op.between]: [
+						startDate.setUTCHours(00, 00, 00),
+						endDate.setUTCHours(23, 59, 59),
+					],
+				},
+			},
+		});
+
+		if (days.length > 0) {
+			return res
+				.status(400)
+				.json({ msg: 'There are reservations on this date range' });
+		} else {
+			const day = 60 * 60 * 24 * 1000;
+			endDate.setUTCHours(0, 0, 0);
+			console.log(startDate, endDate);
+			while (startDate.getTime() <= endDate.getTime()) {
+				const newDay = {
+					date: startDate,
+					reservations: null,
+				};
+
+				disabledDays.push(startDate);
+
+				await Day.create(newDay);
+				startDate = new Date(startDate.getTime() + day);
+			}
+		}
+
+		res.json(disabledDays);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });

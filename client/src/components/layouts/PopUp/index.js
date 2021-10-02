@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import logo from '../../../img/logoDRONE-dark-cropped-final.png';
+import HourRangeForm from '../../HourRangeForm';
+import JobForm from '../../JobForm';
 import ReservationForm from '../../ReservationForm';
 
 import './PopUp.scss';
@@ -12,8 +14,12 @@ const PopUp = ({
 	text,
 	subtext,
 	type,
-	reservation,
+	toUpdate,
+	date,
 }) => {
+	const [instanceKey, setInstanceKey] = useState(0);
+	const handleReset = () => setInstanceKey((i) => i + 1);
+
 	const selectType = () => {
 		switch (type) {
 			case 'confirmation':
@@ -27,13 +33,28 @@ const PopUp = ({
 				return (
 					<div className='popup-schedule wrapper wrapper-popup'>
 						<ReservationForm
-							reservation={reservation}
+							reservation={toUpdate}
 							complete={setToggleModal}
+							key={instanceKey}
 						/>
 					</div>
 				);
 			case 'job':
-				return <div></div>;
+				return (
+					<div className='popup-job wrapper wrapper-popup'>
+						<h3 className='heading-primary-subheading'>
+							{toUpdate ? 'Update' : 'New'} Job
+						</h3>
+						<JobForm job={toUpdate} setToggleModal={setToggleModal} />
+					</div>
+				);
+			case 'hour':
+				return (
+					<div className='popup-hour wrapper wrapper-popup'>
+						<h3 className='heading-primary-subheading'>Disable Hour Range</h3>
+						<HourRangeForm date={date} setToggleModal={setToggleModal} />
+					</div>
+				);
 			default:
 				break;
 		}
@@ -48,6 +69,7 @@ const PopUp = ({
 						type='button'
 						onClick={() => {
 							setToggleModal();
+							if (type === 'schedule') handleReset();
 						}}
 						className='popup-heading-btn'
 					>
@@ -55,13 +77,11 @@ const PopUp = ({
 					</button>
 				</div>
 				{selectType()}
-				{type === 'confirm' && (
+				{type === 'confirmation' && (
 					<div className='popup-btns'>
 						<button
-							type='button'
 							className='btn btn-success'
-							onClick={(e) => {
-								e.preventDefault();
+							onClick={() => {
 								confirm();
 								setToggleModal();
 							}}

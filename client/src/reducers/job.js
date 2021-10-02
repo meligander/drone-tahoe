@@ -7,6 +7,7 @@ import {
 	JOBS_ERROR,
 	JOBS_CLEARED,
 	JOB_CLEARED,
+	JOB_DELETION_ERROR,
 } from '../actions/types';
 
 const initialState = {
@@ -74,6 +75,11 @@ const jobReducer = (state = initialState, action) => {
 				jobs: [],
 				loading: false,
 				loadingJob: false,
+				error: payload,
+			};
+		case JOB_DELETION_ERROR:
+			return {
+				...state,
 				error: payload,
 			};
 		default:

@@ -63,7 +63,7 @@ router.get('/', [auth], async (req, res) => {
 			}),
 		};
 
-		console.log(filter, 'holaaaaaaaaaa');
+		console.log(filter);
 
 		const reservations = await Reservation.findAll({
 			where: filter,
@@ -72,7 +72,7 @@ router.get('/', [auth], async (req, res) => {
 				{
 					model: User,
 					as: 'user',
-					where: {
+					where: req.query.type !== 'all' && {
 						type: {
 							[Op.not]: 'admin',
 						},

@@ -28,6 +28,12 @@ const ReservationForm = ({
 				job: reservation.job.id,
 				user: reservation.user,
 			}));
+		else
+			setAdminValues((prev) => ({
+				...prev,
+				job: '',
+				user: null,
+			}));
 	}, [reservation]);
 
 	const onChange = (e) => {
@@ -78,9 +84,9 @@ const ReservationForm = ({
 				{loggedUser.type === 'admin' && (
 					<UserField
 						selectFinalUser={(user) => {
-							setAdminValues({ job, user: user.id });
+							setAdminValues({ job, user: user ? user.id : null });
 						}}
-						reservationUser={user}
+						reservationUser={reservation ? user : null}
 					/>
 				)}
 				<div className='form__group'>
