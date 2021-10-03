@@ -132,9 +132,13 @@
 		color: #fff;
 
 		&-switch {
-			font-size: 1.5rem;
+			font-size: 1.4rem;
 			color: $color-dark-7;
 			margin-right: 2rem;
+
+			@media screen and (max-width: 650px) {
+				font-size: 1.3rem;
+			}
 		}
 	}
 

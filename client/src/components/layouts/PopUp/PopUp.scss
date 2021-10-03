@@ -65,8 +65,19 @@
 	&-hour {
 		padding: 2.5rem 2rem 0;
 
+		@media screen and (max-width: 400px) {
+			padding: 2.5rem 2rem 1.5rem;
+		}
+
 		.form {
 			width: 70%;
+
+			@media screen and (max-width: 650px) {
+				width: 80%;
+			}
+			@media screen and (max-width: 400px) {
+				width: 90%;
+			}
 
 			.popup-btns {
 				margin-top: 1rem;

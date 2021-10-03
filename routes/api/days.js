@@ -59,28 +59,19 @@ router.get('/:date/:job_id', async (req, res) => {
 			newArray = [
 				x === 0
 					? 8
-					: reservations[x].jobId
-					? moment(reservations[x - 1].hourTo)
-							.utc()
-							.hour()
 					: moment(reservations[x - 1].hourTo)
 							.utc()
-							.hour() - 1,
+							.hour(),
 				moment(reservations[x].hourFrom).utc().hour(),
 			];
 
 			if (newArray[1] - newArray[0] > job.time) finalArray.push(newArray);
 
-			if (x === reservations.length - 1) {
-				const hourTo = moment(reservations[x].hourTo).utc().hour();
-
-				const validation = reservations[x].jobId
-					? 17 - hourTo > job.time
-					: 17 - hourTo >= job.time;
-
-				if (validation)
-					finalArray.push([reservations[x].jobId ? hourTo : hourTo - 1, 17]);
-			}
+			if (
+				x === reservations.length - 1 &&
+				17 - moment(reservations[x].hourTo).utc().hour() > job.time
+			)
+				finalArray.push([moment(reservations[x].hourTo).utc().hour(), 17]);
 		}
 
 		res.json(finalArray);
@@ -177,13 +168,10 @@ router.get('/:job_id/:month/:year', async (req, res) => {
 						moment(reservations[y].hourFrom).utc().hour(),
 					];
 
-					const validation = reservations[y].jobId
-						? 17 - moment(reservations[y].hourTo).utc().hour() > job.time
-						: 17 - moment(reservations[y].hourTo).utc().hour() >= job.time;
-
 					if (
 						newArray[1] - newArray[0] > job.time ||
-						(y === reservations.length - 1 && validation)
+						(y === reservations.length - 1 &&
+							17 - moment(reservations[y].hourTo).utc().hour() > job.time)
 					)
 						pass = true;
 				}
@@ -267,15 +255,20 @@ router.post('/:dateFrom/:dateTo', [auth, adminAuth], async (req, res) => {
 			const day = 60 * 60 * 24 * 1000;
 			endDate.setUTCHours(0, 0, 0);
 			console.log(startDate, endDate);
+
 			while (startDate.getTime() <= endDate.getTime()) {
-				const newDay = {
-					date: startDate,
-					reservations: null,
-				};
+				console.log(startDate, startDate.getDay());
+				if (startDate.getDay() !== 6 && startDate.getDay() !== 5) {
+					const newDay = {
+						date: startDate,
+						reservations: null,
+					};
 
-				disabledDays.push(startDate);
+					disabledDays.push(startDate);
 
-				await Day.create(newDay);
+					await Day.create(newDay);
+				}
+
 				startDate = new Date(startDate.getTime() + day);
 			}
 		}

@@ -52,7 +52,11 @@ const PopUp = ({
 				return (
 					<div className='popup-hour wrapper wrapper-popup'>
 						<h3 className='heading-primary-subheading'>Disable Hour Range</h3>
-						<HourRangeForm date={date} setToggleModal={setToggleModal} />
+						<HourRangeForm
+							date={date}
+							setToggleModal={setToggleModal}
+							confirm={confirm}
+						/>
 					</div>
 				);
 			default:

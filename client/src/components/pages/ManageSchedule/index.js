@@ -11,7 +11,10 @@ import {
 	disableDateRange,
 	enableDate,
 } from '../../../actions/day';
-import { loadReservations } from '../../../actions/reservation';
+import {
+	loadReservations,
+	deleteReservation,
+} from '../../../actions/reservation';
 import { setAlert } from '../../../actions/alert';
 import { clearUsers } from '../../../actions/user';
 
@@ -27,6 +30,7 @@ const ManageSchedule = ({
 	checkMonthSchedule,
 	checkDayAvailability,
 	loadReservations,
+	deleteReservation,
 	disableDate,
 	enableDate,
 	setAlert,
@@ -83,7 +87,6 @@ const ManageSchedule = ({
 		let loadRes;
 
 		if (!range) {
-			console.log(changedDate);
 			changedDate.setHours(0, 0, 0, 0);
 
 			loadRes = usedDays.some((item) => {
@@ -140,6 +143,7 @@ const ManageSchedule = ({
 				return (
 					!loading && (
 						<>
+							<Alert type='1' />
 							<h5 className='manage-schedule-details-title'>
 								{reservations.every((item) => !item.jobId)
 									? 'Unavailable Time Ranges'
@@ -157,19 +161,36 @@ const ManageSchedule = ({
 										<div>
 											<Moment format='h a' utc date={item.hourFrom} />
 											&nbsp; - &nbsp;
-											<Moment format='h a' utc date={item.hourTo} />
+											<Moment
+												format='h a'
+												utc
+												date={
+													item.jobId
+														? item.hourTo
+														: moment(item.hourTo).add(1, 'hour')
+												}
+											/>
 										</div>
+										<Link
+											onClick={clearUsers}
+											className='btn-link'
+											to={`/edit-user/${item.user.id}`}
+										>{`${item.user.name} ${item.user.lastname}`}</Link>
 										{item.jobId ? (
-											<>
-												<Link
-													onClick={clearUsers}
-													className='btn-link'
-													to={`/edit-user/${item.user.id}`}
-												>{`${item.user.name} ${item.user.lastname}`}</Link>
-												<span className='tooltiptext'>{item.job.title}</span>
-											</>
+											<span className='tooltiptext'>{item.job.title}</span>
 										) : (
-											<button className='btn-icon'>
+											<button
+												className='btn-icon'
+												onClick={() => {
+													if (reservations.length === 1)
+														setAdminValues((prev) => ({ ...prev, tab: 2 }));
+
+													deleteReservation(
+														item.id,
+														moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+													);
+												}}
+											>
 												<i className='far fa-trash-alt'></i>
 											</button>
 										)}
@@ -245,7 +266,7 @@ const ManageSchedule = ({
 							<Moment date={date[0]} format='MM/DD/YYYY' /> -{' '}
 							<Moment date={date[1]} format='MM/DD/YYYY' />
 						</h5>
-						<div className='u-center-text'>
+						<div className='btn-center'>
 							<button
 								className='btn'
 								onClick={() => {
@@ -278,6 +299,7 @@ const ManageSchedule = ({
 				type='hour'
 				toggleModal={toggleModal}
 				date={date}
+				confirm={() => setAdminValues((prev) => ({ ...prev, tab: 1 }))}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,
@@ -344,4 +366,5 @@ export default connect(mapStateToProps, {
 	setAlert,
 	disableDateRange,
 	clearUsers,
+	deleteReservation,
 })(ManageSchedule);

@@ -151,6 +151,10 @@
 		&--now {
 			background: rgba($color-dark-6, 0.85) !important;
 
+			&:disabled {
+				color: $color-gray-light !important;
+			}
+
 			&:enabled:hover,
 			&:enabled:focus {
 				background: lighten($color-dark-6, 10%) !important;

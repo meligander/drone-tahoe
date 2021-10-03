@@ -6,6 +6,8 @@ import {
 	DAYSAVAILABILITY_CLEARED,
 	DAYSAVAILABILITY_ERROR,
 	DAYS_DISABLED,
+	ADD_USEDDAY,
+	DELETE_USEDDAY,
 } from '../actions/types';
 
 const initialState = {
@@ -61,6 +63,22 @@ const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				disabledDays: [...state.disabledDays, payload],
+			};
+		case DELETE_USEDDAY:
+			const toDelete = new Date(payload);
+			const usedDays = state.usedDays.filter((item) => {
+				const oldDate = new Date(item);
+
+				return oldDate.getTime() !== toDelete.getTime();
+			});
+			return {
+				...state,
+				usedDays,
+			};
+		case ADD_USEDDAY:
+			return {
+				...state,
+				usedDays: [...state.usedDays, payload],
 			};
 		case DAYS_DISABLED:
 			return {

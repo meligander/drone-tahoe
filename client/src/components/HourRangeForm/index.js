@@ -9,7 +9,9 @@ import Alert from '../layouts/Alert';
 const HourRangeForm = ({
 	registerReservation,
 	setToggleModal,
+	confirm,
 	auth: { loggedUser },
+	reservation: { reservations },
 	day: { availableHours, loadingAvailableHours },
 	date,
 }) => {
@@ -31,17 +33,26 @@ const HourRangeForm = ({
 		if (!loadingAvailableHours) {
 			let rangeFrom = [];
 
-			for (let x = 0; x < availableHours.length; x++) {
-				let start = availableHours[x][0];
+			let unavailableRange = reservations.filter((item) => !item.jobId);
 
-				while (start < availableHours[x][1]) {
-					rangeFrom.push(start);
-					start++;
+			unavailableRange = unavailableRange.map((item) => {
+				const date = new Date(item.hourTo);
+				return date.getUTCHours();
+			});
+
+			for (let x = 0; x < availableHours.length; x++) {
+				for (let y = availableHours[x][0]; y < availableHours[x][1]; y++) {
+					if (
+						unavailableRange.length === 0 ||
+						unavailableRange.some((item) => item !== y)
+					)
+						rangeFrom.push(y);
 				}
 			}
+
 			setAdminValues((prev) => ({ ...prev, rangeFrom }));
 		}
-	}, [loadingAvailableHours, availableHours]);
+	}, [loadingAvailableHours, availableHours, reservations]);
 
 	useEffect(() => {
 		setFormData({
@@ -63,7 +74,7 @@ const HourRangeForm = ({
 
 			start++;
 
-			while (start < availableHours[index][1]) {
+			while (start <= availableHours[index][1]) {
 				rangeTo.push(start);
 				start++;
 			}
@@ -73,16 +84,21 @@ const HourRangeForm = ({
 
 	const onSubmit = (e) => {
 		e.preventDefault();
-		registerReservation({
-			hourFrom: moment(date)
-				.set('hour', hourFrom)
-				.format('YYYY-MM-DD[T]HH[:00:00Z]'),
-			hourTo: moment(date)
-				.set('hour', hourTo)
-				.format('YYYY-MM-DD[T]HH[:00:00Z]'),
-			user: loggedUser.id,
-			value: 0,
-		});
+		registerReservation(
+			{
+				hourFrom: moment(date)
+					.set('hour', hourFrom)
+					.format('YYYY-MM-DD[T]HH[:00:00Z]'),
+				hourTo: moment(date)
+					.set('hour', hourTo - 1)
+					.format('YYYY-MM-DD[T]HH[:00:00Z]'),
+				user: loggedUser.id,
+				value: 0,
+			},
+			false,
+			reservations.length === 0 && moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+		);
+		confirm();
 		setToggleModal();
 	};
 
@@ -155,6 +171,7 @@ const HourRangeForm = ({
 const mapStateToProps = (state) => ({
 	auth: state.auth,
 	day: state.day,
+	reservation: state.reservation,
 });
 
 export default connect(mapStateToProps, { registerReservation })(HourRangeForm);
