@@ -17,6 +17,7 @@ import {
 import { setAlert } from './alert';
 import { updateLoadingSpinner } from './global';
 import { clearReservations } from './reservation';
+import { clearJobs } from './jobs';
 
 export const loadUser = (login) => async (dispatch) => {
 	try {
@@ -28,8 +29,9 @@ export const loadUser = (login) => async (dispatch) => {
 
 		if (login) {
 			if (res.data.type === 'admin') {
+				dispatch(clearReservations());
+				dispatch(clearJobs());
 				history.push('/reservations-list');
-				clearReservations();
 			} else history.push('/');
 		}
 	} catch (err) {

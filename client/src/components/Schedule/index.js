@@ -12,10 +12,12 @@ import {
 	updateReservation,
 	registerReservation,
 } from '../../actions/reservation';
+import { setAlert } from '../../actions/alert';
 
 import Alert from '../layouts/Alert';
 import PopUp from '../layouts/PopUp';
 import './Schedule.scss';
+import PayPal from '../PayPal';
 
 const Schedule = ({
 	job,
@@ -28,18 +30,18 @@ const Schedule = ({
 	updateReservation,
 	registerReservation,
 	userId,
+	setAlert,
 }) => {
 	const today = moment().add(1, 'day');
 
 	const [formData, setFormData] = useState({
 		hourFrom: '',
 		hourTo: '',
-		value: job.price,
-		job: job.id,
-		user: userId ? userId.id : loggedUser.type !== 'admin' ? loggedUser.id : '',
+		user: '',
+		paymentId: '',
 	});
 
-	const { hourFrom, hourTo, value } = formData;
+	const { hourFrom, hourTo, user } = formData;
 
 	const [adminValues, setAdminValues] = useState({
 		date: new Date(),
@@ -47,17 +49,22 @@ const Schedule = ({
 		toggleModal: false,
 		month: today.month(),
 		year: today.year(),
+		checkOut: false,
 	});
 
-	const { date, tab, toggleModal, month, year } = adminValues;
+	const { date, tab, toggleModal, month, year, checkOut } = adminValues;
 
 	useEffect(() => {
 		checkMonthAvailability(job.id, month, year);
 	}, [checkMonthAvailability, job.id, month, year]);
 
 	useEffect(() => {
-		if (!reservation) setFormData((prev) => ({ ...prev, user: userId }));
-	}, [userId, reservation]);
+		if (!reservation)
+			setFormData((prev) => ({
+				...prev,
+				user: userId ? userId : loggedUser.id,
+			}));
+	}, [userId, reservation, loggedUser]);
 
 	const onChangeDate = (changedDate) => {
 		setAdminValues((prev) => ({
@@ -178,14 +185,9 @@ const Schedule = ({
 										toggleModal: !toggleModal,
 									}));
 								} else {
-									registerReservation({
-										...formData,
-										hourFrom: moment(hourFrom).format(
-											'YYYY-MM-DD[T]HH[:00:00Z]'
-										),
-										hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
-									});
-									complete();
+									if (user)
+										setAdminValues((prev) => ({ ...prev, checkOut: true }));
+									else setAlert("User's email is required", 'danger', '2');
 								}
 							}}
 						>
@@ -202,15 +204,58 @@ const Schedule = ({
 							{!reservation && (
 								<p className='schedule-details-info'>
 									<span className='schedule-details-subtitle'>Price:</span> $
-									{value}
+									{job.price}
 								</p>
 							)}
 
-							<div className='u-center-text'>
-								<button type='submit' className='btn btn-primary'>
-									{reservation ? 'Update' : 'Reserve Now!'}
-								</button>
-							</div>
+							{checkOut ? (
+								<div className='schedule-details-payment'>
+									{loggedUser.type === 'admin' && (
+										<>
+											<button
+												className='btn'
+												onClick={() => {
+													registerReservation({
+														...formData,
+														hourFrom: moment(hourFrom).format(
+															'YYYY-MM-DD[T]HH[:00:00Z]'
+														),
+														hourTo: moment(hourTo).format(
+															'YYYY-MM-DD[T]HH[:00:00Z]'
+														),
+													});
+													complete();
+												}}
+											>
+												Pay Cash
+											</button>
+											<h3 className='heading-primary-subheading'>OR</h3>
+										</>
+									)}
+									<PayPal
+										reservation={{
+											...formData,
+											job,
+											hourFrom: moment(hourFrom).format(
+												'YYYY-MM-DD[T]HH[:00:00Z]'
+											),
+											hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
+										}}
+										registerReservation={registerReservation}
+										complete={complete}
+									/>
+								</div>
+							) : (
+								<div className='u-center-text'>
+									<button type='submit' className='btn btn-primary'>
+										{reservation
+											? 'Update'
+											: loggedUser.type === 'admin'
+											? 'Payment'
+											: 'Reserve Now!'}
+									</button>
+								</div>
+							)}
 						</form>
 					</>
 				);
@@ -275,4 +320,5 @@ export default connect(mapStateToProps, {
 	checkMonthAvailability,
 	updateReservation,
 	registerReservation,
+	setAlert,
 })(Schedule);

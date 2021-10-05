@@ -63,7 +63,7 @@
 			font-weight: 300;
 		}
 
-		.btn {
+		.btn.btn-primary {
 			margin-top: 1.5rem;
 		}
 
@@ -86,6 +86,22 @@
 			&:hover {
 				background-color: lighten($color-dark-7, 15%);
 				transform: scale(1.05);
+			}
+		}
+
+		&-payment {
+			margin: 3rem auto 0;
+			padding: 1rem 1rem 0;
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+
+			border-radius: 0.4rem;
+			transform: scale(1.2);
+			background-color: lighten($color-dark-8, 63%);
+
+			& > :first-child {
+				margin-bottom: 1rem;
 			}
 		}
 	}

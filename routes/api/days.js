@@ -27,8 +27,6 @@ router.get('/:date/:job_id', async (req, res) => {
 			},
 		});
 
-		console.log(day);
-
 		if (!day) return res.json([[8, 17]]);
 
 		for (let x = 0; x < day.reservations.length; x++) {
@@ -254,10 +252,8 @@ router.post('/:dateFrom/:dateTo', [auth, adminAuth], async (req, res) => {
 		} else {
 			const day = 60 * 60 * 24 * 1000;
 			endDate.setUTCHours(0, 0, 0);
-			console.log(startDate, endDate);
 
 			while (startDate.getTime() <= endDate.getTime()) {
-				console.log(startDate, startDate.getDay());
 				if (startDate.getDay() !== 6 && startDate.getDay() !== 5) {
 					const newDay = {
 						date: startDate,

@@ -7,6 +7,8 @@ import {
 	RESERVATIONS_ERROR,
 	RESERVATION_CLEARED,
 	RESERVATIONS_CLEARED,
+	PAYMENT_ERROR,
+	RESERVATION_CANCELED,
 } from '../actions/types';
 
 const initialState = {
@@ -41,6 +43,7 @@ const reservationReducer = (state = initialState, action) => {
 				reservations: [...state.reservations, payload],
 				error: {},
 			};
+		case RESERVATION_CANCELED:
 		case RESERVATION_UPDATED:
 			return {
 				...state,
@@ -75,6 +78,11 @@ const reservationReducer = (state = initialState, action) => {
 				reservations: [],
 				loadingReservation: false,
 				loading: false,
+				error: payload,
+			};
+		case PAYMENT_ERROR:
+			return {
+				...state,
 				error: payload,
 			};
 		default:

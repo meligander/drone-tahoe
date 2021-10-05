@@ -37,7 +37,7 @@ const sendEmail = (user_email, subject, text) => {
 	});
 };
 
-const sentToCompany = (message) => {
+const sentToCompany = (subject, message) => {
 	const transporter = nodemailer.createTransport({
 		service: 'gmail',
 		host: 'smtp.gmail.com',
@@ -52,7 +52,7 @@ const sentToCompany = (message) => {
 
 	const mailOptions = {
 		to: process.env.EMAIL,
-		subject: 'Contact Form Message',
+		subject,
 		message,
 		html: `<div>${message}</div>${stamp}`,
 	};

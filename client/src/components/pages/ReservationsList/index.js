@@ -6,6 +6,7 @@ import Moment from 'react-moment';
 import {
 	loadReservations,
 	deleteReservation,
+	updateStatus,
 } from '../../../actions/reservation';
 import { loadJobs } from '../../../actions/jobs';
 import { clearUsers } from '../../../actions/user';
@@ -22,6 +23,7 @@ const ReservationsList = ({
 	job: { jobs },
 	reservation: { reservations, error, loading },
 	clearUsers,
+	updateStatus,
 }) => {
 	const [formData, setFormData] = useState({
 		hourFrom: '',
@@ -52,8 +54,9 @@ const ReservationsList = ({
 		if (loading) {
 			loadJobs({}, true);
 			loadReservations({ hourFrom: new Date() }, true);
+			updateStatus();
 		}
-	}, [loading, loadReservations, loadJobs]);
+	}, [loading, loadReservations, loadJobs, updateStatus]);
 
 	const onChange = (e) => {
 		setFormData((prev) => ({
@@ -86,6 +89,11 @@ const ReservationsList = ({
 				}
 				toggleModal={toggleDeleteConf}
 				text='Are you sure you want to delete the reservation?'
+				subtext={
+					reservation &&
+					reservation.paymentId !== '' &&
+					'A paypal refund should be made before deleting it.'
+				}
 			/>
 			<PopUp
 				type='schedule'
@@ -201,7 +209,7 @@ const ReservationsList = ({
 					{reservations.length > 0 ? (
 						<div>
 							<div className='wrapper'>
-								<table className='stick icon-6'>
+								<table className='stick icon-7'>
 									<thead>
 										<tr>
 											<th>Date</th>
@@ -209,6 +217,7 @@ const ReservationsList = ({
 											<th>To</th>
 											<th>User</th>
 											<th>Job</th>
+											<th>Status</th>
 											<th></th>
 											<th></th>
 										</tr>
@@ -233,6 +242,10 @@ const ReservationsList = ({
 													>{`${res.user.name} ${res.user.lastname}`}</Link>
 												</td>
 												<td>{res.job.title}</td>
+												<td>
+													{res.status.charAt(0).toUpperCase() +
+														res.status.slice(1)}
+												</td>
 												<td>
 													<button
 														className='btn-icon'
@@ -308,4 +321,5 @@ export default connect(mapStateToProps, {
 	deleteReservation,
 	loadJobs,
 	clearUsers,
+	updateStatus,
 })(ReservationsList);

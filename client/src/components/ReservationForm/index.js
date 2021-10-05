@@ -81,7 +81,8 @@ const ReservationForm = ({
 						)}
 					</>
 				)}
-				{loggedUser.type === 'admin' && (
+
+				{loggedUser && loggedUser.type === 'admin' && (
 					<UserField
 						selectFinalUser={(user) => {
 							setAdminValues({ job, user: user ? user.id : null });
@@ -118,18 +119,35 @@ const ReservationForm = ({
 							))}
 					</select>
 				</div>
+				{reservation && loggedUser && loggedUser.type === 'admin' && (
+					<>
+						<p className='reservation-form-item'>
+							<span className='reservation-form-title'>Payment method:</span>{' '}
+							{reservation.paymentId !== '' ? 'Paypal' : 'Cash'}
+						</p>
+						{reservation.paymentId !== '' && (
+							<p className='reservation-form-item'>
+								<span className='reservation-form-title'>PayPal ID:</span>{' '}
+								{reservation.paymentId}
+							</p>
+						)}
+					</>
+				)}
 			</div>
-			{job !== '' && (
-				<Schedule
-					job={jobs[jobs.findIndex((item) => item.id === Number(job))]}
-					complete={() => {
-						restart();
-						complete();
-					}}
-					reservation={reservation}
-					userId={loggedUser.type === 'admin' ? user : null}
-				/>
-			)}
+
+			{job !== '' &&
+				((reservation && reservation.status !== 'canceled') ||
+					!reservation) && (
+					<Schedule
+						job={jobs[jobs.findIndex((item) => item.id === Number(job))]}
+						complete={() => {
+							restart();
+							complete();
+						}}
+						reservation={reservation}
+						userId={loggedUser.type === 'admin' ? user : null}
+					/>
+				)}
 		</div>
 	);
 };

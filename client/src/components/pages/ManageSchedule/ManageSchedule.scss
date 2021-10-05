@@ -45,6 +45,15 @@
 			margin-top: 2rem;
 		}
 
+		.fas,
+		.far {
+			font-size: 1.4rem;
+		}
+
+		.btn-quaternary .fas {
+			font-size: 1.2rem;
+		}
+
 		&-title {
 			font-weight: 400;
 			color: $color-dark-7;

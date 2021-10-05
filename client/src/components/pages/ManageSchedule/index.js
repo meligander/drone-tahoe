@@ -210,7 +210,7 @@ const ManageSchedule = ({
 										);
 									}}
 								>
-									<i className='fas fa-plus'></i> &nbsp; Hour Range
+									<i className='fas fa-ban'></i> &nbsp; Hour Range
 								</button>
 							</div>
 						</>
@@ -231,31 +231,41 @@ const ManageSchedule = ({
 							<Moment date={date} format='MM/DD/YYYY' />
 						</h5>
 						<div className='btn-center'>
-							<button
-								className='btn'
-								onClick={() => {
-									if (disable)
-										enableDate(moment(date).format('YYYY-MM-DD[T00:00:00Z]'));
-									else
-										disableDate(moment(date).format('YYYY-MM-DD[T00:00:00Z]'));
-								}}
-							>
-								{disable ? 'Enable Date' : 'Disable Date'}
-							</button>
-							<button
-								className='btn'
-								onClick={() => {
-									setAdminValues((prev) => ({
-										...prev,
-										toggleModal: !toggleModal,
-									}));
-									checkDayAvailability(
-										moment(date).format('YYYY-MM-DD[T00:00:00Z]')
-									);
-								}}
-							>
-								<i className='fas fa-plus'></i> &nbsp; Hour Range
-							</button>
+							{disable ? (
+								<button
+									className='btn'
+									onClick={() =>
+										enableDate(moment(date).format('YYYY-MM-DD[T00:00:00Z]'))
+									}
+								>
+									<i className='far fa-check-circle'></i> &nbsp; Date
+								</button>
+							) : (
+								<>
+									<button
+										className='btn'
+										onClick={() =>
+											disableDate(moment(date).format('YYYY-MM-DD[T00:00:00Z]'))
+										}
+									>
+										<i className='fas fa-ban'></i> &nbsp; Date
+									</button>
+									<button
+										className='btn'
+										onClick={() => {
+											setAdminValues((prev) => ({
+												...prev,
+												toggleModal: !toggleModal,
+											}));
+											checkDayAvailability(
+												moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+											);
+										}}
+									>
+										<i className='fas fa-ban'></i> &nbsp; Hour Range
+									</button>
+								</>
+							)}
 						</div>
 					</>
 				);
@@ -283,7 +293,7 @@ const ManageSchedule = ({
 									);
 								}}
 							>
-								Disable Date Range
+								<i className='fas fa-ban'></i> &nbsp; Date Range
 							</button>
 						</div>
 					</>

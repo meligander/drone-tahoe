@@ -27,7 +27,7 @@
 	&-card {
 		display: flex;
 		width: 80vw;
-		background-color: lighten($color-dark-8, 5%);
+		background-color: lighten($color-gray-light, 15%);
 		border-radius: 0.5rem;
 		position: relative;
 		overflow: hidden;
@@ -70,7 +70,7 @@
 			font-size: 1.1rem;
 			margin-top: 1.5rem;
 			color: #fff /* darken($color-primary-dark, 10%) */;
-			font-weight: 200;
+			font-weight: 400;
 
 			&:nth-child(3) {
 				margin-top: 0.5rem;

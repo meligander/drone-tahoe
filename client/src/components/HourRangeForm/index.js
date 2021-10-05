@@ -93,7 +93,6 @@ const HourRangeForm = ({
 					.set('hour', hourTo - 1)
 					.format('YYYY-MM-DD[T]HH[:00:00Z]'),
 				user: loggedUser.id,
-				value: 0,
 			},
 			false,
 			reservations.length === 0 && moment(date).format('YYYY-MM-DD[T00:00:00Z]')

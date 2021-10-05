@@ -150,10 +150,7 @@
 
 		&--now {
 			background: rgba($color-dark-6, 0.85) !important;
-
-			&:disabled {
-				color: $color-gray-light !important;
-			}
+			color: $color-white;
 
 			&:enabled:hover,
 			&:enabled:focus {

@@ -10,5 +10,6 @@ module.exports = (sequelize, type) => {
 		hourTo: { type: type.DATE, allowNull: false },
 		paymentId: type.STRING,
 		value: { type: type.FLOAT, allowNull: false },
+		status: { type: type.STRING, allowNull: false },
 	});
 };
