@@ -64,7 +64,7 @@ const HourRangeForm = ({
 	const onChange = (e) => {
 		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
 
-		if (e.target.id === 'hourFrom') {
+		if (e.target.id === 'hourFrom' && e.target.value !== '') {
 			let rangeTo = [];
 
 			let start = e.target.value;
@@ -107,11 +107,8 @@ const HourRangeForm = ({
 			<div className='form__group'>
 				<div className='form__group-sub'>
 					<div className='form__group-sub-item'>
-						<label htmlFor='hourFrom' className='form__label'>
-							From
-						</label>
 						<select
-							className='form__input'
+							className={`form__input ${hourFrom === '' ? 'empty' : ''}`}
 							id='hourFrom'
 							value={hourFrom}
 							onChange={onChange}
@@ -126,13 +123,16 @@ const HourRangeForm = ({
 									</option>
 								))}
 						</select>
+						<label
+							htmlFor='hourFrom'
+							className={`form__label ${hourFrom === '' ? 'hide' : ''}`}
+						>
+							Start
+						</label>
 					</div>
 					<div className='form__group-sub-item'>
-						<label htmlFor='hourTo' className='form__label'>
-							To
-						</label>
 						<select
-							className='form__input'
+							className={`form__input ${hourTo === '' ? 'empty' : ''}`}
 							id='hourTo'
 							value={hourTo}
 							onChange={onChange}
@@ -147,6 +147,12 @@ const HourRangeForm = ({
 								</option>
 							))}
 						</select>
+						<label
+							htmlFor='hourTo'
+							className={`form__label ${hourTo === '' ? 'hide' : ''}`}
+						>
+							End
+						</label>
 					</div>
 				</div>
 			</div>

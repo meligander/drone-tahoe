@@ -62,7 +62,11 @@ const Schedule = ({
 		if (!reservation)
 			setFormData((prev) => ({
 				...prev,
-				user: userId ? userId : loggedUser.id,
+				user: userId
+					? userId
+					: loggedUser.type !== 'admin'
+					? loggedUser.id
+					: null,
 			}));
 	}, [userId, reservation, loggedUser]);
 
@@ -213,10 +217,11 @@ const Schedule = ({
 									{loggedUser.type === 'admin' && (
 										<>
 											<button
-												className='btn'
+												className='btn btn-quaternary'
 												onClick={() => {
 													registerReservation({
 														...formData,
+														job,
 														hourFrom: moment(hourFrom).format(
 															'YYYY-MM-DD[T]HH[:00:00Z]'
 														),

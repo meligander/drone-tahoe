@@ -1,28 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
+
+import { sendEmail } from '../../../actions/auth';
+
+import Alert from '../../layouts/Alert';
 
 import './Booking.scss';
 
-const Booking = () => {
-	// var status = document.getElementById("status");
-	// var confirmation = document.getElementById("confirmation");
+const Booking = ({ sendEmail, auth: { loggedUser } }) => {
+	const [formData, setFormData] = useState({
+		name: '',
+		lastname: '',
+		phone: '',
+		email: '',
+		company: '',
+		experience: '',
+		message: '',
+	});
 
-	// function displayConfirmation(res) {
-	//   status.style.visibility = "visible";
-	//   confirmation.style.visibility = "visible";
-	// status.classList.add("status");
-	// status.innerHTML = "Thanks! Your message has been submitted.";
-	// }
-	// function heightCheck() {
-	//   var box = document.getElementById("section-booking");
-	//   var section = document.getElementById("booking");
-	//   var boxHeight = box.clientHeight;
-	//   console.log(boxHeight);
-	//   // section.style.height = boxHeight +
-	// }
+	const { name, lastname, phone, email, company, experience, message } =
+		formData;
 
-	// heightCheck();
+	const onChange = (e) => {
+		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+	};
 
-	useEffect(() => {
+	/* useEffect(() => {
 		var form = document.getElementById('form');
 
 		async function handleSubmit(event) {
@@ -31,19 +34,7 @@ const Booking = () => {
 			var confirmation = document.getElementById('confirmation');
 			var error1 = document.getElementById('error');
 
-			// function displayConfirmation(res) {
-			//   status.style.visibility = "visible";
-			//   confirmation.style.visibility = "visible";
-			//   // status.classList.add("status");
-			//   // status.innerHTML = "Thanks! Your message has been submitted.";
-			// }
-			// function removeConfirmation(res) {
-			//   status.style.visibility = "hidden";
-			//   confirmation.style.visibility = "hidden";
-			//   // status.classList.add("status");
-			//   // status.innerHTML = "Thanks! Your message has been submitted.";
-			// }
-			var data = new FormData(event.target);
+			var data = new FormData(formData);
 			fetch(event.target.action, {
 				method: form.method,
 				body: data,
@@ -51,7 +42,7 @@ const Booking = () => {
 					Accept: 'application/json',
 				},
 			})
-				.then((response) => {
+				.then(() => {
 					form.reset();
 					status.style.display = 'block';
 					confirmation.style.display = 'block';
@@ -60,7 +51,7 @@ const Booking = () => {
 						confirmation.style.display = 'none';
 					}, 3000);
 				})
-				.catch((error) => {
+				.catch(() => {
 					error1.style.display = 'block';
 					confirmation.style.display = 'block';
 					setTimeout(function () {
@@ -70,7 +61,20 @@ const Booking = () => {
 				});
 		}
 		form.addEventListener('submit', handleSubmit);
-	}, []);
+	}, []); */
+
+	const onSubmit = (e) => {
+		e.preventDefault();
+		sendEmail({
+			...formData,
+			...(loggedUser && {
+				name: loggedUser.name,
+				lastname: loggedUser.lastname,
+				phone: loggedUser.cel,
+				email: loggedUser.email,
+			}),
+		});
+	};
 
 	return (
 		<div className='booking' id='booking'>
@@ -79,8 +83,9 @@ const Booking = () => {
 					<div className='book'>
 						<div className='book__form'>
 							<form
-								action='https://formspree.io/f/mzbydvqa'
-								method='POST'
+								onSubmit={onSubmit}
+								/* action='https://formspree.io/f/mzbydvqa'
+								method='POST' */
 								className='form'
 								id='form'
 							>
@@ -91,71 +96,87 @@ const Booking = () => {
 										it from there.
 									</h3>
 								</div>
-								<div className='form__group'>
-									<div className='form__group-sub'>
-										<div className='form__group-sub-item'>
-											<input
-												type='text'
-												className='form__input'
-												name='fname'
-												placeholder='First Name'
-												id='fname'
-												required
-											/>
-											<label htmlFor='nafme' className='form__label'>
-												First Name
-											</label>
+								<Alert type='1' />
+								{!loggedUser && (
+									<>
+										<div className='form__group'>
+											<div className='form__group-sub'>
+												<div className='form__group-sub-item'>
+													<input
+														type='text'
+														className='form__input'
+														value={name}
+														onChange={onChange}
+														name='name'
+														placeholder='First Name'
+														id='name'
+														required
+													/>
+													<label htmlFor='nafme' className='form__label'>
+														First Name
+													</label>
+												</div>
+												<div className='form__group-sub-item'>
+													<input
+														type='text'
+														className='form__input'
+														name='lastname'
+														value={lastname}
+														onChange={onChange}
+														placeholder='Last Name'
+														id='lastname'
+														required
+													/>
+													<label htmlFor='lastname' className='form__label'>
+														Last Name
+													</label>
+												</div>
+											</div>
 										</div>
-										<div className='form__group-sub-item'>
-											<input
-												type='text'
-												className='form__input'
-												name='lname'
-												placeholder='Last Name'
-												id='lname'
-												required
-											/>
-											<label htmlFor='lname' className='form__label'>
-												Last Name
-											</label>
+										<div className='form__group'>
+											<div className='form__group-sub'>
+												<div className='form__group-sub-item'>
+													<input
+														type='text'
+														className='form__input'
+														name='phone'
+														value={phone}
+														onChange={onChange}
+														placeholder='Phone'
+														id='phone'
+														required
+													/>
+													<label htmlFor='phone' className='form__label'>
+														Phone
+													</label>
+												</div>
+												<div className='form__group-sub-item'>
+													<input
+														type='email'
+														className='form__input'
+														name='email'
+														placeholder='Email Address'
+														value={email}
+														onChange={onChange}
+														id='email'
+														required
+													/>
+													<label htmlFor='email' className='form__label'>
+														Email Address
+													</label>
+												</div>
+											</div>
 										</div>
-									</div>
-								</div>
-								<div className='form__group'>
-									<div className='form__group-sub'>
-										<div className='form__group-sub-item'>
-											<input
-												type='text'
-												className='form__input'
-												name='phone'
-												placeholder='Phone'
-												id='phone'
-												required
-											/>
-											<label htmlFor='phone' className='form__label'>
-												Phone
-											</label>
-										</div>
-										<div className='form__group-sub-item'>
-											<input
-												type='email'
-												className='form__input'
-												name='email'
-												placeholder='Email Address'
-												id='email'
-												required
-											/>
-											<label htmlFor='email' className='form__label'>
-												Email Address
-											</label>
-										</div>
-									</div>
-								</div>
+									</>
+								)}
+
 								<div className='form__group'>
 									<input
 										type='text'
 										className='form__input'
 										name='company'
+										value={company}
+										onChange={onChange}
 										placeholder='Company Name'
 										id='company'
 									/>
@@ -163,12 +184,20 @@ const Booking = () => {
 										Company Name
 									</label>
 								</div>
-								<div className='form__group'>
+								<div style={{ width: '100%' }}>
 									<label htmlFor='experience' className='form__label'>
 										What's Your Experience With Drones?
 									</label>
-
-									<select id='experience' name='experience'>
+									<select
+										id='experience'
+										className={`form__input space ${
+											experience === '' ? 'empty' : ''
+										}`}
+										value={experience}
+										onChange={onChange}
+										name='experience'
+									>
+										<option value=''>* Select your Experience</option>
 										<option value='Own Drones'>Own Drones</option>
 										<option value='Use Third Party Drone Services'>
 											Use Third Party Drone Services
@@ -184,6 +213,8 @@ const Booking = () => {
 								<div className='form__group'>
 									<textarea
 										type='text'
+										value={message}
+										onChange={onChange}
 										className='form__input'
 										name='message'
 										placeholder='Tell us About Your Project'
@@ -195,21 +226,27 @@ const Booking = () => {
 								</div>
 
 								<div className='form__group'>
-									<button className='btn btn-secondary'>Submit &rarr;</button>
+									<button type='submit' className='btn btn-secondary'>
+										Submit &rarr;
+									</button>
 								</div>
 							</form>
 						</div>
 					</div>
 				</div>
 			</section>
-			<div id='confirmation'>
+			{/* <div id='confirmation'>
 				<div id='status'>Thanks! Your message has been submitted.</div>
 				<div id='error'>
 					Sorry! There was a problem with your message. Please try again.
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 };
 
-export default Booking;
+const mapStateToProps = (state) => ({
+	auth: state.auth,
+});
+
+export default connect(mapStateToProps, { sendEmail })(Booking);

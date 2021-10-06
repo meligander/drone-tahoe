@@ -42,23 +42,27 @@ const EditUser = ({
 	useEffect(() => {
 		let userLoaded;
 
-		if (id) {
-			if (loadingUser) loadUser(id);
-			else userLoaded = user;
-		} else if (!loading) userLoaded = loggedUser;
+		if (
+			(!userLoaded && adminType !== 'signup' && email === '') ||
+			(adminType === 'profile' && email !== loggedUser.email)
+		) {
+			if (id) {
+				if (loadingUser) loadUser(id);
+				else userLoaded = user;
+			} else userLoaded = loggedUser;
 
-		if (userLoaded) {
-			setFormData((prev) => ({
-				...prev,
-				name: userLoaded.name,
-				lastname: userLoaded.lastname,
-				type: userLoaded.type,
-				email: userLoaded.email,
-				...(userLoaded.homeTown && { homeTown: userLoaded.homeTown }),
-				cel: userLoaded.cel === '0' ? '' : userLoaded.cel,
-			}));
+			if (userLoaded)
+				setFormData((prev) => ({
+					...prev,
+					name: userLoaded.name,
+					lastname: userLoaded.lastname,
+					type: userLoaded.type,
+					email: userLoaded.email,
+					...(userLoaded.homeTown && { homeTown: userLoaded.homeTown }),
+					cel: userLoaded.cel === '0' ? '' : userLoaded.cel,
+				}));
 		}
-	}, [loading, loggedUser, loadingUser, user, id, loadUser]);
+	}, [loggedUser, loadingUser, user, id, loadUser, email, adminType]);
 
 	const onChange = (e) => {
 		setFormData((prev) => ({
@@ -79,22 +83,40 @@ const EditUser = ({
 			);
 	};
 
+	const title = () => {
+		switch (adminType) {
+			case 'profile':
+				return (
+					<>
+						<i className='fas fa-user-alt'></i>
+						&nbsp;My Profile
+					</>
+				);
+			case 'signup':
+				return (
+					<>
+						<i className='fas fa-user-plus'></i>
+						&nbsp;New account
+					</>
+				);
+			case 'edit-user':
+				return (
+					<>
+						<i className='fas fa-user-alt'></i>
+						&nbsp;Edit User
+					</>
+				);
+			default:
+				break;
+		}
+	};
+
 	return (
 		(!isAuthenticated || !loading) && (
 			<div className='user'>
 				<h2 className='heading-primary'>
 					{/* <FaUserPlus className="heading-icon" /> */}
-					{adminType === 'profile' ? (
-						<>
-							<i className='fas fa-user-alt'></i>
-							&nbsp;My Profile
-						</>
-					) : (
-						<>
-							<i className='fas fa-user-plus'></i>
-							&nbsp;New account
-						</>
-					)}
+					{title()}
 				</h2>
 				{!emailSent ? (
 					<>
@@ -106,13 +128,13 @@ const EditUser = ({
 										<input
 											type='text'
 											className='form__input'
-											placeholder='First Name'
+											placeholder='Name'
 											id='name'
 											onChange={onChange}
 											value={name}
 										/>
 										<label htmlFor='name' className='form__label'>
-											First Name
+											Name
 										</label>
 									</div>
 									<div className='form__group-sub-item'>
@@ -136,7 +158,7 @@ const EditUser = ({
 									type='text'
 									value={email}
 									id='email'
-									disabled={adminType === 'profile' && !isAdmin}
+									disabled={adminType !== 'signup'}
 									onChange={onChange}
 									placeholder='Email'
 								/>
@@ -146,11 +168,8 @@ const EditUser = ({
 							</div>
 							{isAdmin && (
 								<div className='form__group'>
-									<label htmlFor='type' className='form__label'>
-										User Type
-									</label>
 									<select
-										className='form__input'
+										className={`form__input ${type === '' ? 'empty' : ''}`}
 										name='type'
 										id='type'
 										value={type}
@@ -160,6 +179,12 @@ const EditUser = ({
 										<option value='admin'>Admin</option>
 										<option value='customer'>Customer</option>
 									</select>
+									<label
+										htmlFor='type'
+										className={`form__label ${type === '' ? 'hide' : ''}`}
+									>
+										User Type
+									</label>
 								</div>
 							)}
 							{adminType === 'signup' && (

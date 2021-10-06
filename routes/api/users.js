@@ -28,7 +28,7 @@ router.get('/', [auth, adminAuth], async (req, res) => {
 			});
 		} else {
 			let filter = {
-				type: !req.query.type ? { $ne: 'customer' } : req.query.type,
+				...(req.query.type && { type: req.query.type }),
 				...(req.query.name && {
 					name: { [Op.like]: sequelize.literal("'%" + req.query.name + "%'") },
 				}),
@@ -43,6 +43,8 @@ router.get('/', [auth, adminAuth], async (req, res) => {
 					},
 				}),
 			};
+
+			console.log(filter, req.query.type);
 
 			users = await User.findAll({
 				where: filter,
@@ -141,8 +143,11 @@ router.put(
 				salt = await bcrypt.genSalt(10);
 			}
 
-			if (!regex2.test(cel))
-				errors.push({ msg: 'Invalid cellphone', param: 'cel' });
+			if (cel !== '' && !regex2.test(cel))
+				errors.push({
+					msg: 'Invalid cellphone e.g: (123) 456-7890',
+					param: 'cel',
+				});
 
 			if (errors.length > 0) return res.status(400).json({ errors });
 
@@ -158,8 +163,6 @@ router.put(
 				}),
 			};
 
-			console.log(req.params.id, data);
-
 			if (req.params.id === '0') {
 				user = await User.create(data);
 				user.password = undefined;
@@ -174,57 +177,6 @@ router.put(
 				});
 			}
 
-			res.json(user);
-		} catch (err) {
-			console.error(err.message);
-			return res.status(500).json({ msg: 'Server Error' });
-		}
-	}
-);
-
-//@route    PUT /api/user
-//@desc     Register or Update same user
-//@access   Private
-router.put(
-	'/:id',
-	[
-		auth,
-		check('name', 'Name is required').not().isEmpty(),
-		check('lastname', 'Lastame is required').not().isEmpty(),
-		check('cel', 'Cellphone is required').not().isEmpty(),
-	],
-	async (req, res) => {
-		const { name, lastname, cel, homeTown } = req.body;
-
-		let user;
-
-		let errors = [];
-		const errorsResult = validationResult(req);
-		if (!errorsResult.isEmpty()) errors = errorsResult.array();
-
-		const regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-
-		try {
-			if (!regex.test(cel))
-				errors.push({ msg: 'Invalid cellphone', param: 'cel' });
-
-			if (errors.length > 0) return res.status(400).json({ errors });
-
-			let data = {
-				name,
-				lastname,
-				cel,
-				...(homeTown && homeTown),
-			};
-
-			await User.update(data, {
-				where: { id: req.user.id },
-			});
-
-			user = await User.findOne({
-				where: { id: req.user.id },
-				attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-			});
 			res.json(user);
 		} catch (err) {
 			console.error(err.message);

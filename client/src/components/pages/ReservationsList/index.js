@@ -38,9 +38,10 @@ const ReservationsList = ({
 		showFilter: false,
 		reservation: null,
 		update: false,
+		searchDisplay: false,
 	});
 
-	const { hourFrom, hourTo, user, job } = formData;
+	const { hourFrom, hourTo, job } = formData;
 
 	const {
 		toggleDeleteConf,
@@ -48,6 +49,7 @@ const ReservationsList = ({
 		showFilter,
 		reservation,
 		update,
+		searchDisplay,
 	} = adminValues;
 
 	useEffect(() => {
@@ -167,18 +169,18 @@ const ReservationsList = ({
 					</div>
 
 					<UserField
-						selectFinalUser={(user) =>
-							setFormData((prev) => ({ ...prev, user: user.id }))
+						selectFinalUser={(user) => {
+							setFormData((prev) => ({ ...prev, user: user ? user.id : '' }));
+							setAdminValues((prev) => ({ ...prev, searchDisplay: false }));
+						}}
+						searchDisplay={searchDisplay}
+						switchDisplay={(show) =>
+							setAdminValues((prev) => ({ ...prev, searchDisplay: show }))
 						}
-						userId={user}
 					/>
 					<div className='form__group'>
-						<label htmlFor='job' className='form__label'>
-							Select the Type of Job:
-						</label>
-
 						<select
-							className='form__input'
+							className={`form__input ${job === '' ? 'empty' : ''}`}
 							id='job'
 							value={job}
 							onChange={onChange}
@@ -197,6 +199,12 @@ const ReservationsList = ({
 									</option>
 								))}
 						</select>
+						<label
+							htmlFor='job'
+							className={`form__label ${job === '' ? 'hide' : ''}`}
+						>
+							Type of Job
+						</label>
 					</div>
 
 					<button type='submit' className='btn btn-tertiary'>

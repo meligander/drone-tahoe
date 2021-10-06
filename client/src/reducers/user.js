@@ -37,7 +37,9 @@ const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				loading: false,
-				users: [...state.users, payload],
+				users: state.users.map((user) =>
+					user.id === payload.id ? payload : user
+				),
 				error: {},
 			};
 		case USER_DELETED:

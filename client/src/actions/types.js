@@ -9,7 +9,7 @@ export const LOGOUT = 'LOGOUT';
 export const AUTH_ERROR = 'AUTH_ERROR';
 export const SIGNUP_FAIL = 'SIGNUP_FAIL';
 export const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
-export const EMAILAUTH_SENT = 'EMAILAUTH_SENT';
+export const EMAIL_SENT = 'EMAIL_SENT';
 export const EMAIL_ERROR = 'EMAIL_ERROR';
 export const PASSWORD_CHANGED = 'PASSWORD_CHANGED';
 

@@ -256,13 +256,15 @@ router.put('/payment/update', [auth], async (req, res) => {
 		for (let x = 0; x < reservations.length; x++) {
 			const orderID = reservations[x].paymentId;
 
-			const request = new paypal.orders.OrdersGetRequest(orderID);
+			if (orderID) {
+				const request = new paypal.orders.OrdersGetRequest(orderID);
 
-			let order = await paypalClient.execute(request);
+				let order = await paypalClient.execute(request);
 
-			if (order.result.status === 'COMPLETED') {
-				reservations[x].status = 'completed';
-				await reservations[x].save();
+				if (order.result.status === 'COMPLETED') {
+					reservations[x].status = 'completed';
+					await reservations[x].save();
+				}
 			}
 		}
 

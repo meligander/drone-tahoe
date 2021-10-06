@@ -11,6 +11,7 @@ import {
 	sendPasswordLink,
 } from '../../../actions/auth';
 import { setAlert } from '../../../actions/alert';
+import { updateLoadingSpinner } from '../../../actions/global';
 
 import Alert from '../../layouts/Alert';
 import Loading from '../../layouts/Loading';
@@ -18,12 +19,12 @@ import Loading from '../../layouts/Loading';
 import './Login.scss';
 
 const Login = ({
-	auth: { error },
 	facebookLogin,
 	googleLogin,
 	loginUser,
 	setAlert,
 	sendPasswordLink,
+	updateLoadingSpinner,
 }) => {
 	const [formData, setFormData] = useState({
 		email: '',
@@ -60,6 +61,7 @@ const Login = ({
 
 	const responseErrorGoogle = (err) => {
 		console.log(err.error);
+		updateLoadingSpinner(false);
 		setAlert('Error login in', 'danger', '2');
 	};
 
@@ -185,12 +187,14 @@ const Login = ({
 											clientId={process.env.REACT_APP_GOOGLE_KEY}
 											buttonText='Login'
 											className='btn-google'
+											onRequest={() => updateLoadingSpinner(true)}
 											onSuccess={responseSuccessGoogle}
 											onFailure={responseErrorGoogle}
 											cookiePolicy={'single_host_origin'}
 										/>
 										<span className='btn-facebook'>
 											<FacebookLogin
+												onClick={() => updateLoadingSpinner(true)}
 												appId={process.env.REACT_APP_FACEBOOK_KEY}
 												autoLoad={false}
 												textButton={<i className='fab fa-facebook-f'></i>}
@@ -223,4 +227,5 @@ export default connect(mapStateToProps, {
 	loginUser,
 	setAlert,
 	sendPasswordLink,
+	updateLoadingSpinner,
 })(Login);

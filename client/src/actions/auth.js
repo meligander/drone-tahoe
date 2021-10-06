@@ -6,7 +6,7 @@ import {
 	LOGIN_FAIL,
 	LOGIN_SUCCESS,
 	LOGOUT,
-	EMAILAUTH_SENT,
+	EMAIL_SENT,
 	USERAUTH_LOADED,
 	SIGNUP_FAIL,
 	SIGNUP_SUCCESS,
@@ -33,6 +33,8 @@ export const loadUser = (login) => async (dispatch) => {
 				dispatch(clearJobs());
 				history.push('/reservations-list');
 			} else history.push('/');
+
+			dispatch(updateLoadingSpinner(false));
 		}
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
@@ -79,14 +81,12 @@ export const loginUser = (formData) => async (dispatch) => {
 				},
 			});
 		}
+		dispatch(updateLoadingSpinner(false));
 	}
 	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
 };
 
 export const facebookLogin = (fbkData) => async (dispatch) => {
-	dispatch(updateLoadingSpinner(true));
-
 	try {
 		const res = await api.post('/auth/facebooklogin', fbkData);
 
@@ -108,14 +108,11 @@ export const facebookLogin = (fbkData) => async (dispatch) => {
 		});
 
 		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
 	}
-
-	dispatch(updateLoadingSpinner(false));
 };
 
 export const googleLogin = (googleData) => async (dispatch) => {
-	dispatch(updateLoadingSpinner(true));
-
 	try {
 		const res = await api.post('/auth/googlelogin', googleData);
 
@@ -137,9 +134,8 @@ export const googleLogin = (googleData) => async (dispatch) => {
 		});
 
 		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
 	}
-
-	dispatch(updateLoadingSpinner(false));
 };
 
 export const signup = (formData) => async (dispatch) => {
@@ -151,7 +147,7 @@ export const signup = (formData) => async (dispatch) => {
 		await api.post('/auth/signup', formData);
 
 		dispatch({
-			type: EMAILAUTH_SENT,
+			type: EMAIL_SENT,
 		});
 	} catch (err) {
 		if (err.response.data.errors) {
@@ -188,7 +184,7 @@ export const sendPasswordLink = (email) => async (dispatch) => {
 		const res = await api.put('/auth/password', { email });
 
 		dispatch({
-			type: EMAILAUTH_SENT,
+			type: EMAIL_SENT,
 		});
 
 		dispatch(setAlert(res.data.msg, 'success', '1'));
@@ -297,10 +293,12 @@ export const sendEmail = (formData) => async (dispatch) => {
 		await api.post('/auth/send-email', formData);
 
 		dispatch({
-			type: EMAILAUTH_SENT,
+			type: EMAIL_SENT,
 		});
 
-		dispatch(setAlert('Email Sent', 'success', '1'));
+		dispatch(
+			setAlert('Thanks! Your message has been submitted.', 'success', '1')
+		);
 	} catch (err) {
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;
@@ -312,7 +310,13 @@ export const sendEmail = (formData) => async (dispatch) => {
 				payload: errors,
 			});
 		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(
+				setAlert(
+					'Sorry! There was a problem with your message. Please try again.',
+					'danger',
+					'1'
+				)
+			);
 			dispatch({
 				type: EMAIL_ERROR,
 				payload: {

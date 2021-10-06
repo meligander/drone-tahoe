@@ -108,7 +108,7 @@ const JobForm = ({ registerUpdateJob, job, setToggleModal }) => {
 			<div className='form__group'>
 				<textarea
 					type='text'
-					className='form__input'
+					className='form__input textarea'
 					value={poptext}
 					rows='3'
 					onChange={onChange}

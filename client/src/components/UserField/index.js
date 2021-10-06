@@ -7,12 +7,13 @@ const UserField = ({
 	user: { users, loading },
 	selectFinalUser,
 	reservationUser,
+	searchDisplay,
+	switchDisplay,
 	clearUsers,
 	loadUsers,
 }) => {
 	const [adminValues, setAdminValues] = useState({
 		email: '',
-		searchDisplay: false,
 	});
 	useEffect(() => {
 		if (reservationUser) {
@@ -21,13 +22,12 @@ const UserField = ({
 		} else setAdminValues((prev) => ({ ...prev, email: '' }));
 	}, [reservationUser]);
 
-	const { email, searchDisplay } = adminValues;
+	const { email } = adminValues;
 
 	const selectUser = (user) => {
 		setAdminValues((prev) => ({
 			...prev,
 			email: user.email,
-			searchDisplay: false,
 		}));
 		selectFinalUser(user);
 		clearUsers();
@@ -38,7 +38,6 @@ const UserField = ({
 		setAdminValues((prev) => ({
 			...prev,
 			email: '',
-			searchDisplay: false,
 		}));
 	};
 
@@ -52,12 +51,7 @@ const UserField = ({
 				name='email'
 				id='email'
 				autoComplete='off'
-				onFocus={() =>
-					setAdminValues((prev) => ({
-						...prev,
-						searchDisplay: true,
-					}))
-				}
+				onFocus={() => switchDisplay(true)}
 				onChange={(e) => {
 					setAdminValues((prev) => ({
 						...prev,

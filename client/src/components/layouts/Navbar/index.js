@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { logOut } from '../../../actions/auth';
 import { clearReservations } from '../../../actions/reservation';
 import { clearJobs } from '../../../actions/jobs';
+import { clearUsers } from '../../../actions/user';
 
 import './Navbar.scss';
 
@@ -12,6 +13,7 @@ const Navbar = ({
 	logOut,
 	clearReservations,
 	clearJobs,
+	clearUsers,
 	auth: { loggedUser, loading },
 }) => {
 	const [click, setClick] = useState(false);
@@ -48,6 +50,7 @@ const Navbar = ({
 								to='/profile'
 								onClick={() => {
 									closeMobileMenu();
+									clearUsers();
 									window.scrollTo(0, 0);
 								}}
 								className='btn-link'
@@ -58,18 +61,6 @@ const Navbar = ({
 					)}
 					{!loading && loggedUser && loggedUser.type === 'admin' ? (
 						<>
-							{/* <li className='nav-item'>
-								<Link
-									to='/dashboard'
-									className='nav-links'
-									onClick={() => {
-										closeMobileMenu();
-										window.scrollTo(0, 0);
-									}}
-								>
-									Home
-								</Link>
-							</li> */}
 							<li className='nav-item'>
 								<Link
 									to='/reservations-list'
@@ -86,19 +77,6 @@ const Navbar = ({
 							</li>
 							<li className='nav-item'>
 								<Link
-									to='/jobs-list'
-									className='nav-links'
-									onClick={() => {
-										closeMobileMenu();
-										clearJobs();
-										window.scrollTo(0, 0);
-									}}
-								>
-									Jobs
-								</Link>
-							</li>
-							<li className='nav-item'>
-								<Link
 									to='/schedule'
 									className='nav-links'
 									onClick={() => {
@@ -108,6 +86,32 @@ const Navbar = ({
 									}}
 								>
 									Schedule
+								</Link>
+							</li>
+							<li className='nav-item'>
+								<Link
+									to='/users-list'
+									className='nav-links'
+									onClick={() => {
+										closeMobileMenu();
+										clearUsers();
+										window.scrollTo(0, 0);
+									}}
+								>
+									Users
+								</Link>
+							</li>
+							<li className='nav-item'>
+								<Link
+									to='/jobs-list'
+									className='nav-links'
+									onClick={() => {
+										closeMobileMenu();
+										clearJobs();
+										window.scrollTo(0, 0);
+									}}
+								>
+									Jobs
 								</Link>
 							</li>
 						</>
@@ -196,7 +200,10 @@ const Navbar = ({
 				<div className='nav-salute'>
 					<Link
 						to='/profile'
-						onClick={() => window.scrollTo(0, 0)}
+						onClick={() => {
+							window.scrollTo(0, 0);
+							clearUsers();
+						}}
 						className='btn-link'
 					>
 						Hi {loggedUser.name}!
@@ -229,4 +236,5 @@ export default connect(mapStateToProps, {
 	logOut,
 	clearReservations,
 	clearJobs,
+	clearUsers,
 })(Navbar);

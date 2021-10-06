@@ -100,7 +100,7 @@
 			transform: scale(1.2);
 			background-color: lighten($color-dark-8, 63%);
 
-			& > :first-child {
+			& > :first-child:not(:last-child) {
 				margin-bottom: 1rem;
 			}
 		}

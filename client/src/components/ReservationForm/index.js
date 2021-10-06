@@ -17,9 +17,10 @@ const ReservationForm = ({
 	const [adminValues, setAdminValues] = useState({
 		job: jobId ? Number(jobId) : '',
 		user: null,
+		searchDisplay: false,
 	});
 
-	const { job, user } = adminValues;
+	const { job, user, searchDisplay } = adminValues;
 
 	useEffect(() => {
 		if (reservation)
@@ -88,17 +89,15 @@ const ReservationForm = ({
 							setAdminValues({ job, user: user ? user.id : null });
 						}}
 						reservationUser={reservation ? user : null}
+						searchDisplay={searchDisplay}
+						switchDisplay={(show) =>
+							setAdminValues((prev) => ({ ...prev, searchDisplay: show }))
+						}
 					/>
 				)}
 				<div className='form__group'>
-					{!reservation && (
-						<label htmlFor='job' className='form__label'>
-							Select the Type of Job for the New Reservation:
-						</label>
-					)}
-
 					<select
-						className='form__input'
+						className={`form__input ${job === '' ? 'empty' : ''}`}
 						id='job'
 						value={job}
 						disabled={reservation}
@@ -118,6 +117,12 @@ const ReservationForm = ({
 								</option>
 							))}
 					</select>
+					<label
+						htmlFor='job'
+						className={`form__label ${job === '' ? 'hide' : ''}`}
+					>
+						Type of Job
+					</label>
 				</div>
 				{reservation && loggedUser && loggedUser.type === 'admin' && (
 					<>

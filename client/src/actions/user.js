@@ -14,6 +14,7 @@ import {
 
 import { setAlert } from './alert';
 import { updateLoadingSpinner } from './global';
+import { clearReservations } from './reservation';
 
 export const loadUser = (user_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
@@ -95,7 +96,10 @@ export const updateUser = (formData, user_id, self) => async (dispatch) => {
 				'1'
 			)
 		);
-		if (!self) history.push('/users-list');
+		if (!self) {
+			dispatch(clearReservations());
+			history.goBack();
+		}
 	} catch (err) {
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;

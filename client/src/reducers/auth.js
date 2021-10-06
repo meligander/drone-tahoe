@@ -5,7 +5,7 @@ import {
 	LOGIN_SUCCESS,
 	LOGOUT,
 	SIGNUP_FAIL,
-	EMAILAUTH_SENT,
+	EMAIL_SENT,
 	SIGNUP_SUCCESS,
 	PASSWORD_CHANGED,
 	EMAIL_ERROR,
@@ -73,7 +73,7 @@ const authReducer = (state = initialState, action) => {
 				isAuthenticated: false,
 				loggedUser: null,
 			};
-		case EMAILAUTH_SENT:
+		case EMAIL_SENT:
 			return {
 				...state,
 				emailSent: true,

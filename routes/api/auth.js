@@ -104,13 +104,16 @@ router.post(
 		const regex3 =
 			/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
-		if (!regex1.test(email))
+		if (email !== '' && !regex1.test(email))
 			errors.push({ msg: 'Invalid email', param: 'email' });
 
-		if (!regex3.test(cel))
-			errors.push({ msg: 'Invalid cellphone', param: 'cel' });
+		if (cel !== '' && !regex3.test(cel))
+			errors.push({
+				msg: 'Invalid cellphone e.g: (123) 456-7890',
+				param: 'cel',
+			});
 
-		if (passwordConf !== '' && password !== passwordConf)
+		if (passwordConf !== '' && password !== '' && password !== passwordConf)
 			errors.push({
 				msg: "Passwords don't match",
 				param: 'passwordConf',
@@ -124,7 +127,7 @@ router.post(
 
 		try {
 			//See if users exists
-			user = await User.findOne({ where: { email } });
+			const user = await User.findOne({ where: { email } });
 
 			if (user) errors.push({ msg: 'User already exists', param: 'email' });
 
@@ -311,12 +314,14 @@ router.post('/googlelogin', async (req, res) => {
 router.post(
 	'/send-email',
 	[
-		check('name', 'Name is required').not().isEmpty(),
+		check('name', 'First Name is required').not().isEmpty(),
+		check('lastname', 'Last Name is required').not().isEmpty(),
 		check('email', 'Email is required').not().isEmpty(),
 		check('message', 'Message is required').not().isEmpty(),
 	],
 	async (req, res) => {
-		const { name, email, message } = req.body;
+		const { name, lastname, phone, email, company, experience, message } =
+			req.body;
 
 		let errors = [];
 		const errorsResult = validationResult(req);
@@ -331,9 +336,14 @@ router.post(
 
 		try {
 			sentToCompany(
+				'"Contact us" message',
 				`Name: ${name} <br/>
-             Email: ${email} <br/>
-             Message: <br/>${message}`
+				Lastname: ${lastname} <br/>
+				Phone: ${phone} <br/>
+				Email: ${email} <br/>
+				Company: ${company} <br/>
+				Experience: ${experience} <br/>
+             	Message: <br/>${message}`
 			);
 
 			res.json({ msg: 'Email Sent' });
