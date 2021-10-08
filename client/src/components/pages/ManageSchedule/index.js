@@ -114,12 +114,18 @@ const ManageSchedule = ({
 			return info.view === 'month' &&
 				usedDays.some((item) => {
 					const pastDate = new Date(item);
-					return pastDate.getUTCDate() === info.date.getDate();
+					return (
+						pastDate.getUTCDate() === info.date.getDate() &&
+						pastDate.getUTCMonth() === info.date.getMonth()
+					);
 				})
 				? 'used'
 				: disabledDays.some((item) => {
 						const pastDate = new Date(item);
-						return pastDate.getUTCDate() === info.date.getDate();
+						return (
+							pastDate.getUTCDate() === info.date.getDate() &&
+							pastDate.getUTCMonth() === info.date.getMonth()
+						);
 				  }) && 'disabled';
 		},
 		[disabledDays, usedDays]

@@ -14,10 +14,10 @@ const { Day, Job, Reservation } = require('../../config/db');
 //@access   Public
 router.get('/schedule/:month/:year', async (req, res) => {
 	try {
-		const monthDays = new Date(req.params.year, req.params.month, 0).getDate();
+		const month = Number(req.params.month);
+		const year = Number(req.params.year);
 
-		const month = req.params.month;
-		const year = req.params.year;
+		const monthDays = new Date(year, month + 1, 0).getDate();
 
 		let usedDays = [];
 		let disabledDays = [];
@@ -129,10 +129,10 @@ router.get('/:date/:job_id/:reservation_id', async (req, res) => {
 //@access   Public
 router.get('/:job_id/:month/:year/:reservation_id', async (req, res) => {
 	try {
-		const monthDays = new Date(req.params.year, req.params.month, 0).getDate();
+		const month = Number(req.params.month);
+		const year = Number(req.params.year);
 
-		const month = req.params.month;
-		const year = req.params.year;
+		const monthDays = new Date(year, month + 1, 0).getDate();
 
 		let disabledDays = [];
 

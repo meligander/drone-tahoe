@@ -142,11 +142,10 @@ const ReservationsList = ({
 					{users.length > 0 ? (
 						<div>
 							<div className='wrapper'>
-								<table className='stick icon-6'>
+								<table className='stick icon-5'>
 									<thead>
 										<tr>
 											<th>Name</th>
-											<th>Last Name</th>
 											<th>Email</th>
 											<th>Type</th>
 											<th>Cellphone</th>
@@ -156,8 +155,9 @@ const ReservationsList = ({
 									<tbody>
 										{users.map((user) => (
 											<tr key={user.id}>
-												<td>{user.name}</td>
-												<td>{user.lastname}</td>
+												<td>
+													{user.name} {user.lastname}
+												</td>
 												<td>{user.email}</td>
 												<td>
 													{user.type.charAt(0).toUpperCase() +
