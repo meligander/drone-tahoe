@@ -30,14 +30,20 @@ const sendEmail = (user_email, subject, text) => {
 		html: `<div>${text}</div>${stamp}`,
 	};
 
-	transporter.sendMail(mailOptions, function (error, info) {
-		if (error) {
-			console.error(error.message);
-		} else console.log(info.response);
+	return new Promise((resolve, reject) => {
+		transporter.sendMail(mailOptions, (error, info) => {
+			if (error) {
+				console.error(error.message);
+				reject('Something went wrong...');
+			} else {
+				console.log('Email sent: ' + info.response);
+				resolve(true);
+			}
+		});
 	});
 };
 
-const sentToCompany = (subject, message) => {
+const sendToCompany = (subject, message) => {
 	const transporter = nodemailer.createTransport({
 		service: 'gmail',
 		host: 'smtp.gmail.com',
@@ -57,11 +63,17 @@ const sentToCompany = (subject, message) => {
 		html: `<div>${message}</div>${stamp}`,
 	};
 
-	transporter.sendMail(mailOptions, function (error, info) {
-		if (error) {
-			console.error(error.message);
-		} else console.log(info.response);
+	return new Promise((resolve, reject) => {
+		transporter.sendMail(mailOptions, (error, info) => {
+			if (error) {
+				console.error(error.message);
+				reject('Something went wrong...');
+			} else {
+				console.log('Email sent: ' + info.response);
+				resolve(true);
+			}
+		});
 	});
 };
 
-module.exports = { sendEmail, sentToCompany };
+module.exports = { sendEmail, sendToCompany };

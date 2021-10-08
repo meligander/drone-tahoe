@@ -54,9 +54,9 @@ const ReservationsList = ({
 
 	useEffect(() => {
 		if (loading) {
+			updateStatus();
 			loadJobs({}, true);
 			loadReservations({ hourFrom: new Date() }, true);
-			updateStatus();
 		}
 	}, [loading, loadReservations, loadJobs, updateStatus]);
 

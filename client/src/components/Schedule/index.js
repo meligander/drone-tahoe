@@ -55,8 +55,13 @@ const Schedule = ({
 	const { date, tab, toggleModal, month, year, checkOut } = adminValues;
 
 	useEffect(() => {
-		checkMonthAvailability(job.id, month, year);
-	}, [checkMonthAvailability, job.id, month, year]);
+		checkMonthAvailability(
+			job.id,
+			month,
+			year,
+			reservation ? reservation.id : 0
+		);
+	}, [checkMonthAvailability, job.id, month, year, reservation]);
 
 	useEffect(() => {
 		if (!reservation)
@@ -78,7 +83,8 @@ const Schedule = ({
 		}));
 		checkDayAvailability(
 			moment(changedDate).format('YYYY-MM-DD[T00:00:00Z]'),
-			job.id
+			job.id,
+			reservation ? reservation.id : 0
 		);
 	};
 

@@ -62,6 +62,7 @@ const ReservationForm = ({
 						<p className='heading-primary-subheading-update'>
 							<Moment
 								date={reservation.hourFrom}
+								utc
 								className='date'
 								format='MM-DD-YY'
 							/>{' '}

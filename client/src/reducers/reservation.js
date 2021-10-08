@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
 	RESERVATION_LOADED,
 	RESERVATIONS_LOADED,
@@ -37,10 +38,14 @@ const reservationReducer = (state = initialState, action) => {
 				error: {},
 			};
 		case RESERVATION_REGISTERED:
+			let reservations = [...state.reservations, payload];
+			reservations = reservations.sort((a, b) =>
+				moment(a.hourFrom).diff(moment(b.hourFrom))
+			);
 			return {
 				...state,
 				loading: false,
-				reservations: [...state.reservations, payload],
+				reservations,
 				error: {},
 			};
 		case RESERVATION_CANCELED:

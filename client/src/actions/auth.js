@@ -290,15 +290,13 @@ export const sendEmail = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
 	try {
-		await api.post('/auth/send-email', formData);
+		const res = await api.post('/auth/send-email', formData);
 
 		dispatch({
 			type: EMAIL_SENT,
 		});
 
-		dispatch(
-			setAlert('Thanks! Your message has been submitted.', 'success', '1')
-		);
+		dispatch(setAlert(res.data.msg, 'success', '1'));
 	} catch (err) {
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;
@@ -310,13 +308,7 @@ export const sendEmail = (formData) => async (dispatch) => {
 				payload: errors,
 			});
 		} else {
-			dispatch(
-				setAlert(
-					'Sorry! There was a problem with your message. Please try again.',
-					'danger',
-					'1'
-				)
-			);
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 			dispatch({
 				type: EMAIL_ERROR,
 				payload: {

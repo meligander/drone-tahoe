@@ -13,36 +13,39 @@ import {
 import { setAlert } from './alert';
 import { updateLoadingSpinner } from './global';
 
-export const checkDayAvailability = (date, job_id) => async (dispatch) => {
-	dispatch(updateLoadingSpinner(true));
-	try {
-		const res = await api.get(`/day/${date}/${job_id}`);
-		dispatch({
-			type: DAYAVAILABILITY_LOADED,
-			payload: res.data,
-		});
-	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: DAYSAVAILABILITY_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
-		window.scrollTo(0, 0);
-	}
+export const checkDayAvailability =
+	(date, job_id, reservation_id) => async (dispatch) => {
+		dispatch(updateLoadingSpinner(true));
+		try {
+			const res = await api.get(`/day/${date}/${job_id}/${reservation_id}`);
+			dispatch({
+				type: DAYAVAILABILITY_LOADED,
+				payload: res.data,
+			});
+		} catch (err) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch({
+				type: DAYSAVAILABILITY_ERROR,
+				payload: {
+					type: err.response.statusText,
+					status: err.response.status,
+					msg: err.response.data.msg,
+				},
+			});
+			window.scrollTo(0, 0);
+		}
 
-	dispatch(updateLoadingSpinner(false));
-};
+		dispatch(updateLoadingSpinner(false));
+	};
 
 export const checkMonthAvailability =
-	(job_id, month, year) => async (dispatch) => {
+	(job_id, month, year, reservation_id) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
 
 		try {
-			const res = await api.get(`/day/${job_id}/${month}/${year}`);
+			const res = await api.get(
+				`/day/${job_id}/${month}/${year}/${reservation_id}`
+			);
 
 			dispatch({
 				type: MONTHAVAILABILITY_LOADED,

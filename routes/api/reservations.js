@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { check, validationResult } = require('express-validator');
+const moment = require('moment');
 const Op = require('sequelize').Op;
 const path = require('path');
 
@@ -21,7 +22,7 @@ const paypalClient = new paypal.core.PayPalHttpClient(
 );
 
 //Email
-const { sentToCompany } = require('../../config/emailSender');
+const { sendToCompany } = require('../../config/emailSender');
 
 //Middleware
 const auth = require('../../middleware/auth');
@@ -147,7 +148,7 @@ router.post(
 			jobId: job && job.id,
 			value: job ? job.price : 0,
 			paymentId,
-			status: paymentId === '' ? 'completed' : 'processing',
+			status: paymentId && paymentId !== '' ? 'pending' : 'completed',
 		};
 
 		try {
@@ -250,7 +251,7 @@ router.get('/payment/:reservation_id', [auth], async (req, res) => {
 router.put('/payment/update', [auth], async (req, res) => {
 	try {
 		let reservations = await Reservation.findAll({
-			where: { status: 'processing' },
+			where: { status: 'pending' },
 		});
 
 		for (let x = 0; x < reservations.length; x++) {
@@ -291,11 +292,8 @@ router.put('/:reservation_id', [auth], async (req, res) => {
 		});
 		await removeResFromDay(reservation);
 
-		reservation = {
-			...reservation,
-			hourFrom: new Date(hourFrom),
-			hourTo: new Date(hourTo),
-		};
+		reservation.hourFrom = new Date(hourFrom);
+		reservation.hourTo = new Date(hourTo);
 
 		reservation.save();
 
@@ -321,25 +319,33 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 			],
 		});
 
-		reservation.status = 'canceled';
+		if (reservation.paymentId !== '') {
+			reservation.status = 'canceled';
 
-		reservation.save();
+			reservation.save();
 
-		const hourFrom = moment(reservation.hourFrom);
-		const hourTo = moment(reservation.hourTo);
+			const hourFrom = moment(reservation.hourFrom);
+			const hourTo = moment(reservation.hourTo);
 
-		sentToCompany(
-			'Refund',
-			`The user ${reservation.user.name} ${reservation.user.lastname}, email ${
-				reservation.user.email
-			}, has requested a refund for the Paypal payment, ID ${
-				reservation.paymentId
-			}, for the reservation on the ${hourFrom
-				.utc()
-				.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
-				.utc()
-				.format('h a')}`
-		);
+			await sendToCompany(
+				'Refund',
+				`The user ${reservation.user.name} ${
+					reservation.user.lastname
+				}, email ${
+					reservation.user.email
+				}, has requested a refund for the Paypal payment, ID ${
+					reservation.paymentId
+				}, for the reservation on the ${hourFrom
+					.utc()
+					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
+					.utc()
+					.format('h a')}`
+			);
+		} else {
+			await removeResFromDay(reservation);
+
+			await reservation.destroy();
+		}
 
 		return res.json(reservation);
 	} catch (err) {
@@ -362,7 +368,7 @@ router.delete('/:reservation_id', [auth], async (req, res) => {
 
 		await removeResFromDay(reservation);
 
-		await Reservation.destroy({ where: { id: reservation.id } });
+		await reservation.destroy();
 
 		res.json({ msg: 'Reservation deleted' });
 	} catch (err) {

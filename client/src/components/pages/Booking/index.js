@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { sendEmail } from '../../../actions/auth';
 
 import Alert from '../../layouts/Alert';
+import Loading from '../../layouts/Loading';
 
 import './Booking.scss';
 
@@ -78,6 +79,7 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 
 	return (
 		<div className='booking' id='booking'>
+			<Loading />
 			<section className='section-book' id='section-booking'>
 				<div className='row'>
 					<div className='book'>

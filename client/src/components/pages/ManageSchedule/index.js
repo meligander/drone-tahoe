@@ -206,7 +206,9 @@ const ManageSchedule = ({
 											toggleModal: !toggleModal,
 										}));
 										checkDayAvailability(
-											moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+											moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
+											0,
+											0
 										);
 									}}
 								>

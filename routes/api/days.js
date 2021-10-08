@@ -9,78 +9,8 @@ const adminAuth = require('../../middleware/adminAuth');
 //Models
 const { Day, Job, Reservation } = require('../../config/db');
 
-//@route    GET api/day/:date/:job_id
-//@desc     Get day availability
-//@access   Public
-router.get('/:date/:job_id', async (req, res) => {
-	try {
-		const date = new Date(req.params.date);
-
-		const day = await Day.findOne({
-			where: {
-				date: {
-					[Op.between]: [
-						new Date(date).setUTCHours(00, 00, 00),
-						new Date(date).setUTCHours(23, 59, 59),
-					],
-				},
-			},
-		});
-
-		if (!day) return res.json([[8, 17]]);
-
-		for (let x = 0; x < day.reservations.length; x++) {
-			day.reservations[x] = await Reservation.findOne({
-				where: { id: day.reservations[x] },
-			});
-		}
-
-		const reservations = day.reservations.sort((a, b) =>
-			moment(a.date, 'DD-MM-YYYY').diff(moment(b.date, 'DD-MM-YYYY'))
-		);
-
-		const job =
-			req.params.job_id !== 'undefined'
-				? await Job.findOne({ where: { id: req.params.job_id } })
-				: {
-						time: 1,
-				  };
-
-		let finalArray = [];
-		let newArray = [];
-
-		//[10,12], [15,17] ==> [8,10],[12,15]
-		//[8,10], [16,17] ==> [10,16]
-		//[11,14] ==> [8,11],[14,17]
-		//[10,13] ==> [8,10],[13,17]
-		for (let x = 0; x < reservations.length; x++) {
-			newArray = [
-				x === 0
-					? 8
-					: moment(reservations[x - 1].hourTo)
-							.utc()
-							.hour(),
-				moment(reservations[x].hourFrom).utc().hour(),
-			];
-
-			if (newArray[1] - newArray[0] > job.time) finalArray.push(newArray);
-
-			if (
-				x === reservations.length - 1 &&
-				17 - moment(reservations[x].hourTo).utc().hour() > job.time
-			)
-				finalArray.push([moment(reservations[x].hourTo).utc().hour(), 17]);
-		}
-
-		res.json(finalArray);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ msg: 'Server Error' });
-	}
-});
-
 //@route    GET api/day/schedule/:month/:year
-//@desc     Get unavailability of a month
+//@desc     Get disabled and used days of a month
 //@access   Public
 router.get('/schedule/:month/:year', async (req, res) => {
 	try {
@@ -115,10 +45,89 @@ router.get('/schedule/:month/:year', async (req, res) => {
 	}
 });
 
-//@route    GET api/day/:job_id/:month/:year
+//@route    GET api/day/:date/:job_id/:reservation_id
+//@desc     Get day availability
+//@access   Public
+router.get('/:date/:job_id/:reservation_id', async (req, res) => {
+	try {
+		const date = new Date(req.params.date);
+
+		const day = await Day.findOne({
+			where: {
+				date: {
+					[Op.between]: [
+						new Date(date).setUTCHours(00, 00, 00),
+						new Date(date).setUTCHours(23, 59, 59),
+					],
+				},
+			},
+		});
+
+		if (!day) return res.json([[8, 17]]);
+
+		let reservations = day.reservations;
+
+		if (req.params.reservation_id !== '0')
+			reservations = reservations.filter(
+				(item) => item !== Number(req.params.reservation_id)
+			);
+
+		if (reservations.length === 0) return res.json([[8, 17]]);
+
+		for (let x = 0; x < reservations.length; x++) {
+			reservations[x] = await Reservation.findOne({
+				where: { id: reservations[x] },
+			});
+		}
+
+		reservations = reservations.sort((a, b) =>
+			moment(a.hourFrom).diff(moment(b.hourFrom))
+		);
+
+		const job =
+			req.params.job_id !== '0'
+				? await Job.findOne({ where: { id: req.params.job_id } })
+				: {
+						time: 1,
+				  };
+
+		let finalArray = [];
+		let newArray = [];
+
+		//[10,12], [15,17] ==> [8,10],[12,15]
+		//[8,10], [16,17] ==> [10,16]
+		//[11,14] ==> [8,11],[14,17]
+		//[10,13] ==> [8,10],[13,17]
+		for (let x = 0; x < reservations.length; x++) {
+			newArray = [
+				x === 0
+					? 8
+					: moment(reservations[x - 1].hourTo)
+							.utc()
+							.hour(),
+				moment(reservations[x].hourFrom).utc().hour(),
+			];
+
+			if (newArray[1] - newArray[0] > job.time) finalArray.push(newArray);
+
+			if (
+				x === reservations.length - 1 &&
+				17 - Number(moment(reservations[x].hourTo).utc().hour()) > job.time
+			)
+				finalArray.push([moment(reservations[x].hourTo).utc().hour(), 17]);
+		}
+
+		res.json(finalArray);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
+//@route    GET api/day/:job_id/:month/:year/:reservation_id
 //@desc     Get unavailability of a month
 //@access   Public
-router.get('/:job_id/:month/:year', async (req, res) => {
+router.get('/:job_id/:month/:year/:reservation_id', async (req, res) => {
 	try {
 		const monthDays = new Date(req.params.year, req.params.month, 0).getDate();
 
@@ -144,35 +153,46 @@ router.get('/:job_id/:month/:year', async (req, res) => {
 			let pass = false;
 
 			if (days[x].reservations) {
-				for (let y = 0; y < days[x].reservations.length; y++) {
-					days[x].reservations[y] = await Reservation.findOne({
-						where: { id: days[x].reservations[y] },
-					});
-				}
+				let reservations = days[x].reservations;
 
-				const reservations = days[x].reservations.sort((a, b) =>
-					moment(a.date, 'DD-MM-YYYY').diff(moment(b.date, 'DD-MM-YYYY'))
-				);
+				if (req.params.reservation_id !== '0')
+					reservations = reservations.filter(
+						(item) => item !== Number(req.params.reservation_id)
+					);
 
-				let newArray = [];
+				if (reservations.length > 0) {
+					for (let y = 0; y < reservations.length; y++) {
+						reservations[y] = await Reservation.findOne({
+							where: { id: reservations[y] },
+						});
+					}
 
-				for (let y = 0; y < reservations.length; y++) {
-					newArray = [
-						y === 0
-							? 8
-							: moment(reservations[y - 1].hourTo)
-									.utc()
-									.hour(),
-						moment(reservations[y].hourFrom).utc().hour(),
-					];
+					reservations = reservations.sort((a, b) =>
+						moment(a.hourFrom).diff(moment(b.hourFrom))
+					);
 
-					if (
-						newArray[1] - newArray[0] > job.time ||
-						(y === reservations.length - 1 &&
-							17 - moment(reservations[y].hourTo).utc().hour() > job.time)
-					)
-						pass = true;
-				}
+					let newArray = [];
+
+					for (let y = 0; y < reservations.length; y++) {
+						newArray = [
+							y === 0
+								? 8
+								: moment(reservations[y - 1].hourTo)
+										.utc()
+										.hour(),
+							moment(reservations[y].hourFrom).utc().hour(),
+						];
+
+						if (
+							newArray[1] - (newArray[0] + 1) > job.time ||
+							(y === reservations.length - 1 &&
+								17 - Number(moment(reservations[y].hourTo).utc().hour()) >
+									job.time)
+						) {
+							pass = true;
+						}
+					}
+				} else pass = true;
 			}
 
 			if (!pass) disabledDays.push(days[x].date);

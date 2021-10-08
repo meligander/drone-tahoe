@@ -13,7 +13,7 @@ require('dotenv').config({
 const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
 
 //To Send Emails
-const { sendEmail, sentToCompany } = require('../../config/emailSender');
+const { sendEmail, sendToCompany } = require('../../config/emailSender');
 
 //Model
 const { User } = require('../../config/db');
@@ -147,7 +147,7 @@ router.post(
 				expiresIn: '20m',
 			});
 
-			sendEmail(
+			await sendEmail(
 				email,
 				'Account activation',
 				`Welcome ${name} ${lastname}!
@@ -335,10 +335,9 @@ router.post(
 		if (errors.length > 0) return res.status(400).json({ errors });
 
 		try {
-			sentToCompany(
+			await sendToCompany(
 				'"Contact us" message',
-				`Name: ${name} <br/>
-				Lastname: ${lastname} <br/>
+				`Name: ${name} ${lastname} <br/>
 				Phone: ${phone} <br/>
 				Email: ${email} <br/>
 				Company: ${company} <br/>
@@ -346,10 +345,12 @@ router.post(
              	Message: <br/>${message}`
 			);
 
-			res.json({ msg: 'Email Sent' });
+			res.json({ msg: 'Thanks! Your message has been submitted.' });
 		} catch (err) {
 			console.log(err.message);
-			res.status(500).json({ msg: 'Server Error' });
+			res.status(500).json({
+				msg: 'Sorry! There was a problem with your message. Please try again.',
+			});
 		}
 	}
 );
@@ -386,7 +387,7 @@ router.put(
 				}
 			);
 
-			sendEmail(
+			await sendEmail(
 				email,
 				'Password update',
 				`Hello ${user.name} ${user.lastname}!

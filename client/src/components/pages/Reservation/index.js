@@ -37,8 +37,8 @@ const Reservation = ({
 	useEffect(() => {
 		if (loading) loadJobs({}, token ? true : false);
 		if (loggedUser && loggedUser.type !== 'admin' && loadingReservations) {
-			loadReservations({ hourFrom: new Date(), user: loggedUser.id }, true);
 			updateStatus();
+			loadReservations({ hourFrom: new Date(), user: loggedUser.id }, true);
 		}
 	}, [
 		loading,
@@ -121,7 +121,7 @@ const Reservation = ({
 											<span className='reservation-item-title'>Value: </span> $
 											{res.value}
 										</p>
-										{res.status !== 'completed' && (
+										{res.status === 'pending' && (
 											<p>
 												<span className='reservation-item-title'>Status: </span>
 												{res.status.charAt(0).toUpperCase() +
@@ -129,7 +129,7 @@ const Reservation = ({
 											</p>
 										)}
 									</div>
-									{res.status !== 'canceled' && (
+									{res.status !== 'canceled' ? (
 										<div className='reservation-item-icons'>
 											<button
 												onClick={() =>
@@ -154,6 +154,14 @@ const Reservation = ({
 											>
 												<i className='far fa-trash-alt'></i>
 											</button>
+										</div>
+									) : (
+										<div className='reservation-item-job'>
+											<p>
+												<span className='reservation-item-title'>Status: </span>
+												{res.status.charAt(0).toUpperCase() +
+													res.status.slice(1)}
+											</p>
 										</div>
 									)}
 								</div>

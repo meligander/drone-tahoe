@@ -43,9 +43,7 @@ const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				availableHours: [],
-				disabledDays: [],
 				loadingAvailableHours: false,
-				loadingDisabledDays: false,
 				error: payload,
 			};
 		case DAY_ENABLED:
