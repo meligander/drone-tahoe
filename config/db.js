@@ -22,7 +22,7 @@ const sequelize = new Sequelize(
 	process.env.SQL_TEST_USERNAME,
 	process.env.SQL_TEST_PASSWORD,
 	{
-		host: 'us-cdbr-east-04.cleardb.com',
+		host: 's29oj5odr85rij2o.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
 		dialect: 'mysql',
 		operatorsAliases: false,
 	}
