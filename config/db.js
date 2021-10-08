@@ -6,12 +6,23 @@ const ReservationModel = require('../models/reservations');
 const DayModel = require('../models/days');
 const JobModel = require('../models/jobs');
 
-const sequelize = new Sequelize(
+/* const sequelize = new Sequelize(
 	process.env.SQL_DATABASE,
 	process.env.SQL_USERNAME,
 	process.env.SQL_PASSWORD,
 	{
 		host: 'localhost',
+		dialect: 'mysql',
+		operatorsAliases: false,
+	}
+); */
+
+const sequelize = new Sequelize(
+	process.env.SQL_TEST_DATABASE,
+	process.env.SQL_TEST_USERNAME,
+	process.env.SQL_TEST_PASSWORD,
+	{
+		host: 'us-cdbr-east-04.cleardb.com',
 		dialect: 'mysql',
 		operatorsAliases: false,
 	}
