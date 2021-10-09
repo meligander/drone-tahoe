@@ -312,7 +312,7 @@ const ManageSchedule = ({
 	};
 
 	return (
-		<div className='manage-schedule'>
+		<div className='list manage-schedule'>
 			<PopUp
 				type='hour'
 				toggleModal={toggleModal}

@@ -1,16 +1,6 @@
 @import '../../../sass/abstracts/variables.scss';
 
 .manage-schedule {
-	margin: 3rem 4rem 2rem;
-	min-height: 54.5vh;
-
-	@media screen and (max-width: 900px) {
-		margin: 2rem 1.5rem;
-	}
-	@media screen and (max-width: 500px) {
-		margin: 2rem 1rem;
-	}
-
 	&-row {
 		display: flex;
 		width: 100%;
