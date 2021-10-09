@@ -3,14 +3,14 @@
 	min-height: 54.5vh;
 
 	@media screen and (max-width: 650px) {
+		margin: 2rem 1.5rem;
+	}
+	@media screen and (max-width: 500px) {
 		margin: 2rem 1rem;
 		.heading-primary {
 			font-size: 2rem;
 			padding: 1.5rem 0;
 		}
-	}
-	@media screen and (max-width: 500px) {
-		margin: 2rem 1rem;
 	}
 
 	.btn-tertiary {
