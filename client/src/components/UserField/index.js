@@ -14,6 +14,7 @@ const UserField = ({
 }) => {
 	const [adminValues, setAdminValues] = useState({
 		email: '',
+		lockEmail: false,
 	});
 	useEffect(() => {
 		if (reservationUser) {
@@ -22,12 +23,13 @@ const UserField = ({
 		} else setAdminValues((prev) => ({ ...prev, email: '' }));
 	}, [reservationUser]);
 
-	const { email } = adminValues;
+	const { email, lockEmail } = adminValues;
 
 	const selectUser = (user) => {
 		setAdminValues((prev) => ({
 			...prev,
 			email: user.email,
+			lockEmail: true,
 		}));
 		selectFinalUser(user);
 		clearUsers();
@@ -38,6 +40,7 @@ const UserField = ({
 		setAdminValues((prev) => ({
 			...prev,
 			email: '',
+			lockEmail: false,
 		}));
 	};
 
@@ -47,7 +50,7 @@ const UserField = ({
 				className='form__input'
 				type='text'
 				value={email}
-				disabled={reservationUser}
+				disabled={reservationUser || lockEmail}
 				name='email'
 				id='email'
 				autoComplete='off'
@@ -106,7 +109,7 @@ const UserField = ({
 					onClick={cancelUser}
 					className='form-search-close'
 				>
-					<i className='fas fa-times'></i>
+					<i className='far fa-times-circle'></i>
 				</button>
 			)}
 		</div>
