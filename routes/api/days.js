@@ -275,19 +275,19 @@ router.post('/:dateFrom/:dateTo', [auth, adminAuth], async (req, res) => {
 
 			while (startDate.getTime() <= endDate.getTime()) {
 				if (startDate.getDay() !== 6 && startDate.getDay() !== 5) {
-					const newDay = {
+					await Day.create({
 						date: startDate,
 						reservations: null,
-					};
+					});
 
 					disabledDays.push(startDate);
-
-					await Day.create(newDay);
 				}
 
 				startDate = new Date(startDate.getTime() + day);
 			}
 		}
+
+		console.log(disabledDays);
 
 		res.json(disabledDays);
 	} catch (err) {
