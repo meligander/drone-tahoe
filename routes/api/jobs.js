@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
 
 		const jobs = await Job.findAll({
 			where: filter,
-			order: [['title', 'asc']],
+			...(req.query.title && { order: [['title', 'asc']] }),
 		});
 
 		if (jobs.length === 0) {
