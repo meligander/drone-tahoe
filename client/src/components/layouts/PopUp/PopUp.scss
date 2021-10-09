@@ -14,7 +14,7 @@
 		overflow: hidden;
 		animation: grow 0.35s;
 
-		@media screen and (max-width: 400px) {
+		@media screen and (max-width: 500px) {
 			width: 93%;
 			padding: 0.7rem 0.8rem 1.5rem;
 		}
@@ -31,7 +31,7 @@
 				width: 75%;
 			}
 
-			@media screen and (max-width: 400px) {
+			@media screen and (max-width: 500px) {
 				width: 85%;
 				padding: 0.7rem 0.8rem 1.5rem;
 			}
@@ -53,7 +53,7 @@
 		@media screen and (max-width: 650px) {
 			padding: 2rem 1rem 0;
 		}
-		@media screen and (max-width: 400px) {
+		@media screen and (max-width: 500px) {
 			padding: 2rem 0.5rem 0;
 		}
 
@@ -65,7 +65,7 @@
 	&-hour {
 		padding: 2.5rem 2rem 0;
 
-		@media screen and (max-width: 400px) {
+		@media screen and (max-width: 500px) {
 			padding: 2.5rem 2rem 1.5rem;
 		}
 
@@ -75,7 +75,7 @@
 			@media screen and (max-width: 650px) {
 				width: 80%;
 			}
-			@media screen and (max-width: 400px) {
+			@media screen and (max-width: 500px) {
 				width: 90%;
 			}
 
@@ -98,7 +98,7 @@
 			padding: 2rem 2rem 0;
 		}
 
-		@media screen and (max-width: 400px) {
+		@media screen and (max-width: 500px) {
 			padding: 1.5rem 1rem 0;
 		}
 
@@ -109,7 +109,7 @@
 			@media screen and (max-width: 900px) {
 				font-size: 2rem;
 
-				@media screen and (max-width: 400px) {
+				@media screen and (max-width: 500px) {
 					margin-bottom: 1rem;
 				}
 			}
@@ -123,7 +123,7 @@
 			min-width: 7rem;
 			padding: 1rem;
 
-			@media screen and (max-width: 400px) {
+			@media screen and (max-width: 500px) {
 				font-size: 1rem;
 				min-width: 5.5rem;
 				padding: 0.8rem;
@@ -141,14 +141,14 @@
 		padding: 0 0.5rem 1rem;
 		border-bottom: 1px solid $color-dark-6;
 
-		@media screen and (max-width: 400px) {
+		@media screen and (max-width: 500px) {
 			padding: 0 0.3rem 0.5rem;
 		}
 
 		&-img {
 			width: 3.5rem;
 
-			@media screen and (max-width: 400px) {
+			@media screen and (max-width: 500px) {
 				width: 2.5rem;
 			}
 		}
@@ -166,7 +166,7 @@
 				font-size: 2.5rem;
 				transition: all 0.2s ease;
 
-				@media screen and (max-width: 400px) {
+				@media screen and (max-width: 500px) {
 					font-size: 2rem;
 				}
 

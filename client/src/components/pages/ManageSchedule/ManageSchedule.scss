@@ -7,7 +7,7 @@
 	@media screen and (max-width: 900px) {
 		margin: 2rem 1.5rem;
 	}
-	@media screen and (max-width: 400px) {
+	@media screen and (max-width: 500px) {
 		margin: 2rem 1rem;
 	}
 
@@ -41,7 +41,7 @@
 			width: 100%;
 			margin-top: 1rem;
 		}
-		@media screen and (max-width: 400px) {
+		@media screen and (max-width: 500px) {
 			margin-top: 2rem;
 		}
 
@@ -68,7 +68,7 @@
 		&-res {
 			margin: 2rem 1rem 1rem;
 
-			@media screen and (max-width: 400px) {
+			@media screen and (max-width: 500px) {
 				margin: 2rem 0 0;
 			}
 		}
@@ -86,7 +86,7 @@
 			transform: scale(0.95);
 
 			&.disabled {
-				background-color: $color-dark-2 !important;
+				background-color: $color-light-2 !important;
 			}
 
 			&:hover {
@@ -104,7 +104,7 @@
 				font-size: 1.3rem;
 			}
 
-			@media screen and (max-width: 400px) {
+			@media screen and (max-width: 500px) {
 				padding: 0.8rem 1rem;
 				font-size: 1rem;
 			}

@@ -48,6 +48,11 @@
 		transition: all 0.3s;
 		position: relative;
 
+		@media screen and (max-width: 650px) {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+		}
+
 		&.space {
 			margin: 0.6rem 0 2rem;
 			color: black;
@@ -176,8 +181,9 @@
 		@media screen and (max-width: 900px) {
 			width: 65vw;
 		}
-		@media screen and (max-width: 600px) {
+		@media screen and (max-width: 650px) {
 			width: 75vw;
+			margin: 0 auto 2.5rem;
 		}
 
 		.filter {
@@ -186,6 +192,10 @@
 				font-size: 1.8rem;
 				color: $color-dark-7;
 				margin-left: 1rem;
+
+				@media screen and (max-width: 650px) {
+					font-size: 1.4rem;
+				}
 			}
 			&-icon {
 				text-decoration: none;
@@ -204,6 +214,10 @@
 				& > * {
 					color: $color-dark-7;
 					font-size: 2rem;
+
+					@media screen and (max-width: 650px) {
+						font-size: 1.5rem;
+					}
 				}
 			}
 
@@ -212,8 +226,7 @@
 				margin-top: 0.8rem;
 				width: 100%;
 				transition: all 0.4s ease-out;
-				display: unset;
-				transition: all 0.4s ease-out;
+				display: block;
 
 				&.hide {
 					display: none;

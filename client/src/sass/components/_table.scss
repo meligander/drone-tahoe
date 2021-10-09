@@ -4,12 +4,32 @@ table {
 	margin: 0 auto;
 	font-size: 1.4rem;
 	font-weight: 300;
-	--table-layout: fixed;
+	table-layout: auto;
+
+	@media screen and (max-width: 650px) {
+		font-size: 1.2rem;
+
+		td {
+			font-size: 1.1rem;
+		}
+	}
+
+	@media screen and (max-width: 500px) {
+		font-size: 1.1rem;
+
+		td {
+			font-size: 1rem;
+		}
+	}
 
 	th,
 	td {
 		padding: 1rem;
 		text-align: center;
+
+		@media screen and (max-width: 650px) {
+			padding: 0.7rem;
+		}
 	}
 
 	th {

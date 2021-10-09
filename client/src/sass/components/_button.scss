@@ -103,6 +103,10 @@
 		text-align: end;
 		margin-top: 2rem;
 
+		@media screen and (max-width: 650px) {
+			text-align: center;
+		}
+
 		& > *:not(:last-child) {
 			margin-right: 3rem !important;
 		}
@@ -114,6 +118,10 @@
 		justify-content: space-evenly;
 		align-items: center;
 		width: 100%;
+
+		& > *:not(:last-child) {
+			margin-right: 3rem !important;
+		}
 	}
 
 	&-success {

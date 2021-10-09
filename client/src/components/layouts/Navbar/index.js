@@ -55,7 +55,7 @@ const Navbar = ({
 								}}
 								className='btn-link'
 							>
-								Hi {loggedUser.name}!
+								<i className='fas fa-user-alt'></i> Hi {loggedUser.name}!
 							</Link>
 						</li>
 					)}
@@ -187,6 +187,7 @@ const Navbar = ({
 							to={!loading && loggedUser ? '/' : '/login'}
 							onClick={() => {
 								if (!loading && loggedUser) logOut();
+								closeMobileMenu();
 								window.scrollTo(0, 0);
 							}}
 							className='nav-links-mobile btn btn-outline'

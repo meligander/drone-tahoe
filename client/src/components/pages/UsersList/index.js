@@ -142,7 +142,7 @@ const ReservationsList = ({
 					{users.length > 0 ? (
 						<div>
 							<div className='wrapper'>
-								<table className='stick icon-5'>
+								<table className='icon-5'>
 									<thead>
 										<tr>
 											<th>Name</th>

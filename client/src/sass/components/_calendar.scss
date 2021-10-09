@@ -114,11 +114,11 @@
 			}
 
 			&.used {
-				background-color: rgba($color-light-2, 0.73);
+				background-color: $color-success;
 			}
 
 			&.disabled {
-				background-color: rgba($color-dark-2, 0.73);
+				background-color: $color-danger;
 			}
 		}
 	}

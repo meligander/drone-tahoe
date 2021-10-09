@@ -2,11 +2,15 @@
 	margin: 3rem 4rem;
 	min-height: 54.5vh;
 
-	@media screen and (max-width: 600px) {
-		margin: 3rem 1.5rem 2rem;
+	@media screen and (max-width: 650px) {
+		margin: 2rem 1rem;
 		.heading-primary {
 			font-size: 2rem;
+			padding: 1.5rem 0;
 		}
+	}
+	@media screen and (max-width: 500px) {
+		margin: 2rem 1rem;
 	}
 
 	.btn-tertiary {
@@ -20,6 +24,11 @@
 		font-size: 2.2rem;
 		margin: 2rem 2rem 0;
 		font-weight: 300;
+
+		@media screen and (max-width: 650px) {
+			font-size: 1.8rem;
+			margin: 1.5rem 1.5rem 0;
+		}
 
 		&-title {
 			text-shadow: 0 3px 4px rgba(0, 0, 0, 0.3);
