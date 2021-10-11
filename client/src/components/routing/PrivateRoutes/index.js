@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import Loading from '../layouts/Loading';
+import Loading from '../../layouts/Loading';
 
 const PrivateRoutes = ({
 	component: Component,

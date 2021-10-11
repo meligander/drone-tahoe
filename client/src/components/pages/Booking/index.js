@@ -242,7 +242,8 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 				<div id='error'>
 					Sorry! There was a problem with your message. Please try again.
 				</div>
-			</div> */}
+			</div>{' '}
+			*/}
 		</div>
 	);
 };

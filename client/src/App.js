@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Router, Switch, Route } from 'react-router-dom';
 import './sass/main.scss';
 
@@ -19,19 +19,16 @@ import VRM from './components/pages/VRM';
 import Portfolio from './components/pages/Portfolio';
 import Booking from './components/pages/Booking';
 import Login from './components/pages/Login';
-import EditUser from './components/pages/EditUser';
-import Activation from './components/pages/Activation';
-import ChangePassword from './components/pages/ChangePassword';
-import Reservation from './components/pages/Reservation';
-//import Dashboard from './components/pages/Dashboard';
-
-import PrivateRoutes from './components/PrivateRoutes';
-import ReservationsList from './components/pages/ReservationsList';
-import JobsList from './components/pages/JobsList';
-import ManageSchedule from './components/pages/ManageSchedule';
-import UsersList from './components/pages/UsersList';
+import Routes from './components/routing/Routes';
 
 const App = () => {
+	const [adminValues, setAdminValues] = useState({
+		navbar: 0,
+		footer: 0,
+	});
+
+	const { navbar, footer } = adminValues;
+
 	useEffect(() => {
 		if (localStorage.token) {
 			setAuthToken(localStorage.token);
@@ -41,63 +38,33 @@ const App = () => {
 	return (
 		<Provider store={store}>
 			<Router history={history}>
-				<Navbar />
-				<Switch>
-					<Route path='/' exact component={Home} />
-					<Route path='/portfolio' exact component={Portfolio} />
-					<Route path='/contact' exact component={Contact} />
-					<Route path='/servicesfull' exact component={ServicesFull} />
-					<Route path='/vrm' component={VRM} />
-					<Route path='/booking' component={Booking} />
-					<Route path='/login' component={Login} />
-					<Route path='/signup' component={EditUser} />
-					<Route path='/activation/:token' component={Activation} />
-					<Route path='/resetpassword/:token' component={ChangePassword} />
-					<Route path='/reservation/:job_id' component={Reservation} />
-					<PrivateRoutes
-						exact
-						path='/profile'
-						component={EditUser}
-						types={['admin', 'customer']}
-					/>
-					{/* <PrivateRoutes
-						exact
-						path='/dashboard'
-						component={Dashboard}
-						types={['admin']}
-					/> */}
-					<PrivateRoutes
-						exact
-						path='/edit-user/:user_id'
-						component={EditUser}
-						types={['admin']}
-					/>
-					<PrivateRoutes
-						exact
-						path='/reservations-list'
-						component={ReservationsList}
-						types={['admin']}
-					/>
-					<PrivateRoutes
-						exact
-						path='/jobs-list'
-						component={JobsList}
-						types={['admin']}
-					/>
-					<PrivateRoutes
-						exact
-						path='/schedule'
-						component={ManageSchedule}
-						types={['admin']}
-					/>
-					<PrivateRoutes
-						exact
-						path='/users-list'
-						component={UsersList}
-						types={['admin']}
-					/>
-				</Switch>
-				<Footer />
+				<Navbar
+					navbarHeight={(height) =>
+						setAdminValues((prev) => ({ ...prev, navbar: height }))
+					}
+				/>
+				<div
+					style={{
+						/* minHeight: `calc(100vh - ${footer}px)`, */
+						paddingTop: `${navbar}px`,
+					}}
+				>
+					<Switch>
+						<Route path='/' exact component={Home} />
+						<Route path='/portfolio' exact component={Portfolio} />
+						<Route path='/contact' exact component={Contact} />
+						<Route path='/servicesfull' exact component={ServicesFull} />
+						<Route path='/vrm' component={VRM} />
+						<Route path='/booking' component={Booking} />
+						<Route path='/login' component={Login} />
+						<Routes navbar={navbar} footer={footer} />
+					</Switch>
+				</div>
+				<Footer
+					footerHeight={(height) =>
+						setAdminValues((prev) => ({ ...prev, footer: height }))
+					}
+				/>
 			</Router>
 		</Provider>
 	);

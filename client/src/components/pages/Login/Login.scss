@@ -3,17 +3,10 @@
 .section-login {
 	position: relative;
 	overflow: hidden;
-	min-height: 85vh;
-	margin: 4rem 0;
+	margin: 6rem 0;
 
 	@media screen and (max-width: 650px) {
-		min-height: 90.5vh;
-		margin: 2rem 0;
-	}
-
-	@media screen and (max-width: 500px) {
-		min-height: 90.5vh;
-		margin: 0;
+		margin: 3rem 0;
 	}
 }
 

@@ -24,7 +24,6 @@ const sequelize = new Sequelize(
 	{
 		host: 's29oj5odr85rij2o.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
 		dialect: 'mysql',
-		operatorsAliases: false,
 	}
 );
 

@@ -1,77 +1,32 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import './Footer.scss';
 import { Link } from 'react-router-dom';
 
 import NavLogo from '../../../img/logoDRONE-dark-cropped-final.png';
 
-function Footer() {
+function Footer({ footerHeight }) {
+	const ref = useRef();
+	const time = new Date();
+
+	useEffect(() => {
+		setHeigth();
+		// eslint-disable-next-line
+	}, []);
+
+	const setHeigth = () => {
+		setTimeout(() => {
+			footerHeight(ref.current.offsetHeight);
+		}, 30);
+	};
+
+	window.addEventListener('resize', setHeigth);
+
 	return (
-		<div className='footer-container'>
-			<div className='footer-links'>
-				<div className='footer-link-wrapper'>
-					{/* <div className="footer-link-items">
-            <h2>About</h2>
-            <Link className="footer-link-items-link" to="/signup">
-              How it works
-            </Link>
-            <Link className="footer-link-items-link" to="/">
-              Testimonials
-            </Link>
-            <Link className="footer-link-items-link" to="/">
-              Privacy Policy
-            </Link>
-            <Link className="footer-link-items-link" to="/">
-              Terms of Service
-            </Link>
-          </div> */}
-					{/* <div className="footer-link-items">
-            <h2>Navigation</h2>
-            <Link className="footer-link-items-link" to="/vrm">
-              VRM
-            </Link>
-            <Link className="footer-link-items-link" to="/servicesfull">
-              Our Services
-            </Link>
-            <Link className="footer-link-items-link" to="/portfolio">
-              Portfolio
-            </Link>
-            <Link className="footer-link-items-link" to="/contact">
-              Contact Us
-            </Link>
-          </div> */}
-				</div>
-				{/* <div className="footer-link-wrapper">
-          <div className="footer-link-items">
-            <h2>Videos</h2>
-            <Link className="footer-link-items-link" to="/">
-              Submit Video
-            </Link>
-            <Link className="footer-link-items-link" to="/">
-              Ambassadors
-            </Link>
-            <Link className="footer-link-items-link" to="/">
-              Agency
-            </Link>
-            <Link className="footer-link-items-link" to="/">
-              Influencer
-            </Link>
-          </div>
-        </div> */}
-			</div>
+		<div className='footer-container' ref={ref}>
 			<section className='social-media'>
 				<div className='social-media-wrap'>
 					<div className='social-media-wrap-section'>
-						<big className='website-rights'>DRONE TAHOE © 2021</big>
-					</div>
-					<div className='social-media-wrap-section'>
-						<div className='footer-logo'>
-							<a href='#top' className='social-logo'>
-								<img src={NavLogo} className='footer-logo' alt='' />
-							</a>
-						</div>
-					</div>
-					<div className='social-media-wrap-section'>
-						<div className='social-icons'>
+						<div className='social-icon'>
 							{/* <Link
               className='social-icon-link facebook'
               to='/'
@@ -113,6 +68,18 @@ function Footer() {
               <i className='fab fa-linkedin' />
             </Link> */}
 						</div>
+					</div>
+					<div className='social-media-wrap-section'>
+						<div className='footer-logo'>
+							<a href='#top' className='social-logo'>
+								<img src={NavLogo} className='footer-logo' alt='' />
+							</a>
+						</div>
+					</div>
+					<div className='social-media-wrap-section'>
+						<big className='website-rights'>
+							DRONE TAHOE © {time.getFullYear()}
+						</big>
 					</div>
 				</div>
 			</section>

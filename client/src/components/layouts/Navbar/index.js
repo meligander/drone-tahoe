@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -14,6 +14,7 @@ const Navbar = ({
 	clearReservations,
 	clearJobs,
 	clearUsers,
+	navbarHeight,
 	auth: { loggedUser, loading },
 }) => {
 	const [click, setClick] = useState(false);
@@ -22,22 +23,37 @@ const Navbar = ({
 	const handleClick = () => setClick(!click);
 	const closeMobileMenu = () => setClick(false);
 
+	const ref = useRef();
+
 	useEffect(() => {
 		showButton();
+		setHeigth();
+		// eslint-disable-next-line
 	}, []);
 
+	const setHeigth = () => {
+		setTimeout(() => {
+			navbarHeight(ref.current.offsetHeight);
+		}, 30);
+	};
+
 	const showButton = () => {
-		if (window.innerWidth <= 960) {
-			setButton(false);
-		} else {
-			setButton(true);
-		}
+		setButton(window.innerWidth > 960);
 	};
 
 	window.addEventListener('resize', showButton);
+	window.addEventListener('resize', setHeigth);
 
 	return (
-		<nav className='navbar' id='top'>
+		<nav
+			ref={ref}
+			className='navbar'
+			style={{
+				justifyContent: button ? 'space-between' : 'flex-end',
+				padding: button ? '1.8rem 0.5rem' : '1rem 1.2rem',
+			}}
+			id='top'
+		>
 			<div className='navbar-container'>
 				<div className='menu-icon' onClick={handleClick}>
 					<i className={click ? 'fas fa-times' : 'fas fa-bars'}></i>
@@ -211,8 +227,9 @@ const Navbar = ({
 					</Link>
 				</div>
 			)}
-			<div className='nav-button'>
-				{button && (
+
+			{button && (
+				<div className='nav-button'>
 					<Link
 						to={!loading && loggedUser ? '/' : '/login'}
 						onClick={() => {
@@ -223,8 +240,8 @@ const Navbar = ({
 					>
 						{!loading && loggedUser ? 'Log Out' : 'Log In'}
 					</Link>
-				)}
-			</div>
+				</div>
+			)}
 		</nav>
 	);
 };

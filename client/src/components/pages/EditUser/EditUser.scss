@@ -1,7 +1,7 @@
 @import '../../../sass/abstracts/variables.scss';
 
 .user {
-	margin: 5rem auto;
+	margin: 0 auto;
 	width: 80vw;
 	padding: 5rem 2rem 2rem;
 	background-image: linear-gradient(
@@ -22,6 +22,7 @@
 	}
 
 	.heading-primary {
+		padding: 1.5rem 1rem;
 		color: #fff;
 		text-shadow: 0 3px 4px $color-dark-8;
 
