@@ -18,9 +18,10 @@ const ReservationForm = ({
 		job: jobId ? Number(jobId) : '',
 		user: null,
 		searchDisplay: false,
+		clear: false,
 	});
 
-	const { job, user, searchDisplay } = adminValues;
+	const { job, user, searchDisplay, clear } = adminValues;
 
 	useEffect(() => {
 		if (reservation)
@@ -48,7 +49,12 @@ const ReservationForm = ({
 		setAdminValues({
 			job: '',
 			user: null,
+			clear: true,
 		});
+	};
+
+	const completeClear = () => {
+		setAdminValues((prev) => ({ ...prev, clear: false }));
 	};
 
 	return (
@@ -94,6 +100,8 @@ const ReservationForm = ({
 						switchDisplay={(show) =>
 							setAdminValues((prev) => ({ ...prev, searchDisplay: show }))
 						}
+						clear={clear}
+						completeClear={completeClear}
 					/>
 				)}
 				<div className='form__group'>

@@ -25,12 +25,13 @@ const ReservationsList = ({
 	clearUsers,
 	updateStatus,
 }) => {
-	const [formData, setFormData] = useState({
+	const initialValue = {
 		hourFrom: '',
 		hourTo: '',
 		user: '',
 		job: '',
-	});
+	};
+	const [formData, setFormData] = useState(initialValue);
 
 	const [adminValues, setAdminValues] = useState({
 		toggleDeleteConf: false,
@@ -39,6 +40,7 @@ const ReservationsList = ({
 		reservation: null,
 		update: false,
 		searchDisplay: false,
+		clear: false,
 	});
 
 	const { hourFrom, hourTo, job } = formData;
@@ -50,6 +52,7 @@ const ReservationsList = ({
 		reservation,
 		update,
 		searchDisplay,
+		clear,
 	} = adminValues;
 
 	useEffect(() => {
@@ -69,13 +72,13 @@ const ReservationsList = ({
 
 	const onSubmit = (e) => {
 		e.preventDefault();
-		setFormData({
-			hourFrom: '',
-			hourTo: '',
-			user: '',
-			job: '',
-		});
+		setFormData(initialValue);
 		loadReservations(formData, false);
+		setAdminValues((prev) => ({ ...prev, clear: true }));
+	};
+
+	const completeClear = () => {
+		setAdminValues((prev) => ({ ...prev, clear: false }));
 	};
 
 	return (
@@ -177,6 +180,8 @@ const ReservationsList = ({
 						switchDisplay={(show) =>
 							setAdminValues((prev) => ({ ...prev, searchDisplay: show }))
 						}
+						clear={clear}
+						completeClear={completeClear}
 					/>
 					<div className='form__group'>
 						<select

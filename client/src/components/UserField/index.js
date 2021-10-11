@@ -11,11 +11,18 @@ const UserField = ({
 	switchDisplay,
 	clearUsers,
 	loadUsers,
+	clear,
+	completeClear,
 }) => {
-	const [adminValues, setAdminValues] = useState({
+	const initialValue = {
 		email: '',
 		lockEmail: false,
-	});
+	};
+
+	const [adminValues, setAdminValues] = useState(initialValue);
+
+	const { email, lockEmail } = adminValues;
+
 	useEffect(() => {
 		if (reservationUser) {
 			if (reservationUser.email)
@@ -23,7 +30,15 @@ const UserField = ({
 		} else setAdminValues((prev) => ({ ...prev, email: '' }));
 	}, [reservationUser]);
 
-	const { email, lockEmail } = adminValues;
+	useEffect(() => {
+		if (clear) {
+			setAdminValues({
+				email: '',
+				lockEmail: false,
+			});
+			completeClear();
+		}
+	}, [clear, completeClear]);
 
 	const selectUser = (user) => {
 		setAdminValues((prev) => ({
@@ -37,11 +52,7 @@ const UserField = ({
 
 	const cancelUser = () => {
 		selectFinalUser();
-		setAdminValues((prev) => ({
-			...prev,
-			email: '',
-			lockEmail: false,
-		}));
+		setAdminValues(initialValue);
 	};
 
 	return (
