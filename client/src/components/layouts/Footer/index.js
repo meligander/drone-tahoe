@@ -26,23 +26,38 @@ function Footer({ footerHeight }) {
 			<section className='social-media'>
 				<div className='social-media-wrap'>
 					<div className='social-media-wrap-section'>
+						<big className='website-rights'>
+							DRONE TAHOE © {time.getFullYear()}
+						</big>
+					</div>
+					<div className='social-media-wrap-section'>
+						<div className='footer-logo'>
+							<a href='#top' className='social-logo'>
+								<img src={NavLogo} className='footer-logo' alt='' />
+							</a>
+						</div>
+					</div>
+					<div className='social-media-wrap-section'>
 						<div className='social-icon'>
-							{/* <Link
-              className='social-icon-link facebook'
-              to='/'
-              target='_blank'
-              aria-label='Facebook'
-            >
-              <i className='fab fa-facebook-f' />
-            </Link>
-            <Link
-              className='social-icon-link instagram'
-              to='/'
-              target='_blank'
-              aria-label='Instagram'
-            >
-              <i className='fab fa-instagram' />
-            </Link> */}
+							<Link
+								className='social-icon-link facebook'
+								to={{
+									pathname:
+										'https://www.facebook.com/profile.php?id=100054789366613',
+								}}
+								target='_blank'
+								aria-label='Facebook'
+							>
+								<i className='fab fa-facebook-f' />
+							</Link>
+							<Link
+								className='social-icon-link instagram'
+								to={{ pathname: 'https://www.instagram.com/dronetahoe/' }}
+								target='_blank'
+								aria-label='Instagram'
+							>
+								<i className='fab fa-instagram' />
+							</Link>
 							<Link
 								className='social-icon-link youtube'
 								to={{ pathname: 'https://www.youtube.com/user/laketahoeG' }}
@@ -68,18 +83,6 @@ function Footer({ footerHeight }) {
               <i className='fab fa-linkedin' />
             </Link> */}
 						</div>
-					</div>
-					<div className='social-media-wrap-section'>
-						<div className='footer-logo'>
-							<a href='#top' className='social-logo'>
-								<img src={NavLogo} className='footer-logo' alt='' />
-							</a>
-						</div>
-					</div>
-					<div className='social-media-wrap-section'>
-						<big className='website-rights'>
-							DRONE TAHOE © {time.getFullYear()}
-						</big>
 					</div>
 				</div>
 			</section>

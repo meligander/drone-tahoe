@@ -1,7 +1,9 @@
+@import '../../../sass/abstracts/variables.scss';
+
 .footer {
 	&-container {
 		background-color: #231f20;
-		padding: 2.8rem 0 2.5rem;
+		padding: 0.8rem 0 0.5rem;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -9,7 +11,7 @@
 	}
 
 	&-logo {
-		width: 4.5rem;
+		width: 10rem;
 		margin: 0 auto;
 	}
 }
@@ -18,12 +20,22 @@
 .social {
 	&-icon {
 		display: flex;
-		justify-content: center;
+		justify-content: space-evenly;
 		align-items: center;
 
 		&-link {
 			color: #fff;
 			font-size: 44px;
+			cursor: pointer;
+			width: 60px;
+			transform: scale(0.95);
+			transition: all 0.2s ease-out;
+
+			&:hover {
+				transform: scale(1);
+				transition: all 0.2s ease-out;
+				color: lighten($color-gray-light, 15%);
+			}
 		}
 	}
 
@@ -61,10 +73,16 @@
 }
 
 @media screen and (max-width: 820px) {
-	.footer-container {
-		text-align: center;
-		margin: 0 auto;
-		padding: 1.5rem 0 1.5rem;
+	.footer {
+		&-container {
+			text-align: center;
+			margin: 0 auto;
+			padding: 0.5rem 0 1rem;
+		}
+
+		&-logo {
+			width: 6.5rem;
+		}
 	}
 
 	.social-media-wrap {
@@ -73,16 +91,18 @@
 		text-align: center;
 
 		&-section {
-			margin: 0.5rem 0;
+			margin: 0.5rem 0 0.1rem;
+			width: 100%;
 
 			&:nth-child(1) {
-				order: 2;
+				margin-top: 0.8rem;
+				order: 3;
 			}
 			&:nth-child(2) {
 				order: 1;
 			}
 			&:nth-child(3) {
-				order: 3;
+				order: 2;
 			}
 		}
 	}
