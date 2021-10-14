@@ -110,13 +110,11 @@ const JobsList = ({ loadJobs, deleteJob, job: { jobs, loading, error } }) => {
 					{jobs.length > 0 ? (
 						<div>
 							<div className='wrapper'>
-								<table className='icon-4'>
+								<table className='icon-2'>
 									<thead>
 										<tr>
 											<th>Title</th>
 											{/* <th>Subtitle</th> */}
-											<th>Time</th>
-											<th>Price</th>
 											<th></th>
 											<th></th>
 										</tr>
@@ -126,8 +124,6 @@ const JobsList = ({ loadJobs, deleteJob, job: { jobs, loading, error } }) => {
 											<tr key={job.id}>
 												<td>{job.title}</td>
 												{/* <td>{job.subtitle}</td> */}
-												<td>{job.time}</td>
-												<td>{job.price}</td>
 												<td>
 													<button
 														className='btn-icon'

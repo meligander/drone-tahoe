@@ -2,7 +2,7 @@ const { User } = require('../config/db');
 
 module.exports = async function (req, res, next) {
 	try {
-		let user = await User.findOne({ _id: req.user.id });
+		const user = await User.findOne({ where: { id: req.user.id } });
 
 		if (user.type !== 'admin') {
 			return res.status(401).json({

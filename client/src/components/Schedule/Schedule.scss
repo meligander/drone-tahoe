@@ -27,16 +27,27 @@
 
 		@media screen and (max-width: 650px) {
 			width: 100%;
+			padding: 0.8rem;
 			margin-top: 1rem;
+		}
+		@media screen and (max-width: 500px) {
+			padding: 0.8rem 0;
 		}
 
 		.form {
 			align-items: start;
 		}
 
+		&-main,
+		&-title,
+		&-subtitle,
+		&-info,
+		&-warning {
+			font-weight: 300;
+		}
+
 		&-main {
 			font-size: 2rem;
-			font-weight: 300;
 			margin-bottom: 2rem;
 			color: $color-dark-7;
 
@@ -47,7 +58,6 @@
 
 		&-title {
 			font-size: 1.8rem;
-			font-weight: 300;
 			color: $color-dark-7;
 			margin: 0 0 1.5rem;
 		}
@@ -60,7 +70,17 @@
 		&-info {
 			font-size: 1.5rem;
 			margin: 0.5rem 4rem;
-			font-weight: 300;
+
+			@media screen and (max-width: 500px) {
+				margin: 0.5rem 0 0 2rem;
+			}
+		}
+
+		&-warning {
+			font-size: 1.3rem;
+			margin-top: 1rem;
+			text-align: center;
+			color: $color-danger;
 		}
 
 		.btn.btn-primary {
@@ -86,22 +106,6 @@
 			&:hover {
 				background-color: lighten($color-dark-7, 15%);
 				transform: scale(1.05);
-			}
-		}
-
-		&-payment {
-			margin: 3rem auto 0;
-			padding: 1rem 1rem 0;
-			display: flex;
-			align-items: center;
-			flex-direction: column;
-
-			border-radius: 0.4rem;
-			transform: scale(1.2);
-			background-color: lighten($color-dark-8, 63%);
-
-			& > :first-child:not(:last-child) {
-				margin-bottom: 1rem;
 			}
 		}
 	}

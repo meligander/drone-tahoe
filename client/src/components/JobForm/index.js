@@ -9,11 +9,9 @@ const JobForm = ({ registerUpdateJob, job, setToggleModal }) => {
 		title: '',
 		subtitle: '',
 		poptext: '',
-		time: '',
-		price: '',
 	});
 
-	const { title, subtitle, poptext, time, price } = formData;
+	const { title, subtitle, poptext } = formData;
 
 	useEffect(() => {
 		if (job) {
@@ -21,16 +19,12 @@ const JobForm = ({ registerUpdateJob, job, setToggleModal }) => {
 				title: job.title,
 				subtitle: job.subtitle ? job.subtitle : '',
 				poptext: job.poptext ? job.poptext : '',
-				time: job.time,
-				price: job.price,
 			});
 		} else
 			setFormData({
 				title: '',
 				subtitle: '',
 				poptext: '',
-				time: '',
-				price: '',
 			});
 	}, [job, setToggleModal]);
 
@@ -46,6 +40,9 @@ const JobForm = ({ registerUpdateJob, job, setToggleModal }) => {
 
 	return (
 		<form className='form' onSubmit={onSubmit}>
+			<h3 className='heading-primary-subheading'>
+				{job ? 'Update' : 'New'} Job:
+			</h3>
 			<Alert type='2' />
 			<div className='form__group'>
 				<input
@@ -72,38 +69,6 @@ const JobForm = ({ registerUpdateJob, job, setToggleModal }) => {
 				<label htmlFor='subtitle' className='form__label'>
 					Subtitle
 				</label>
-			</div>
-			<div className='form__group'>
-				<div className='form__group-sub'>
-					<div className='form__group-sub-item'>
-						<input
-							type='number'
-							className='form__input'
-							placeholder='Time it takes'
-							id='time'
-							onChange={onChange}
-							value={time}
-						/>
-						<label htmlFor='time' className='form__label'>
-							Time it takes
-						</label>
-					</div>
-					<div className='form__group-sub-item'>
-						<input
-							type='number'
-							step='any'
-							min='0'
-							className='form__input'
-							placeholder='Price'
-							id='price'
-							onChange={onChange}
-							value={price}
-						/>
-						<label htmlFor='price' className='form__label'>
-							Price
-						</label>
-					</div>
-				</div>
 			</div>
 			<div className='form__group'>
 				<textarea

@@ -1,25 +1,24 @@
 import api from '../utils/api';
-import history from '../utils/history';
+//import history from '../utils/history';
 
 import {
 	RESERVATIONS_CLEARED,
 	RESERVATIONS_ERROR,
 	RESERVATIONS_LOADED,
+	RESERVATION_CANCELED,
 	RESERVATION_DELETED,
 	RESERVATION_LOADED,
 	RESERVATION_REGISTERED,
 	RESERVATION_UPDATED,
 	RESERVATION_CLEARED,
-	ADD_USEDDAY,
-	DELETE_USEDDAY,
 	PAYMENT_ERROR,
 	PAYMENT_SUCCESSFUL,
 	PAYMENT_STATUS_UPDATED,
-	RESERVATION_CANCELED,
 } from './types';
 
 import { setAlert } from './alert';
 import { updateLoadingSpinner } from './global';
+import { addDate, deleteDate } from './day';
 
 export const loadReservation = (reservation_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
@@ -134,72 +133,58 @@ export const updateStatus = () => async (dispatch) => {
 	}
 };
 
-export const registerReservation =
-	(formData, admin, date) => async (dispatch) => {
-		dispatch(updateLoadingSpinner(true));
-		if (formData.user === '') {
-			history.push('/login');
-			dispatch(
-				setAlert(
-					'You must login or signup before making a reservation',
-					'danger',
-					'1'
-				)
-			);
-		} else {
-			try {
-				let res = await api.post('/reservation', formData);
+export const registerReservation = (formData, date) => async (dispatch) => {
+	dispatch(updateLoadingSpinner(true));
+	try {
+		let res = await api.post('/reservation', formData);
 
-				dispatch({
-					type: RESERVATION_REGISTERED,
-					payload: res.data,
-				});
-				console.log(formData);
+		dispatch({
+			type: RESERVATION_REGISTERED,
+			payload: res.data,
+		});
 
-				if (date)
-					dispatch({
-						type: ADD_USEDDAY,
-						payload: date,
-					});
+		const isReservation = formData.jobs.length > 0;
 
-				if (admin) history.push('/reservations-list/');
-				dispatch(
-					setAlert(
-						formData.job ? 'Reservation Registered' : 'Hour Range Disabled',
-						'success',
-						'1'
-					)
-				);
-				window.scrollTo(0, 0);
-			} catch (err) {
-				if (err.response.data.errors) {
-					const errors = err.response.data.errors;
-					errors.forEach((error) => {
-						dispatch(setAlert(error.msg, 'danger', '2'));
-					});
-					dispatch({
-						type: RESERVATIONS_ERROR,
-						payload: errors,
-					});
-				} else {
-					dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-					dispatch({
-						type: RESERVATIONS_ERROR,
-						payload: {
-							type: err.response.statusText,
-							status: err.response.status,
-							msg: err.response.data.msg,
-						},
-					});
-				}
-			}
-		}
+		if (date) dispatch(addDate(date, isReservation));
 
+		dispatch(
+			setAlert(
+				isReservation ? 'Reservation Registered' : 'Time Range Disabled',
+				'success',
+				'1'
+			)
+		);
+		window.scrollTo(0, 0);
 		dispatch(updateLoadingSpinner(false));
-	};
+		return true;
+	} catch (err) {
+		if (err.response.data.errors) {
+			const errors = err.response.data.errors;
+			errors.forEach((error) => {
+				dispatch(setAlert(error.msg, 'danger', '2'));
+			});
+			dispatch({
+				type: RESERVATIONS_ERROR,
+				payload: errors,
+			});
+		} else {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch({
+				type: RESERVATIONS_ERROR,
+				payload: {
+					type: err.response.statusText,
+					status: err.response.status,
+					msg: err.response.data.msg,
+				},
+			});
+		}
+		dispatch(updateLoadingSpinner(false));
+		return false;
+	}
+};
 
 export const updateReservation =
-	(formData, reservation_id, type) => async (dispatch) => {
+	(reservation_id, formData, date) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
 		try {
 			let res = await api.put(`/reservation/${reservation_id}`, formData);
@@ -209,10 +194,12 @@ export const updateReservation =
 				payload: res.data,
 			});
 
-			if (type === 'admin') history.push('/reservations-list');
+			if (date) dispatch(addDate(date, true));
 
 			dispatch(setAlert('Reservation Updated', 'success', '1'));
 			window.scrollTo(0, 0);
+			dispatch(updateLoadingSpinner(false));
+			return true;
 		} catch (err) {
 			if (err.response.data.errors) {
 				const errors = err.response.data.errors;
@@ -234,9 +221,9 @@ export const updateReservation =
 					},
 				});
 			}
+			dispatch(updateLoadingSpinner(false));
+			return false;
 		}
-
-		dispatch(updateLoadingSpinner(false));
 	};
 
 export const cancelReservation = (reservation_id) => async (dispatch) => {
@@ -266,24 +253,28 @@ export const cancelReservation = (reservation_id) => async (dispatch) => {
 	window.scrollTo(0, 0);
 	dispatch(updateLoadingSpinner(false));
 };
-export const deleteReservation = (reservation_id, date) => async (dispatch) => {
+export const deleteReservation = (reservation, date) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
 	try {
-		await api.delete(`/reservation/${reservation_id}`);
+		await api.delete(`/reservation/${reservation.id}`);
 
 		dispatch({
 			type: RESERVATION_DELETED,
-			payload: reservation_id,
+			payload: reservation.id,
 		});
 
-		if (date)
-			dispatch({
-				type: DELETE_USEDDAY,
-				payload: date,
-			});
+		const isReservation = reservation.jobs.length > 0;
 
-		dispatch(setAlert('Reservation Deleted', 'success', '1'));
+		if (date) dispatch(deleteDate(date, isReservation));
+
+		dispatch(
+			setAlert(
+				isReservation ? 'Reservation Deleted' : 'Time Range Enabled',
+				'success',
+				'1'
+			)
+		);
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({

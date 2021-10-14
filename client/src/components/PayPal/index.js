@@ -1,15 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { registerReservation, makePayment } from '../../actions/reservation';
-import { setAlert } from '../../actions/alert';
+import { updateReservation, makePayment } from '../../actions/reservation';
+
+import Alert from '../layouts/Alert';
 
 const PayPal = ({
 	reservation,
-	registerReservation,
-	complete,
+	updateReservation,
 	makePayment,
-	setAlert,
+	setToggleModal,
+	auth: { loggedUser },
 }) => {
 	const paypal = useRef();
 
@@ -17,31 +18,57 @@ const PayPal = ({
 		window.paypal
 			.Buttons({
 				createOrder: async () => {
-					console.log(reservation.user);
-					if (reservation.user) {
-						const payment = await makePayment(reservation);
-						return payment.id;
-					} else setAlert("User's email is required", 'danger', '2');
+					const payment = await makePayment(reservation);
+					return payment.id;
 				},
 				onApprove: async (data, actions) => {
 					const order = await actions.order.capture();
-					registerReservation({ ...reservation, paymentId: order.id });
-					complete();
+					const answer = await updateReservation(reservation, {
+						status: 'pending',
+						paymentId: order.id,
+					});
+					if (answer) setToggleModal();
 				},
 				onError: (err) => {
 					//console.log(err);
 				},
 			})
 			.render(paypal.current);
-	}, [complete, makePayment, reservation, registerReservation, setAlert]);
+
+		// eslint-disable-next-line
+	}, []);
 
 	return (
-		<div>
+		<div className='payment'>
+			<h3 className='heading-primary-subheading'>Payment:</h3>
+			<Alert type='2' />
+			{loggedUser.type === 'admin' && (
+				<>
+					<button
+						className='btn'
+						onClick={async () => {
+							const answer = await updateReservation(reservation, {
+								status: 'pending',
+							});
+							if (answer) setToggleModal();
+						}}
+					>
+						Pay Cash
+					</button>
+					<p className='payment-text'>OR</p>
+				</>
+			)}
+
 			<div ref={paypal}></div>
 		</div>
 	);
 };
 
-export default connect(null, { registerReservation, makePayment, setAlert })(
-	PayPal
-);
+const mapStateToProps = (state) => ({
+	auth: state.auth,
+});
+
+export default connect(mapStateToProps, {
+	updateReservation,
+	makePayment,
+})(PayPal);

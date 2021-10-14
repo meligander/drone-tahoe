@@ -103,6 +103,7 @@ const HourRangeForm = ({
 
 	return (
 		<form className='form' onSubmit={onSubmit}>
+			<h3 className='heading-primary-subheading'>Disable Hour Range:</h3>
 			<Alert type='2' />
 			<div className='form__group'>
 				<div className='form__group-sub'>

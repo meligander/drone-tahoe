@@ -8,16 +8,20 @@ import {
 	DAYSAVAILABILITY_ERROR,
 	DAYSAVAILABILITY_CLEARED,
 	DAYS_DISABLED,
+	ADD_RESERVED_DAY,
+	ADD_TIME_DISABLED_DAY,
+	DELETE_RESERVED_DAY,
+	DELETE_TIME_DISABLED_DAY,
 } from './types';
 
 import { setAlert } from './alert';
 import { updateLoadingSpinner } from './global';
 
 export const checkDayAvailability =
-	(date, job_id, reservation_id) => async (dispatch) => {
+	(date, reservation_id) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
 		try {
-			const res = await api.get(`/day/${date}/${job_id}/${reservation_id}`);
+			const res = await api.get(`/day/${date}/${reservation_id}`);
 			dispatch({
 				type: DAYAVAILABILITY_LOADED,
 				payload: res.data,
@@ -39,13 +43,11 @@ export const checkDayAvailability =
 	};
 
 export const checkMonthAvailability =
-	(job_id, month, year, reservation_id) => async (dispatch) => {
+	(month, year, reservation_id) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
 
 		try {
-			const res = await api.get(
-				`/day/${job_id}/${month}/${year}/${reservation_id}`
-			);
+			const res = await api.get(`/day/${month}/${year}/${reservation_id}`);
 
 			dispatch({
 				type: MONTHAVAILABILITY_LOADED,
@@ -101,7 +103,10 @@ export const disableDate = (date) => async (dispatch) => {
 
 		dispatch({
 			type: DAY_DISABLED,
-			payload: date,
+			payload: {
+				type: 'disabledDays',
+				date,
+			},
 		});
 
 		dispatch(setAlert('Date successfully disabled', 'success', '2'));
@@ -131,7 +136,10 @@ export const disableDateRange = (dateFrom, dateTo) => async (dispatch) => {
 
 		dispatch({
 			type: DAYS_DISABLED,
-			payload: res.data,
+			payload: {
+				type: 'disabledDays',
+				dates: res.data,
+			},
 		});
 
 		dispatch(setAlert('Dates successfully disabled', 'success', '2'));
@@ -160,7 +168,10 @@ export const enableDate = (date) => async (dispatch) => {
 
 		dispatch({
 			type: DAY_ENABLED,
-			payload: date,
+			payload: {
+				type: 'disabledDays',
+				date,
+			},
 		});
 
 		dispatch(setAlert('Date successfully enabled', 'success', '2'));
@@ -179,6 +190,26 @@ export const enableDate = (date) => async (dispatch) => {
 
 	window.scrollTo(0, 0);
 	dispatch(updateLoadingSpinner(false));
+};
+
+export const addDate = (date, reservation) => async (dispatch) => {
+	dispatch({
+		type: reservation ? ADD_RESERVED_DAY : ADD_TIME_DISABLED_DAY,
+		payload: {
+			type: reservation ? 'reservedDays' : 'timeDisabledDays',
+			date,
+		},
+	});
+};
+
+export const deleteDate = (date, reservation) => async (dispatch) => {
+	dispatch({
+		type: reservation ? DELETE_RESERVED_DAY : DELETE_TIME_DISABLED_DAY,
+		payload: {
+			type: reservation ? 'reservedDays' : 'timeDisabledDays',
+			date,
+		},
+	});
 };
 
 export const clearDaysAvailability = () => (dispatch) => {

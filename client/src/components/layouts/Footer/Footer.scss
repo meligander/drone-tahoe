@@ -28,13 +28,12 @@
 			font-size: 44px;
 			cursor: pointer;
 			width: 60px;
-			transform: scale(0.95);
 			transition: all 0.2s ease-out;
 
 			&:hover {
-				transform: scale(1);
+				transform: translateY(-5px);
 				transition: all 0.2s ease-out;
-				color: lighten($color-gray-light, 15%);
+				color: lighten($color-dark-6, 25%);
 			}
 		}
 	}

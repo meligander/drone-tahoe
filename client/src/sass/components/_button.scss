@@ -163,7 +163,8 @@
 			}
 		}
 
-		.far {
+		.far,
+		.fas {
 			cursor: pointer;
 			transition: all 0.2s ease-out;
 
@@ -184,6 +185,10 @@
 
 		.fa-edit {
 			color: $color-success;
+		}
+
+		.fa-dollar-sign {
+			color: $color-light-2;
 		}
 	}
 

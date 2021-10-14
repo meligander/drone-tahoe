@@ -80,7 +80,7 @@ const reservationReducer = (state = initialState, action) => {
 			return {
 				...state,
 				//reservation: null,
-				reservations: [],
+				//reservations: [],
 				loadingReservation: false,
 				loading: false,
 				error: payload,

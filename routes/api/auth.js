@@ -38,7 +38,7 @@ router.post(
 			//See if user exists
 			let user = await User.findOne({ where: { email } });
 
-			if (!user) errors.push({ msg: 'Invalid email' });
+			if (!user) errors.push({ msg: 'There is no user with this email' });
 			else {
 				const isMatch = await bcrypt.compare(password, user.password);
 
@@ -47,17 +47,7 @@ router.post(
 
 			if (errors.length > 0) return res.status(400).json({ errors });
 
-			//Return jsonwebtoken
-			const payload = {
-				user: {
-					id: user.id,
-					email: user.email,
-				},
-			};
-
-			const token = jwt.sign(payload, process.env.JWT_SECRET, {
-				expiresIn: 2 * 60 * 60 /*1 hora */,
-			});
+			const token = loginToken(user);
 
 			res.json({ token });
 		} catch (err) {
@@ -84,16 +74,8 @@ router.post(
 		check('passwordConf', 'Password Confirmation is required').not().isEmpty(),
 	],
 	async (req, res) => {
-		const {
-			name,
-			lastname,
-			email,
-			password,
-			passwordConf,
-			cel,
-			homeTown,
-			type,
-		} = req.body;
+		const { name, lastname, email, password, passwordConf, cel, type } =
+			req.body;
 
 		let errors = [];
 		const errorsResult = validationResult(req);
@@ -139,7 +121,6 @@ router.post(
 				password,
 				email,
 				cel,
-				...(homeTown && homeTown !== '' && { homeTown }),
 				type: type ? type : 'customer',
 			};
 
@@ -185,24 +166,15 @@ router.post('/activation', async (req, res) => {
 
 		user.password = await bcrypt.hash(user.password, salt);
 
-		const existingUser = await User.findOne({ where: { email: user.email } });
+		user = await User.findOne({ where: { email: user.email } });
 
-		if (!existingUser) user = await User.create(user);
+		if (!user) user = await User.create(user);
 
-		const payload = {
-			user: {
-				id: user.id,
-				email: user.email,
-			},
-		};
-
-		const newToken = jwt.sign(payload, process.env.JWT_SECRET, {
-			expiresIn: 2 * 60 * 60 /*1 hora */,
-		});
+		const token = loginToken(user);
 
 		res.json({
-			user: !existingUser ? user : existingUser,
-			token: newToken,
+			user,
+			token,
 		});
 	} catch (err) {
 		console.log(err.message);
@@ -241,16 +213,7 @@ router.post('/facebooklogin', async (req, res) => {
 			user = await User.create(data);
 		}
 
-		const payload = {
-			user: {
-				id: user.id,
-				email: user.email,
-			},
-		};
-
-		const token = jwt.sign(payload, process.env.JWT_SECRET, {
-			expiresIn: 2 * 60 * 60 /*1 hora */,
-		});
+		const token = loginToken(user);
 
 		res.json({ token });
 	} catch (err) {
@@ -293,13 +256,7 @@ router.post('/googlelogin', async (req, res) => {
 			user = await User.create(data);
 		}
 
-		const token = jwt.sign(
-			{ user: { id: user.id, email: user.email } },
-			process.env.JWT_SECRET,
-			{
-				expiresIn: 2 * 60 * 60,
-			}
-		);
+		const token = loginToken(user);
 
 		res.json({ token });
 	} catch (err) {
@@ -376,16 +333,13 @@ router.put(
 
 			if (errors.length > 0) return res.status(400).json({ errors });
 
-			const token = jwt.sign({ _id: user.id }, process.env.JWT_SECRET, {
+			const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
 				expiresIn: '20m',
 			});
 
-			await User.update(
-				{ resetLink: token },
-				{
-					where: { id: user.id },
-				}
-			);
+			user.resetLink = token;
+
+			await user.save();
 
 			await sendEmail(
 				email,
@@ -460,24 +414,12 @@ router.put(
 
 			const salt = await bcrypt.genSalt(10);
 
-			let data = {
-				password: '',
-				resetLink: '',
-			};
+			user.password = await bcrypt.hash(password, salt);
+			user.resetLink = '';
 
-			data.password = await bcrypt.hash(password, salt);
+			await user.save();
 
-			await User.update(data, {
-				where: { id: user.id },
-			});
-
-			const token = jwt.sign(
-				{ user: { id: user.id } },
-				process.env.JWT_SECRET,
-				{
-					expiresIn: 2 * 60 * 60 /*2 hora */,
-				}
-			);
+			const token = loginToken(user);
 
 			res.json({ user, token });
 		} catch (err) {
@@ -486,5 +428,24 @@ router.put(
 		}
 	}
 );
+
+const loginToken = (user) => {
+	try {
+		const payload = {
+			user: {
+				id: user.id,
+				email: user.email,
+				type: user.type,
+			},
+		};
+
+		return jwt.sign(payload, process.env.JWT_SECRET, {
+			expiresIn: 2 * 60 * 60 /*2 hora */,
+		});
+	} catch (err) {
+		console.error(err.message);
+		return res.status(500).json({ msg: 'Token error' });
+	}
+};
 
 module.exports = router;

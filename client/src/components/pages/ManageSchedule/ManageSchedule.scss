@@ -77,6 +77,11 @@
 
 			&.disabled {
 				background-color: $color-light-2 !important;
+
+				&:hover {
+					transform: scale(1);
+					background-color: lighten($color-light-2, 5%);
+				}
 			}
 
 			&:hover {

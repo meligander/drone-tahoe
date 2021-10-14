@@ -25,7 +25,7 @@ import Moment from 'react-moment';
 import PopUp from '../../layouts/PopUp';
 
 const ManageSchedule = ({
-	day: { disabledDays, usedDays },
+	day: { disabledDays, reservedDays, timeDisabledDays },
 	reservation: { loading, reservations },
 	checkMonthSchedule,
 	checkDayAvailability,
@@ -59,18 +59,23 @@ const ManageSchedule = ({
 			const startDate = moment(date[0], 'DD/MM/YYYY');
 			const endDate = moment(date[1], 'DD/MM/YYYY');
 
-			if (
-				usedDays.some((item) => {
+			const betweenArrays =
+				reservedDays.some((item) => {
 					const compareDate = moment(item).add(1, 'day');
 					return compareDate.isBetween(startDate, endDate);
 				}) ||
 				disabledDays.some((item) => {
 					const compareDate = moment(item).add(1, 'day');
 					return compareDate.isBetween(startDate, endDate);
-				})
-			) {
+				}) ||
+				timeDisabledDays.some((item) => {
+					const compareDate = moment(item).add(1, 'day');
+					return compareDate.isBetween(startDate, endDate);
+				});
+
+			if (betweenArrays) {
 				setAlert(
-					'Can not choose a range with a disabled day or a day with a reservation in between',
+					'Can not choose a range with a disabled day or a day with a reservation in between.',
 					'danger',
 					'2'
 				);
@@ -81,7 +86,7 @@ const ManageSchedule = ({
 				}));
 			}
 		}
-	}, [range, date, setAlert, disabledDays, usedDays]);
+	}, [range, date, setAlert, disabledDays, reservedDays, timeDisabledDays]);
 
 	const onChangeDate = (changedDate) => {
 		let loadRes;
@@ -89,10 +94,15 @@ const ManageSchedule = ({
 		if (!range) {
 			changedDate.setHours(0, 0, 0, 0);
 
-			loadRes = usedDays.some((item) => {
-				const pastDate = new Date(item);
-				return pastDate.getUTCDate() === changedDate.getDate();
-			});
+			loadRes =
+				reservedDays.some((item) => {
+					const pastDate = new Date(item);
+					return pastDate.getUTCDate() === changedDate.getDate();
+				}) ||
+				timeDisabledDays.some((item) => {
+					const pastDate = new Date(item);
+					return pastDate.getUTCDate() === changedDate.getDate();
+				});
 
 			if (loadRes)
 				loadReservations({
@@ -112,29 +122,35 @@ const ManageSchedule = ({
 	const tileClassName = useCallback(
 		(info) => {
 			return info.view === 'month' &&
-				usedDays.some((item) => {
+				reservedDays.some((item) => {
 					const pastDate = new Date(item);
 					return (
 						pastDate.getUTCDate() === info.date.getDate() &&
 						pastDate.getUTCMonth() === info.date.getMonth()
 					);
 				})
-				? 'used'
+				? 'reserved'
 				: disabledDays.some((item) => {
 						const pastDate = new Date(item);
 						return (
 							pastDate.getUTCDate() === info.date.getDate() &&
 							pastDate.getUTCMonth() === info.date.getMonth()
 						);
-				  }) && 'disabled';
+				  })
+				? 'disabled'
+				: timeDisabledDays.some((item) => {
+						const pastDate = new Date(item);
+						return (
+							pastDate.getUTCDate() === info.date.getDate() &&
+							pastDate.getUTCMonth() === info.date.getMonth()
+						);
+				  }) && 'time-disabled';
 		},
-		[disabledDays, usedDays]
+		[disabledDays, reservedDays, timeDisabledDays]
 	);
 
 	const tileDisabled = useCallback(({ date, view }) => {
-		if (view === 'month') {
-			return date.getDay() === 6 || date.getDay() === 0;
-		}
+		if (view === 'month') return date.getDay() === 6 || date.getDay() === 0;
 	}, []);
 
 	const tabOpen = () => {
@@ -213,7 +229,6 @@ const ManageSchedule = ({
 										}));
 										checkDayAvailability(
 											moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
-											0,
 											0
 										);
 									}}

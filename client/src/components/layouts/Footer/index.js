@@ -32,9 +32,13 @@ function Footer({ footerHeight }) {
 					</div>
 					<div className='social-media-wrap-section'>
 						<div className='footer-logo'>
-							<a href='#top' className='social-logo'>
+							<Link
+								to='/'
+								onClick={() => window.scroll(0, 0)}
+								className='social-logo'
+							>
 								<img src={NavLogo} className='footer-logo' alt='' />
-							</a>
+							</Link>
 						</div>
 					</div>
 					<div className='social-media-wrap-section'>
@@ -66,15 +70,15 @@ function Footer({ footerHeight }) {
 							>
 								<i className='fab fa-youtube' />
 							</Link>
+							<Link
+								className='social-icon-link twitter'
+								to={{ pathname: 'https://twitter.com/Drone_Tahoe' }}
+								target='_blank'
+								aria-label='Twitter'
+							>
+								<i className='fab fa-twitter' />
+							</Link>
 							{/* <Link
-              className='social-icon-link twitter'
-              to='/'
-              target='_blank'
-              aria-label='Twitter'
-            >
-              <i className='fab fa-twitter' />
-            </Link>
-            <Link
               className='social-icon-link twitter'
               to='/'
               target='_blank'

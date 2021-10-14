@@ -4,6 +4,7 @@ import logo from '../../../img/logoDRONE-dark-cropped-final.png';
 import HourRangeForm from '../../HourRangeForm';
 import JobForm from '../../JobForm';
 import ReservationForm from '../../ReservationForm';
+import PayPal from '../../PayPal';
 
 import './PopUp.scss';
 
@@ -42,21 +43,23 @@ const PopUp = ({
 			case 'job':
 				return (
 					<div className='popup-job wrapper wrapper-popup'>
-						<h3 className='heading-primary-subheading'>
-							{toUpdate ? 'Update' : 'New'} Job
-						</h3>
 						<JobForm job={toUpdate} setToggleModal={setToggleModal} />
 					</div>
 				);
 			case 'hour':
 				return (
 					<div className='popup-hour wrapper wrapper-popup'>
-						<h3 className='heading-primary-subheading'>Disable Hour Range</h3>
 						<HourRangeForm
 							date={date}
 							setToggleModal={setToggleModal}
 							confirm={confirm}
 						/>
+					</div>
+				);
+			case 'payment':
+				return (
+					<div className='popup-payment'>
+						<PayPal reservation={toUpdate} setToggleModal={setToggleModal} />
 					</div>
 				);
 			default:

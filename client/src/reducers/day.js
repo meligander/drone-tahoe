@@ -6,8 +6,10 @@ import {
 	DAYSAVAILABILITY_CLEARED,
 	DAYSAVAILABILITY_ERROR,
 	DAYS_DISABLED,
-	ADD_USEDDAY,
-	DELETE_USEDDAY,
+	DELETE_RESERVED_DAY,
+	ADD_RESERVED_DAY,
+	ADD_TIME_DISABLED_DAY,
+	DELETE_TIME_DISABLED_DAY,
 } from '../actions/types';
 
 const initialState = {
@@ -15,7 +17,8 @@ const initialState = {
 	loadingDisabledDays: true,
 	availableHours: [],
 	disabledDays: [],
-	usedDays: [],
+	reservedDays: [],
+	timeDisabledDays: [],
 	error: {},
 };
 
@@ -27,7 +30,7 @@ const userReducer = (state = initialState, action) => {
 				...state,
 				loadingDisabledDays: false,
 				disabledDays: payload.disabledDays ? payload.disabledDays : payload,
-				...(payload.usedDays && { usedDays: payload.usedDays }),
+				...(payload.reservedDays && { reservedDays: payload.reservedDays }),
 				error: {},
 			};
 		case DAYAVAILABILITY_LOADED:
@@ -47,41 +50,26 @@ const userReducer = (state = initialState, action) => {
 				error: payload,
 			};
 		case DAY_ENABLED:
-			const enabledDate = new Date(payload);
-			const disabledDays = state.disabledDays.filter((item) => {
+		case DELETE_RESERVED_DAY:
+		case DELETE_TIME_DISABLED_DAY:
+			const toDelete = new Date(payload.date);
+			const daysArray = state[payload.type].filter((item) => {
 				const oldDate = new Date(item);
-
-				return oldDate.getTime() !== enabledDate.getTime();
-			});
-			return {
-				...state,
-				disabledDays,
-			};
-		case DAY_DISABLED:
-			return {
-				...state,
-				disabledDays: [...state.disabledDays, payload],
-			};
-		case DELETE_USEDDAY:
-			const toDelete = new Date(payload);
-			const usedDays = state.usedDays.filter((item) => {
-				const oldDate = new Date(item);
-
 				return oldDate.getTime() !== toDelete.getTime();
 			});
 			return {
 				...state,
-				usedDays,
+				[payload.type]: daysArray,
 			};
-		case ADD_USEDDAY:
-			return {
-				...state,
-				usedDays: [...state.usedDays, payload],
-			};
+		case DAY_DISABLED:
+		case ADD_RESERVED_DAY:
+		case ADD_TIME_DISABLED_DAY:
 		case DAYS_DISABLED:
 			return {
 				...state,
-				disabledDays: [...state.disabledDays, ...payload],
+				[payload.type]: payload.dates
+					? [...state[payload.type], ...payload.dates]
+					: [...state[payload.type], payload.date],
 			};
 		default:
 			return state;

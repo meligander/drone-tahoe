@@ -33,11 +33,9 @@ const EditUser = ({
 		passwordConf: '',
 		cel: '',
 		type: '',
-		homeTown: '',
 	});
 
-	const { name, lastname, email, password, cel, type, homeTown, passwordConf } =
-		formData;
+	const { name, lastname, email, password, cel, type, passwordConf } = formData;
 
 	useEffect(() => {
 		let userLoaded;
@@ -58,7 +56,6 @@ const EditUser = ({
 					lastname: userLoaded.lastname,
 					type: userLoaded.type,
 					email: userLoaded.email,
-					...(userLoaded.homeTown && { homeTown: userLoaded.homeTown }),
 					cel: userLoaded.cel === '0' ? '' : userLoaded.cel,
 				}));
 		}
@@ -229,19 +226,6 @@ const EditUser = ({
 								/>
 								<label htmlFor='cel' className='form__label'>
 									Cellphone
-								</label>
-							</div>
-							<div className='form__group'>
-								<input
-									className='form__input'
-									type='text'
-									value={homeTown}
-									onChange={onChange}
-									id='homeTown'
-									placeholder='Address'
-								/>
-								<label htmlFor='homeTown' className='form__label'>
-									Address
 								</label>
 							</div>
 

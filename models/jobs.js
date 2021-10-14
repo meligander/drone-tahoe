@@ -8,7 +8,5 @@ module.exports = (sequelize, type) => {
 		title: { type: type.STRING, allowNull: false, unique: true },
 		subtitle: type.STRING,
 		poptext: type.TEXT,
-		time: { type: type.INTEGER, allowNull: false },
-		price: { type: type.DOUBLE, allowNull: false },
 	});
 };

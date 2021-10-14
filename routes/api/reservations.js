@@ -22,7 +22,7 @@ const paypalClient = new paypal.core.PayPalHttpClient(
 );
 
 //Email
-const { sendToCompany } = require('../../config/emailSender');
+const { sendToCompany, sendEmail } = require('../../config/emailSender');
 
 //Middleware
 const auth = require('../../middleware/auth');
@@ -46,13 +46,18 @@ router.get('/:reservation_id', [auth], async (req, res) => {
 					as: 'user',
 					attributes: { exclude: ['password'] },
 				},
-				{ model: Job, as: 'job' },
 			],
 		});
 
 		if (!reservation) {
 			return res.status(400).json({ msg: 'Reservation not found' });
 		}
+
+		if (reservation.jobs > 0)
+			for (let x = 0; x < reservation.jobs.length; x++)
+				reservation.jobs[x] = await Job.findOne({
+					where: { id: reservation.jobs[x] },
+				});
 
 		res.json(reservation);
 	} catch (err) {
@@ -67,7 +72,6 @@ router.get('/:reservation_id', [auth], async (req, res) => {
 router.get('/', [auth], async (req, res) => {
 	try {
 		const filter = {
-			...(req.query.job && { jobId: req.query.job }),
 			...(req.query.user && { userId: req.query.user }),
 			...((req.query.hourFrom || req.query.hourTo) && {
 				hourFrom: {
@@ -99,7 +103,6 @@ router.get('/', [auth], async (req, res) => {
 					},
 					attributes: { exclude: ['password'] },
 				},
-				{ model: Job, as: 'job' },
 			],
 		});
 
@@ -127,6 +130,7 @@ router.post(
 			check('user', 'User is required').not().isEmpty(),
 			check('hourFrom', 'Time is required').not().isEmpty(),
 			check('hourTo', 'Time is required').not().isEmpty(),
+			check('address', 'Address is required').not().isEmpty(),
 		],
 	],
 	async (req, res) => {
@@ -134,9 +138,26 @@ router.post(
 		const errorsResult = validationResult(req);
 		if (!errorsResult.isEmpty()) errors = errorsResult.array();
 
-		if (errors.length > 0) return res.status(400).json({ errors });
+		let { hourFrom, hourTo, user, jobs, address, comments, value } = req.body;
 
-		let { hourFrom, hourTo, user, job, paymentId } = req.body;
+		const regex1 = /^\$?\d+(\.(\d{2}))?$/;
+
+		if (req.user.type === 'admin') {
+			if (!value) errors.push({ msg: 'Value is required', param: 'value' });
+			else if (!regex1.test(value))
+				errors.push({ msg: 'Invalid Price. eg: 350.50', param: 'value' });
+		}
+
+		if (jobs.length === 0)
+			errors.push({ msg: 'You must have at least one job', param: 'jobs' });
+
+		if (jobs.some((item) => item === ''))
+			errors.push({
+				msg: 'All jobs must have an item selected',
+				param: 'jobs',
+			});
+
+		if (errors.length > 0) return res.status(400).json({ errors });
 
 		hourFrom = new Date(hourFrom);
 		hourTo = new Date(hourTo);
@@ -145,10 +166,11 @@ router.post(
 			hourFrom,
 			hourTo,
 			userId: user,
-			jobId: job && job.id,
-			value: job ? job.price : 0,
-			paymentId,
-			status: paymentId && paymentId !== '' ? 'pending' : 'completed',
+			jobs,
+			address,
+			...(value && { value }),
+			...(comments && { comments }),
+			status: req.user.type === 'admin' ? 'unpaid' : 'requested',
 		};
 
 		try {
@@ -159,11 +181,56 @@ router.post(
 				order: [['hourFrom', 'desc']],
 				include: [
 					{ model: User, as: 'user', attributes: { exclude: ['password'] } },
-					{ model: Job, as: 'job' },
 				],
 			});
 
+			if (req.user.type === 'customer')
+				for (let x = 0; x < jobs.length; x++)
+					reservation.jobs[x] = await Job.findOne({
+						where: { id: jobs[x] },
+					});
+
 			await addResToDay(reservation);
+
+			hourFrom = moment(hourFrom);
+			hourTo = moment(hourTo);
+
+			if (req.user.type === 'admin') {
+				await sendEmail(
+					reservation.user.email,
+					'Reservation Registered',
+					`Hello ${reservation.user.name} ${reservation.user.lastname}!
+					A reservation has been registered on the ${hourFrom
+						.utc()
+						.format('MM/DD/YY')} from ${hourFrom
+						.utc()
+						.format('h a')} to ${hourTo
+						.utc()
+						.format('h a')} and its payment is pending for it to be completed.
+					<br/>
+					After login into your account <a href='${
+						process.env.WEBPAGE_URI
+					}login/'>Login</a>
+					Follow this link to pay the reservation <a href='${
+						process.env.WEBPAGE_URI
+					}reservations/0/'>Reservations</a>`
+				);
+			} else {
+				await sendToCompany(
+					'Reservation Requested',
+					`The user ${reservation.user.name} ${
+						reservation.user.lastname
+					}, email ${
+						reservation.user.email
+					}, has requested a reservation for the ${hourFrom
+						.utc()
+						.format('MM/DD/YY')} from ${hourFrom
+						.utc()
+						.format('h a')} to ${hourTo.utc().format('h a')}. 
+						<br/>
+						Determine the price and correct time for the job so the user can proceed with the payment`
+				);
+			}
 
 			return res.json(reservation);
 		} catch (err) {

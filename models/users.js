@@ -11,8 +11,7 @@ module.exports = (sequelize, type) => {
 		name: { type: type.STRING, allowNull: false },
 		lastname: { type: type.STRING, allowNull: false },
 		cel: { type: type.STRING, allowNull: false },
-		homeTown: type.STRING,
-		type: { type: type.STRING, allowNull: false },
+		type: { type: type.ENUM, allowNull: false, values: ['customer', 'admin'] },
 		resetLink: { type: type.STRING, default: '' },
 	});
 };

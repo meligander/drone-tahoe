@@ -40,7 +40,8 @@ table {
 	@each $child in (4, 5, 6, 7, 8) {
 		&.icon-#{$child} {
 			td:nth-child(#{$child}),
-			td:nth-child(#{$child + 1}) {
+			td:nth-child(#{$child + 1}),
+			td:nth-child(#{$child + 2}) {
 				width: 5%;
 			}
 			.btn-text {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Moment from 'react-moment';
@@ -27,6 +27,8 @@ const Reservation = ({
 	updateStatus,
 	match,
 }) => {
+	const ref = useRef();
+
 	const [adminValues, setAdminValues] = useState({
 		reservation: null,
 		toggleModal: false,
@@ -35,7 +37,7 @@ const Reservation = ({
 	const { reservation, toggleModal } = adminValues;
 
 	useEffect(() => {
-		if (loading) loadJobs({}, token ? true : false);
+		if (loading && token) loadJobs({}, true);
 		if (loggedUser && loggedUser.type !== 'admin' && loadingReservations) {
 			updateStatus();
 			loadReservations({ hourFrom: new Date(), user: loggedUser.id }, true);
@@ -113,15 +115,20 @@ const Reservation = ({
 										<Moment date={res.hourTo} utc format='h a' />
 									</div>
 									<div className='reservation-item-job'>
+										{res.jobs.map((item, i) => (
+											<p key={i}>
+												<span className='reservation-item-title'>
+													Job {i + 1}:{' '}
+												</span>{' '}
+												{item.title}
+											</p>
+										))}
+
 										<p>
-											<span className='reservation-item-title'>Job: </span>{' '}
-											{res.job.title}
+											<span className='reservation-item-title'>Value: </span>
+											{res.value ? '$' + res.value : 'Pending'}
 										</p>
-										<p>
-											<span className='reservation-item-title'>Value: </span> $
-											{res.value}
-										</p>
-										{res.status === 'pending' && (
+										{res.status !== 'completed' && (
 											<p>
 												<span className='reservation-item-title'>Status: </span>
 												{res.status.charAt(0).toUpperCase() +
@@ -131,6 +138,20 @@ const Reservation = ({
 									</div>
 									{res.status !== 'canceled' ? (
 										<div className='reservation-item-icons'>
+											{res.status === 'unpaid' && (
+												<button
+													onClick={() =>
+														setAdminValues((prev) => ({
+															...prev,
+															reservation: res,
+														}))
+													}
+													className='btn-icon'
+												>
+													<i className='fas fa-dollar-sign'></i>
+												</button>
+											)}
+
 											<button
 												onClick={() =>
 													setAdminValues((prev) => ({
@@ -173,13 +194,15 @@ const Reservation = ({
 						)}
 					</div>
 					{!loading && (
-						<ReservationForm
-							reservation={reservation}
-							complete={() =>
-								setAdminValues((prev) => ({ ...prev, reservation: null }))
-							}
-							jobId={match.params.job_id !== '0' ? match.params.job_id : null}
-						/>
+						<div ref={ref}>
+							<ReservationForm
+								reservation={reservation}
+								complete={() =>
+									setAdminValues((prev) => ({ ...prev, reservation: null }))
+								}
+								jobId={match.params.job_id !== '0' ? match.params.job_id : null}
+							/>
+						</div>
 					)}
 				</>
 			)}

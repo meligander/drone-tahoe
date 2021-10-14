@@ -110,7 +110,6 @@ router.put(
 	'/:id',
 	[
 		auth,
-		adminAuth,
 		check('name', 'Name is required').not().isEmpty(),
 		check('lastname', 'Lastame is required').not().isEmpty(),
 		check('email', 'Email is required').isEmail(),
@@ -118,7 +117,7 @@ router.put(
 		check('cel', 'Cellphone is required').not().isEmpty(),
 	],
 	async (req, res) => {
-		const { name, lastname, email, cel, type, homeTown } = req.body;
+		const { name, lastname, email, cel, type } = req.body;
 
 		let user;
 
@@ -157,7 +156,6 @@ router.put(
 				type,
 				email,
 				cel,
-				...(homeTown && { homeTown }),
 				...(req.params.id === '0' && {
 					password: await bcrypt.hash('12345678', salt),
 				}),

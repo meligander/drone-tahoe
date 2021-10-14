@@ -7,7 +7,7 @@ const auth = require('../../middleware/auth');
 const adminAuth = require('../../middleware/adminAuth');
 
 //Models
-const { Day, Job, Reservation } = require('../../config/db');
+const { Day, Reservation } = require('../../config/db');
 
 //@route    GET api/day/schedule/:month/:year
 //@desc     Get disabled and used days of a month
@@ -19,8 +19,9 @@ router.get('/schedule/:month/:year', async (req, res) => {
 
 		const monthDays = new Date(year, month + 1, 0).getDate();
 
-		let usedDays = [];
+		let reservedDays = [];
 		let disabledDays = [];
+		let hoursDisabledDays = [];
 
 		const days = await Day.findAll({
 			where: {
@@ -35,20 +36,24 @@ router.get('/schedule/:month/:year', async (req, res) => {
 
 		for (let x = 0; x < days.length; x++) {
 			if (!days[x].reservations) disabledDays.push(days[x].date);
-			else usedDays.push(days[x].date);
+			else {
+				if (days[x].reservations.every((item) => item.jobs.length === 0))
+					hoursDisabledDays.push(days[x].date);
+				else reservedDays.push(days[x].date);
+			}
 		}
 
-		res.json({ disabledDays, usedDays });
+		res.json({ disabledDays, reservedDays, hoursDisabledDays });
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });
 	}
 });
 
-//@route    GET api/day/:date/:job_id/:reservation_id
+//@route    GET api/day/:date/:reservation_id
 //@desc     Get day availability
 //@access   Public
-router.get('/:date/:job_id/:reservation_id', async (req, res) => {
+router.get('/:date/:reservation_id', [auth], async (req, res) => {
 	try {
 		const date = new Date(req.params.date);
 
@@ -84,12 +89,7 @@ router.get('/:date/:job_id/:reservation_id', async (req, res) => {
 			moment(a.hourFrom).diff(moment(b.hourFrom))
 		);
 
-		const job =
-			req.params.job_id !== '0'
-				? await Job.findOne({ where: { id: req.params.job_id } })
-				: {
-						time: 1,
-				  };
+		const time = req.user.type === 'customer' ? 2 : 1;
 
 		let finalArray = [];
 		let newArray = [];
@@ -108,11 +108,11 @@ router.get('/:date/:job_id/:reservation_id', async (req, res) => {
 				moment(reservations[x].hourFrom).utc().hour(),
 			];
 
-			if (newArray[1] - newArray[0] > job.time) finalArray.push(newArray);
+			if (newArray[1] - newArray[0] > time) finalArray.push(newArray);
 
 			if (
 				x === reservations.length - 1 &&
-				17 - Number(moment(reservations[x].hourTo).utc().hour()) > job.time
+				17 - Number(moment(reservations[x].hourTo).utc().hour()) > time
 			)
 				finalArray.push([moment(reservations[x].hourTo).utc().hour(), 17]);
 		}
@@ -124,10 +124,10 @@ router.get('/:date/:job_id/:reservation_id', async (req, res) => {
 	}
 });
 
-//@route    GET api/day/:job_id/:month/:year/:reservation_id
+//@route    GET api/day/:month/:year/:reservation_id
 //@desc     Get unavailability of a month
 //@access   Public
-router.get('/:job_id/:month/:year/:reservation_id', async (req, res) => {
+router.get('/:month/:year/:reservation_id', [auth], async (req, res) => {
 	try {
 		const month = Number(req.params.month);
 		const year = Number(req.params.year);
@@ -147,7 +147,7 @@ router.get('/:job_id/:month/:year/:reservation_id', async (req, res) => {
 			},
 		});
 
-		const job = await Job.findOne({ where: { id: req.params.job_id } });
+		const time = req.user.type === 'customer' ? 2 : 1;
 
 		for (let x = 0; x < days.length; x++) {
 			let pass = false;
@@ -184,10 +184,9 @@ router.get('/:job_id/:month/:year/:reservation_id', async (req, res) => {
 						];
 
 						if (
-							newArray[1] - (newArray[0] + 1) > job.time ||
+							newArray[1] - (newArray[0] + 1) > time ||
 							(y === reservations.length - 1 &&
-								17 - Number(moment(reservations[y].hourTo).utc().hour()) >
-									job.time)
+								17 - Number(moment(reservations[y].hourTo).utc().hour()) > time)
 						) {
 							pass = true;
 						}
@@ -286,8 +285,6 @@ router.post('/:dateFrom/:dateTo', [auth, adminAuth], async (req, res) => {
 				startDate = new Date(startDate.getTime() + day);
 			}
 		}
-
-		console.log(disabledDays);
 
 		res.json(disabledDays);
 	} catch (err) {

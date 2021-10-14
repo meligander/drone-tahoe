@@ -12,15 +12,13 @@ import {
 	updateReservation,
 	registerReservation,
 } from '../../actions/reservation';
-import { setAlert } from '../../actions/alert';
 
 import Alert from '../layouts/Alert';
 import PopUp from '../layouts/PopUp';
+
 import './Schedule.scss';
-import PayPal from '../PayPal';
 
 const Schedule = ({
-	job,
 	auth: { loggedUser },
 	reservation,
 	complete,
@@ -29,19 +27,15 @@ const Schedule = ({
 	checkDayAvailability,
 	updateReservation,
 	registerReservation,
-	userId,
-	setAlert,
 }) => {
 	const today = moment().add(1, 'day');
 
 	const [formData, setFormData] = useState({
 		hourFrom: '',
 		hourTo: '',
-		user: '',
-		paymentId: '',
 	});
 
-	const { hourFrom, hourTo, user } = formData;
+	const { hourFrom, hourTo } = formData;
 
 	const [adminValues, setAdminValues] = useState({
 		date: new Date(),
@@ -49,31 +43,13 @@ const Schedule = ({
 		toggleModal: false,
 		month: today.month(),
 		year: today.year(),
-		checkOut: false,
 	});
 
-	const { date, tab, toggleModal, month, year, checkOut } = adminValues;
+	const { date, tab, toggleModal, month, year } = adminValues;
 
 	useEffect(() => {
-		checkMonthAvailability(
-			job.id,
-			month,
-			year,
-			reservation ? reservation.id : 0
-		);
-	}, [checkMonthAvailability, job.id, month, year, reservation]);
-
-	useEffect(() => {
-		if (!reservation)
-			setFormData((prev) => ({
-				...prev,
-				user: userId
-					? userId
-					: loggedUser.type !== 'admin'
-					? loggedUser.id
-					: null,
-			}));
-	}, [userId, reservation, loggedUser]);
+		checkMonthAvailability(month, year, reservation.id);
+	}, [checkMonthAvailability, month, year, reservation.id]);
 
 	const onChangeDate = (changedDate) => {
 		setAdminValues((prev) => ({
@@ -83,29 +59,22 @@ const Schedule = ({
 		}));
 		checkDayAvailability(
 			moment(changedDate).format('YYYY-MM-DD[T00:00:00Z]'),
-			job.id,
-			reservation ? reservation.id : 0
+			reservation.id
 		);
 	};
 
-	const selectHourFrom = (time) => {
+	const selectHour = (type, time) => {
 		const newDate = new Date(date);
 		newDate.setHours(time);
 
-		let newToDate;
-
-		newToDate = new Date(newDate);
-		newToDate.setHours(newDate.getHours() + job.time);
-
 		setFormData((prev) => ({
 			...prev,
-			hourFrom: newDate,
-			hourTo: newToDate,
+			[type]: newDate,
 		}));
 
 		setAdminValues((prev) => ({
 			...prev,
-			tab: 2,
+			tab: type === 'hourFrom' ? 2 : 3,
 		}));
 	};
 
@@ -128,12 +97,16 @@ const Schedule = ({
 		return false;
 	};
 
-	const createRange = () => {
+	const startTime = () => {
 		let posibleHours = [];
 
 		for (let x = 0; x < availableHours.length; x++) {
-			let time = availableHours[x][0] === 8 ? 8 : availableHours[x][0] + 1;
-			while (availableHours[x][1] - time > job.time) {
+			let time =
+				loggedUser.type === 'admin' || availableHours[x][0] === 8
+					? availableHours[x][0]
+					: availableHours[x][0] + 1;
+
+			while (availableHours[x][1] - time > 2) {
 				posibleHours.push(time);
 				time++;
 			}
@@ -142,22 +115,51 @@ const Schedule = ({
 
 		return posibleHours.length > 0 ? (
 			<>
-				<p className='schedule-details-title'>Time Range:</p>{' '}
-				{posibleHours.map((hour, i) => {
-					const to = hour + job.time;
-					return (
-						<div
-							className='schedule-details-item'
-							key={i}
-							onClick={() => selectHourFrom(hour)}
-						>
-							{`${hour % 12 !== 0 ? hour % 12 : 12} ${
-								hour >= 12 ? 'pm' : 'am'
-							}`}{' '}
-							-{` ${to % 12 !== 0 ? to % 12 : 12} ${to >= 12 ? 'pm' : 'am'}`}
-						</div>
-					);
-				})}
+				<p className='schedule-details-title'>Start time:</p>{' '}
+				{posibleHours.map((hour, i) => (
+					<div
+						className='schedule-details-item'
+						key={i}
+						onClick={() => selectHour('hourFrom', hour)}
+					>
+						{`${hour % 12 !== 0 ? hour % 12 : 12} ${hour >= 12 ? 'pm' : 'am'}`}
+					</div>
+				))}
+			</>
+		) : (
+			<h2 className='schedule-details-main error'>
+				No availability on this day
+			</h2>
+		);
+	};
+
+	const endTime = () => {
+		let start = moment(hourFrom).hour();
+		let posibleHours = [];
+
+		const tillTime = availableHours.filter(
+			(item) => item[0] <= start && item[1] > start
+		)[0][1];
+
+		start = start + 2;
+
+		while (start <= tillTime) {
+			posibleHours.push(start);
+			start++;
+		}
+
+		return posibleHours.length > 0 ? (
+			<>
+				<p className='schedule-details-title'>End time:</p>{' '}
+				{posibleHours.map((hour, i) => (
+					<div
+						className='schedule-details-item'
+						key={i}
+						onClick={() => selectHour('hourTo', hour)}
+					>
+						{`${hour % 12 !== 0 ? hour % 12 : 12} ${hour >= 12 ? 'pm' : 'am'}`}
+					</div>
+				))}
 			</>
 		) : (
 			<h2 className='schedule-details-main error'>
@@ -172,32 +174,59 @@ const Schedule = ({
 				return (
 					<>
 						<h5 className='schedule-details-main'>
-							Pick up a {reservation && 'New'} Date
+							Pick up a Date and Time{' '}
+							{loggedUser.type !== 'admin' && 'you are Available'}
 						</h5>
 					</>
 				);
 			case 1:
-				return !loadingAvailableHours && createRange();
+				return !loadingAvailableHours && startTime();
 			case 2:
+				return hourFrom !== '' && endTime();
+			case 3:
 				return (
 					<>
-						<p className='schedule-details-title'>
-							{reservation ? 'New' : 'Reservation'} Info:
-						</p>
+						<p className='schedule-details-title'>Reservation Schedule:</p>
 						<form
 							className='form'
-							onSubmit={(e) => {
+							onSubmit={async (e) => {
 								e.preventDefault();
 
-								if (reservation) {
+								if (reservation.id !== 0) {
 									setAdminValues((prev) => ({
 										...prev,
 										toggleModal: !toggleModal,
 									}));
 								} else {
-									if (user)
-										setAdminValues((prev) => ({ ...prev, checkOut: true }));
-									else setAlert("User's email is required", 'danger', '2');
+									//createReservation
+									console.log({
+										...reservation,
+										hourFrom: moment(hourFrom).format(
+											'YYYY-MM-DD[T]HH[:00:00Z]'
+										),
+										hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
+									});
+									const answer = await registerReservation(
+										{
+											...reservation,
+											...(loggedUser.type === 'customer' && {
+												user: loggedUser.id,
+											}),
+											hourFrom: moment(hourFrom).format(
+												'YYYY-MM-DD[T]HH[:00:00Z]'
+											),
+											hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
+										},
+										moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]')
+									);
+									if (answer) {
+										complete();
+										setAdminValues((prev) => ({
+											...prev,
+											tab: 0,
+											date: new Date(),
+										}));
+									}
 								}
 							}}
 						>
@@ -211,62 +240,18 @@ const Schedule = ({
 								<Moment format='h a' date={hourFrom} /> -{' '}
 								<Moment format='h a' date={hourTo} />
 							</p>
-							{!reservation && (
-								<p className='schedule-details-info'>
-									<span className='schedule-details-subtitle'>Price:</span> $
-									{job.price}
+							{loggedUser.type !== 'admin' && (
+								<p className='schedule-details-warning'>
+									After creating the reservation, the admin will set a price for
+									the job, so you can proceed with its payment.
 								</p>
 							)}
 
-							{checkOut ? (
-								<div className='schedule-details-payment'>
-									{loggedUser.type === 'admin' && (
-										<>
-											<button
-												className='btn btn-quaternary'
-												onClick={() => {
-													registerReservation({
-														...formData,
-														job,
-														hourFrom: moment(hourFrom).format(
-															'YYYY-MM-DD[T]HH[:00:00Z]'
-														),
-														hourTo: moment(hourTo).format(
-															'YYYY-MM-DD[T]HH[:00:00Z]'
-														),
-													});
-													complete();
-												}}
-											>
-												Pay Cash
-											</button>
-											<h3 className='heading-primary-subheading'>OR</h3>
-										</>
-									)}
-									<PayPal
-										reservation={{
-											...formData,
-											job,
-											hourFrom: moment(hourFrom).format(
-												'YYYY-MM-DD[T]HH[:00:00Z]'
-											),
-											hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
-										}}
-										registerReservation={registerReservation}
-										complete={complete}
-									/>
-								</div>
-							) : (
-								<div className='u-center-text'>
-									<button type='submit' className='btn btn-primary'>
-										{reservation
-											? 'Update'
-											: loggedUser.type === 'admin'
-											? 'Payment'
-											: 'Reserve Now!'}
-									</button>
-								</div>
-							)}
+							<div className='btn-center'>
+								<button className='btn' type='submit'>
+									<i className='far fa-save'></i>
+								</button>
+							</div>
 						</form>
 					</>
 				);
@@ -287,14 +272,14 @@ const Schedule = ({
 					}))
 				}
 				confirm={() => {
-					updateReservation(
+					/* updateReservation(
 						{
 							hourFrom: moment(hourFrom).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
 							hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
 						},
 						reservation.id,
-						loggedUser.type
-					);
+						 moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]')
+					); */
 					complete();
 				}}
 				text='Are you sure you want to modify the reservation?'
@@ -331,5 +316,4 @@ export default connect(mapStateToProps, {
 	checkMonthAvailability,
 	updateReservation,
 	registerReservation,
-	setAlert,
 })(Schedule);

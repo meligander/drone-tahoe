@@ -107,9 +107,9 @@ export const facebookLogin = (fbkData) => async (dispatch) => {
 			},
 		});
 
-		window.scrollTo(0, 0);
 		dispatch(updateLoadingSpinner(false));
 	}
+	window.scrollTo(0, 0);
 };
 
 export const googleLogin = (googleData) => async (dispatch) => {
@@ -133,9 +133,9 @@ export const googleLogin = (googleData) => async (dispatch) => {
 			},
 		});
 
-		window.scrollTo(0, 0);
 		dispatch(updateLoadingSpinner(false));
 	}
+	window.scrollTo(0, 0);
 };
 
 export const signup = (formData) => async (dispatch) => {
@@ -209,10 +209,9 @@ export const sendPasswordLink = (email) => async (dispatch) => {
 				},
 			});
 		}
-
-		window.scrollTo(0, 0);
 	}
 
+	window.scrollTo(0, 0);
 	dispatch(updateLoadingSpinner(false));
 };
 
@@ -252,10 +251,9 @@ export const resetPassword = (formData) => async (dispatch) => {
 				},
 			});
 		}
-
-		window.scrollTo(0, 0);
 	}
 
+	window.scrollTo(0, 0);
 	dispatch(updateLoadingSpinner(false));
 };
 
@@ -279,10 +277,9 @@ export const activation = (token) => async (dispatch) => {
 				msg: err.response.data.msg,
 			},
 		});
-
-		window.scrollTo(0, 0);
 	}
 
+	window.scrollTo(0, 0);
 	dispatch(updateLoadingSpinner(false));
 };
 
@@ -319,7 +316,7 @@ export const sendEmail = (formData) => async (dispatch) => {
 			});
 		}
 	}
-
+	window.scrollTo(0, 0);
 	dispatch(updateLoadingSpinner(false));
 };
 

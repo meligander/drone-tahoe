@@ -1,13 +1,23 @@
 var nodemailer = require('nodemailer');
+const path = require('path');
 
 require('dotenv').config();
 
 const stamp = `<div style='text-align: center; width: fit-content; margin: 2rem 2rem 1rem'>
+<img style='width: 130px;margin: 50px 40px 0' src="cid:unique@nodemailer.com" alt="logo"/>
 <h3 style='color: #15767c' >Drone Tahoe</h3>
 <p>1635 N Bayshore Dr, Tahoe City, CA, 96145</p>
 <p>+1 (305) 377-7369</p>
-<a href="https://drone-tahoe.com/">www.drone-tahoe.com/</a>
+<a href="${process.env.WEBPAGE_URI}">www.drone-tahoe.com/</a>
 </div>`;
+
+const attachments = [
+	{
+		filename: 'logo.png',
+		path: path.resolve(__dirname, '../media/logo.png'),
+		cid: 'unique@nodemailer.com',
+	},
+];
 
 const sendEmail = (user_email, subject, text) => {
 	const transporter = nodemailer.createTransport({
@@ -28,6 +38,7 @@ const sendEmail = (user_email, subject, text) => {
 		subject,
 		text,
 		html: `<div>${text}</div>${stamp}`,
+		attachments,
 	};
 
 	return new Promise((resolve, reject) => {
@@ -61,6 +72,7 @@ const sendToCompany = (subject, message) => {
 		subject,
 		message,
 		html: `<div>${message}</div>${stamp}`,
+		attachments,
 	};
 
 	return new Promise((resolve, reject) => {

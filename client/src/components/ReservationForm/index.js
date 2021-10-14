@@ -11,57 +11,64 @@ const ReservationForm = ({
 	reservation,
 	complete,
 	jobId,
-	job: { jobs },
+	job: { jobs: jobsList },
 	auth: { loggedUser },
 }) => {
-	const [adminValues, setAdminValues] = useState({
-		job: jobId ? Number(jobId) : '',
+	const [formData, setFormData] = useState({
+		id: 0,
+		jobs: [''],
 		user: null,
+		address: '',
+		comments: '',
+		value: '',
+	});
+
+	const [adminValues, setAdminValues] = useState({
 		searchDisplay: false,
 		clear: false,
 	});
 
-	const { job, user, searchDisplay, clear } = adminValues;
+	const { searchDisplay, clear } = adminValues;
+	const { jobs, user, address, comments, value } = formData;
 
 	useEffect(() => {
-		if (reservation)
-			setAdminValues((prev) => ({
-				...prev,
-				job: reservation.job.id,
-				user: reservation.user,
-			}));
-		else
-			setAdminValues((prev) => ({
-				...prev,
-				job: '',
-				user: null,
-			}));
-	}, [reservation]);
+		setFormData((prev) => ({
+			...prev,
+			jobs: reservation ? reservation.jobs : [jobId ? jobId : ''],
+			user: reservation ? reservation.user : null,
+		}));
+	}, [reservation, jobId]);
 
 	const onChange = (e) => {
-		setAdminValues((prev) => ({
+		let newArray = jobs;
+		if (e.target.name === 'jobs')
+			newArray[e.target.id] = Number(e.target.value);
+
+		setFormData((prev) => ({
 			...prev,
-			[e.target.id]: e.target.value,
+			[e.target.name]: e.target.name === 'jobs' ? newArray : e.target.value,
 		}));
 	};
 
 	const restart = () => {
-		setAdminValues({
-			job: '',
+		setFormData({
+			id: 0,
+			jobs: [''],
 			user: null,
+			comments: '',
+			address: '',
+			value: '',
+		});
+		setAdminValues({
 			clear: true,
 		});
-	};
-
-	const completeClear = () => {
-		setAdminValues((prev) => ({ ...prev, clear: false }));
 	};
 
 	return (
 		<div className='reservation-form'>
 			<div className='reservation-form__group'>
 				<h4 className='heading-primary-subheading'>
-					{reservation ? 'Update' : 'New'} Reservation
+					{reservation ? 'Update' : 'New'} Reservation:
 				</h4>
 				{reservation && (
 					<>
@@ -93,7 +100,7 @@ const ReservationForm = ({
 				{loggedUser && loggedUser.type === 'admin' && (
 					<UserField
 						selectFinalUser={(user) => {
-							setAdminValues({ job, user: user ? user.id : null });
+							setFormData((prev) => ({ ...prev, user: user ? user.id : null }));
 						}}
 						reservationUser={reservation ? user : null}
 						searchDisplay={searchDisplay}
@@ -101,38 +108,116 @@ const ReservationForm = ({
 							setAdminValues((prev) => ({ ...prev, searchDisplay: show }))
 						}
 						clear={clear}
-						completeClear={completeClear}
+						completeClear={() =>
+							setAdminValues((prev) => ({ ...prev, clear: false }))
+						}
 					/>
 				)}
 				<div className='form__group'>
-					<select
-						className={`form__input ${job === '' ? 'empty' : ''}`}
-						id='job'
-						value={job}
-						disabled={reservation}
-						onFocus={() =>
-							setAdminValues((prev) => ({
-								...prev,
-								searchDisplay: false,
-							}))
-						}
+					<input
+						className='form__input'
+						type='text'
+						value={address}
 						onChange={onChange}
-					>
-						<option value=''>* Type of Job</option>
-						{jobs.length > 0 &&
-							jobs.map((job) => (
-								<option key={job.id} value={job.id}>
-									{job.title}
-								</option>
-							))}
-					</select>
-					<label
-						htmlFor='job'
-						className={`form__label ${job === '' ? 'hide' : ''}`}
-					>
-						Type of Job
+						id='address'
+						name='address'
+						placeholder='Address for the Job'
+					/>
+					<label htmlFor='address' className='form__label'>
+						Address for the Job
 					</label>
 				</div>
+				<div className='jobs-list'>
+					<p className='jobs-list-title'>Jobs List</p>
+					{jobs.length > 0 &&
+						jobs.map((job, i) => (
+							<div className='form__group-job' key={i}>
+								<div className='form__group'>
+									<select
+										className={`form__input ${job === '' ? 'empty' : ''}`}
+										id={i}
+										name='jobs'
+										value={job}
+										disabled={reservation}
+										onFocus={() =>
+											setAdminValues((prev) => ({
+												...prev,
+												searchDisplay: false,
+											}))
+										}
+										onChange={onChange}
+									>
+										<option value=''>* Job {i + 1}</option>
+										{jobsList.length > 0 &&
+											jobsList.map((item) => (
+												<option key={`jl-${i}-${item.id}`} value={item.id}>
+													{item.title}
+												</option>
+											))}
+									</select>
+									<label
+										htmlFor='job'
+										className={`form__label ${job === '' ? 'hide' : ''}`}
+									>
+										Job {i + 1}
+									</label>
+								</div>
+								<button
+									className='btn-icon'
+									onClick={() => {
+										jobs.splice(i, 1);
+										setFormData((prev) => ({
+											...prev,
+											jobs,
+										}));
+									}}
+								>
+									<i className='far fa-trash-alt'></i>
+								</button>
+							</div>
+						))}
+					<div className='btn-right'>
+						<button
+							className='btn btn-quaternary'
+							onClick={() =>
+								setFormData((prev) => ({ ...prev, jobs: [...jobs, ''] }))
+							}
+						>
+							<i className='fas fa-plus'></i> &nbsp; Job
+						</button>
+					</div>
+				</div>
+				<div className='form__group'>
+					<textarea
+						type='text'
+						className='form__input textarea'
+						value={comments}
+						id='comments'
+						rows='3'
+						onChange={onChange}
+						placeholder='Special Request'
+						name='comments'
+					/>
+					<label htmlFor='comments' className='form__label'>
+						Special Request
+					</label>
+				</div>
+				{loggedUser.type === 'admin' && (
+					<div className='form__group'>
+						<input
+							className='form__input'
+							type='text'
+							value={value}
+							onChange={onChange}
+							id='value'
+							name='value'
+							placeholder='Value'
+						/>
+						<label htmlFor='address' className='form__label'>
+							Value
+						</label>
+					</div>
+				)}
 				{reservation && loggedUser && loggedUser.type === 'admin' && (
 					<>
 						<p className='reservation-form-item'>
@@ -149,19 +234,15 @@ const ReservationForm = ({
 				)}
 			</div>
 
-			{job !== '' &&
-				((reservation && reservation.status !== 'canceled') ||
-					!reservation) && (
-					<Schedule
-						job={jobs[jobs.findIndex((item) => item.id === Number(job))]}
-						complete={() => {
-							restart();
-							complete();
-						}}
-						reservation={reservation}
-						userId={loggedUser.type === 'admin' ? user : null}
-					/>
-				)}
+			{((reservation && reservation.status !== 'canceled') || !reservation) && (
+				<Schedule
+					complete={() => {
+						restart();
+						complete();
+					}}
+					reservation={reservation ? reservation : formData}
+				/>
+			)}
 		</div>
 	);
 };

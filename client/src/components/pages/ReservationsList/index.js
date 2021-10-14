@@ -8,8 +8,8 @@ import {
 	deleteReservation,
 	updateStatus,
 } from '../../../actions/reservation';
-import { loadJobs } from '../../../actions/jobs';
 import { clearUsers } from '../../../actions/user';
+import { loadJobs } from '../../../actions/jobs';
 
 import PopUp from '../../layouts/PopUp';
 import Alert from '../../layouts/Alert';
@@ -20,7 +20,6 @@ const ReservationsList = ({
 	deleteReservation,
 	loadReservations,
 	loadJobs,
-	job: { jobs },
 	reservation: { reservations, error, loading },
 	clearUsers,
 	updateStatus,
@@ -29,7 +28,7 @@ const ReservationsList = ({
 		hourFrom: '',
 		hourTo: '',
 		user: '',
-		job: '',
+		status: '',
 	};
 	const [formData, setFormData] = useState(initialValue);
 
@@ -41,9 +40,10 @@ const ReservationsList = ({
 		update: false,
 		searchDisplay: false,
 		clear: false,
+		checkout: false,
 	});
 
-	const { hourFrom, hourTo, job } = formData;
+	const { hourFrom, hourTo, status } = formData;
 
 	const {
 		toggleDeleteConf,
@@ -53,6 +53,7 @@ const ReservationsList = ({
 		update,
 		searchDisplay,
 		clear,
+		checkout,
 	} = adminValues;
 
 	useEffect(() => {
@@ -61,7 +62,7 @@ const ReservationsList = ({
 			loadJobs({}, true);
 			loadReservations({ hourFrom: new Date() }, true);
 		}
-	}, [loading, loadReservations, loadJobs, updateStatus]);
+	}, [loading, loadReservations, updateStatus, loadJobs]);
 
 	const onChange = (e) => {
 		setFormData((prev) => ({
@@ -101,16 +102,29 @@ const ReservationsList = ({
 				}
 			/>
 			<PopUp
-				type='schedule'
-				toUpdate={update ? reservation : null}
-				toggleModal={toggleReservation}
+				type='payment'
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,
-						toggleReservation: !toggleReservation,
+						checkout: false,
 					}))
 				}
+				toggleModal={checkout}
 			/>
+			{toggleReservation && (
+				<PopUp
+					type='schedule'
+					toUpdate={update ? reservation : null}
+					toggleModal={toggleReservation}
+					setToggleModal={() =>
+						setAdminValues((prev) => ({
+							...prev,
+							toggleReservation: !toggleReservation,
+						}))
+					}
+				/>
+			)}
+
 			<h2 className='heading-primary'>Reservations</h2>
 
 			<Alert type='1' />
@@ -185,9 +199,9 @@ const ReservationsList = ({
 					/>
 					<div className='form__group'>
 						<select
-							className={`form__input ${job === '' ? 'empty' : ''}`}
-							id='job'
-							value={job}
+							className={`form__input ${status === '' ? 'empty' : ''}`}
+							id='status'
+							value={status}
 							onChange={onChange}
 							onFocus={() =>
 								setAdminValues((prev) => ({
@@ -196,19 +210,19 @@ const ReservationsList = ({
 								}))
 							}
 						>
-							<option value=''>* Type of Job</option>
-							{jobs.length > 0 &&
-								jobs.map((job) => (
-									<option key={job.id} value={job.id}>
-										{job.title}
-									</option>
-								))}
+							<option value=''>* Status</option>
+							<option value='requested'>Requested</option>
+							<option value='unpaid'>Unpaid</option>
+							<option value='pending'>Pending</option>
+							<option value='paid'>Paid</option>
+							<option value='canceled'>Canceled</option>
+							<option value='completed'>Completed</option>
 						</select>
 						<label
-							htmlFor='job'
-							className={`form__label ${job === '' ? 'hide' : ''}`}
+							htmlFor='staus'
+							className={`form__label ${status === '' ? 'hide' : ''}`}
 						>
-							Type of Job
+							Status
 						</label>
 					</div>
 
@@ -222,15 +236,15 @@ const ReservationsList = ({
 					{reservations.length > 0 ? (
 						<div>
 							<div className='wrapper'>
-								<table className='icon-7'>
+								<table className='icon-6'>
 									<thead>
 										<tr>
 											<th>Date</th>
 											<th>From</th>
 											<th>To</th>
 											<th>User</th>
-											<th>Job</th>
 											<th>Status</th>
+											<th></th>
 											<th></th>
 											<th></th>
 										</tr>
@@ -254,11 +268,26 @@ const ReservationsList = ({
 														to={`/edit-user/${res.user.id}`}
 													>{`${res.user.name} ${res.user.lastname}`}</Link>
 												</td>
-												<td>{res.job.title}</td>
 												<td>
 													{res.status.charAt(0).toUpperCase() +
 														res.status.slice(1)}
 												</td>
+												{res.status === 'unpaid' && (
+													<td>
+														<button
+															className='btn-icon'
+															onClick={() =>
+																setAdminValues((prev) => ({
+																	...prev,
+																	checkout: true,
+																}))
+															}
+														>
+															<i className='fas fa-dollar-sign'></i>
+														</button>
+													</td>
+												)}
+
 												<td>
 													<button
 														className='btn-icon'
@@ -326,13 +355,12 @@ const ReservationsList = ({
 
 const mapStateToProps = (state) => ({
 	reservation: state.reservation,
-	job: state.job,
 });
 
 export default connect(mapStateToProps, {
 	loadReservations,
 	deleteReservation,
-	loadJobs,
 	clearUsers,
 	updateStatus,
+	loadJobs,
 })(ReservationsList);

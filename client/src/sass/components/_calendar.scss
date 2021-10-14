@@ -113,12 +113,16 @@
 				}
 			}
 
-			&.used {
+			&.reserved {
 				background-color: $color-success;
 			}
 
 			&.disabled {
 				background-color: $color-danger;
+			}
+
+			&.time-disabled {
+				background-color: $color-light-2;
 			}
 		}
 	}

@@ -100,12 +100,14 @@ const Login = ({
 									</div>
 								</div>
 								<div className='u-center-text'>
-									<button type='submit' className='btn btn-primary'>
-										Send Link
-									</button>
+									<div className='login-btn'>
+										<button type='submit' className='btn btn-primary'>
+											Send Link
+										</button>
+									</div>
 									<p className='login-card-sign'>
-										An email will be sent to the address so you can change the
-										password.
+										An email will be sent to the email address so you can change
+										the password.
 									</p>
 									<p className='login-card-sign'>
 										Please, check your spam folder before resendig the email.
