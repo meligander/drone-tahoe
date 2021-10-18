@@ -135,25 +135,22 @@ export const updateStatus = () => async (dispatch) => {
 
 export const registerReservation = (formData, date) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+
+	let reservation = {};
+	for (const prop in formData)
+		if (formData[prop] !== '') reservation[prop] = formData[prop];
+
 	try {
-		let res = await api.post('/reservation', formData);
+		let res = await api.post('/reservation', reservation);
 
 		dispatch({
 			type: RESERVATION_REGISTERED,
 			payload: res.data,
 		});
 
-		const isReservation = formData.jobs.length > 0;
+		if (date) dispatch(addDate(date, true));
 
-		if (date) dispatch(addDate(date, isReservation));
-
-		dispatch(
-			setAlert(
-				isReservation ? 'Reservation Registered' : 'Time Range Disabled',
-				'success',
-				'1'
-			)
-		);
+		dispatch(setAlert('Reservation Registered', 'success', '1'));
 		window.scrollTo(0, 0);
 		dispatch(updateLoadingSpinner(false));
 		return true;
@@ -186,8 +183,12 @@ export const registerReservation = (formData, date) => async (dispatch) => {
 export const updateReservation =
 	(reservation_id, formData, date) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
+
+		let reservation = {};
+		for (const prop in formData)
+			if (formData[prop] !== '') reservation[prop] = formData[prop];
 		try {
-			let res = await api.put(`/reservation/${reservation_id}`, formData);
+			let res = await api.put(`/reservation/${reservation_id}`, reservation);
 
 			dispatch({
 				type: RESERVATION_UPDATED,
@@ -225,6 +226,48 @@ export const updateReservation =
 			return false;
 		}
 	};
+
+export const disableHourRange = (formData, date) => async (dispatch) => {
+	let hourRange = {};
+	for (const prop in formData)
+		if (formData[prop] !== '') hourRange[prop] = formData[prop];
+	dispatch(updateLoadingSpinner(true));
+	try {
+		let res = await api.post('/reservation/disable', hourRange);
+
+		dispatch({
+			type: RESERVATION_REGISTERED,
+			payload: res.data,
+		});
+
+		dispatch(addDate(date, false));
+
+		dispatch(setAlert('Time Range Disabled', 'success', '1'));
+		window.scrollTo(0, 0);
+	} catch (err) {
+		if (err.response.data.errors) {
+			const errors = err.response.data.errors;
+			errors.forEach((error) => {
+				dispatch(setAlert(error.msg, 'danger', '2'));
+			});
+			dispatch({
+				type: RESERVATIONS_ERROR,
+				payload: errors,
+			});
+		} else {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch({
+				type: RESERVATIONS_ERROR,
+				payload: {
+					type: err.response.statusText,
+					status: err.response.status,
+					msg: err.response.data.msg,
+				},
+			});
+		}
+	}
+	dispatch(updateLoadingSpinner(false));
+};
 
 export const cancelReservation = (reservation_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));

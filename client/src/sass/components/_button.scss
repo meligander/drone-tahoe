@@ -115,13 +115,17 @@
 	&-center {
 		display: flex;
 		margin-top: 2rem;
-		justify-content: space-evenly;
+		justify-content: center;
 		align-items: center;
 		width: 100%;
 
 		& > *:not(:last-child) {
 			margin-right: 3rem !important;
 		}
+	}
+
+	&-top-right {
+		text-align: end;
 	}
 
 	&-success {

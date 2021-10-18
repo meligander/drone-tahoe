@@ -1,25 +1,24 @@
 import React, { useRef, useEffect } from 'react';
-import './Footer.scss';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+
+import { setFooterHeight } from '../../../actions/global';
 
 import NavLogo from '../../../img/logoDRONE-dark-cropped-final.png';
 
-function Footer({ footerHeight }) {
+import './Footer.scss';
+
+function Footer({ setFooterHeight }) {
 	const ref = useRef();
 	const time = new Date();
 
 	useEffect(() => {
-		setHeigth();
-		// eslint-disable-next-line
-	}, []);
-
-	const setHeigth = () => {
 		setTimeout(() => {
-			footerHeight(ref.current.offsetHeight);
+			setFooterHeight(ref.current.offsetHeight);
 		}, 30);
-	};
+	}, [setFooterHeight]);
 
-	window.addEventListener('resize', setHeigth);
+	window.addEventListener('resize', setFooterHeight);
 
 	return (
 		<div className='footer-container' ref={ref}>
@@ -94,4 +93,4 @@ function Footer({ footerHeight }) {
 	);
 }
 
-export default Footer;
+export default connect(null, { setFooterHeight })(Footer);

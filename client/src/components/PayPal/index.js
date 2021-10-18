@@ -1,9 +1,12 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
 import { updateReservation, makePayment } from '../../actions/reservation';
 
 import Alert from '../layouts/Alert';
+
+const PayPalButton = window.paypal.Buttons.driver('react', { React, ReactDOM });
 
 const PayPal = ({
 	reservation,
@@ -12,40 +15,13 @@ const PayPal = ({
 	setToggleModal,
 	auth: { loggedUser },
 }) => {
-	const paypal = useRef();
-
-	useEffect(() => {
-		window.paypal
-			.Buttons({
-				createOrder: async () => {
-					const payment = await makePayment(reservation);
-					return payment.id;
-				},
-				onApprove: async (data, actions) => {
-					const order = await actions.order.capture();
-					const answer = await updateReservation(reservation, {
-						status: 'pending',
-						paymentId: order.id,
-					});
-					if (answer) setToggleModal();
-				},
-				onError: (err) => {
-					//console.log(err);
-				},
-			})
-			.render(paypal.current);
-
-		// eslint-disable-next-line
-	}, []);
-
 	return (
 		<div className='payment'>
-			<h3 className='heading-primary-subheading'>Payment:</h3>
 			<Alert type='2' />
 			{loggedUser.type === 'admin' && (
 				<>
 					<button
-						className='btn'
+						className='btn btn-tertiary'
 						onClick={async () => {
 							const answer = await updateReservation(reservation, {
 								status: 'pending',
@@ -59,7 +35,21 @@ const PayPal = ({
 				</>
 			)}
 
-			<div ref={paypal}></div>
+			<PayPalButton
+				onApprove={async (data, actions) => {
+					const order = await actions.order.capture();
+					const answer = await updateReservation(reservation, {
+						status: 'pending',
+						paymentId: order.id,
+					});
+					if (answer) setToggleModal();
+				}}
+				createOrder={async () => {
+					const payment = await makePayment(reservation);
+					return payment.id;
+				}}
+				onError={(err) => console.log(err)}
+			/>
 		</div>
 	);
 };

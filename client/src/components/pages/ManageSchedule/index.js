@@ -167,7 +167,7 @@ const ManageSchedule = ({
 						<>
 							<Alert type='1' />
 							<h5 className='manage-schedule-details-title'>
-								{reservations.every((item) => !item.jobId)
+								{reservations.every((item) => item.jobs.length === 0)
 									? 'Unavailable Time Ranges'
 									: 'Reservations'}{' '}
 								- <Moment format='MM/DD/YY' date={date} />
@@ -176,7 +176,7 @@ const ManageSchedule = ({
 								{reservations.map((item) => (
 									<div
 										className={`manage-schedule-details-item tooltip ${
-											!item.jobId && 'disabled'
+											item.jobs.length === 0 && 'disabled'
 										}`}
 										key={item.id}
 									>
@@ -194,12 +194,15 @@ const ManageSchedule = ({
 											/>
 										</div>
 										<Link
-											onClick={clearUsers}
+											onClick={() => {
+												clearUsers();
+												window.scroll(0, 0);
+											}}
 											className='btn-link'
 											to={`/edit-user/${item.user.id}`}
 										>{`${item.user.name} ${item.user.lastname}`}</Link>
-										{item.jobId ? (
-											<span className='tooltiptext'>{item.job.title}</span>
+										{item.jobs.length > 0 ? (
+											<p>{item.address}</p>
 										) : (
 											<button
 												className='btn-icon'
@@ -208,7 +211,7 @@ const ManageSchedule = ({
 														setAdminValues((prev) => ({ ...prev, tab: 2 }));
 
 													deleteReservation(
-														item.id,
+														item,
 														moment(date).format('YYYY-MM-DD[T00:00:00Z]')
 													);
 												}}

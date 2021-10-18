@@ -21,20 +21,22 @@ const Reservation = ({
 	auth: { loggedUser, token },
 	reservation: { reservations, loading: loadingReservations },
 	job: { loading },
+	global: { navbar },
 	loadJobs,
 	loadReservations,
 	cancelReservation,
 	updateStatus,
-	match,
 }) => {
-	const ref = useRef();
+	const list = useRef();
 
 	const [adminValues, setAdminValues] = useState({
 		reservation: null,
 		toggleModal: false,
+		position: 0,
+		editReservation: false,
 	});
 
-	const { reservation, toggleModal } = adminValues;
+	const { reservation, toggleModal, position, editReservation } = adminValues;
 
 	useEffect(() => {
 		if (loading && token) loadJobs({}, true);
@@ -49,9 +51,21 @@ const Reservation = ({
 		loadReservations,
 		loadingReservations,
 		token,
-		match.params.job_id,
 		updateStatus,
 	]);
+
+	useEffect(() => {
+		if (!loadingReservations) {
+			const item = list.current.getBoundingClientRect();
+			const scrollTop =
+				window.pageYOffset || document.documentElement.scrollTop;
+
+			setAdminValues((prev) => ({
+				...prev,
+				position: item.top + item.height + scrollTop - navbar,
+			}));
+		}
+	}, [loadingReservations, navbar]);
 
 	return (
 		<div className='reservation'>
@@ -101,7 +115,7 @@ const Reservation = ({
 			)}
 			{loggedUser && (
 				<>
-					<div className='reservation-list'>
+					<div className='reservation-list' ref={list}>
 						{!loadingReservations && reservations.length > 0 ? (
 							reservations.map((res) => (
 								<div className='reservation-item' key={res.id}>
@@ -136,7 +150,7 @@ const Reservation = ({
 											</p>
 										)}
 									</div>
-									{res.status !== 'canceled' ? (
+									{res.status !== 'canceled' && res.status !== 'refunded' ? (
 										<div className='reservation-item-icons'>
 											{res.status === 'unpaid' && (
 												<button
@@ -151,14 +165,21 @@ const Reservation = ({
 													<i className='fas fa-dollar-sign'></i>
 												</button>
 											)}
-
 											<button
-												onClick={() =>
+												onClick={() => {
 													setAdminValues((prev) => ({
 														...prev,
-														reservation: res,
-													}))
-												}
+														reservation: {
+															...res,
+															jobs: res.jobs.map((item) => item.id),
+														},
+														editReservation: true,
+													}));
+
+													setTimeout(() => {
+														window.scrollTo(0, position);
+													}, 30);
+												}}
 												className='btn-icon'
 											>
 												<i className='far fa-edit'></i>
@@ -193,16 +214,38 @@ const Reservation = ({
 							</h2>
 						)}
 					</div>
-					{!loading && (
-						<div ref={ref}>
-							<ReservationForm
-								reservation={reservation}
-								complete={() =>
-									setAdminValues((prev) => ({ ...prev, reservation: null }))
-								}
-								jobId={match.params.job_id !== '0' ? match.params.job_id : null}
-							/>
-						</div>
+					{!loading && loggedUser.cel !== '0' && (
+						<>
+							{!editReservation ? (
+								<div className='btn-right'>
+									<button
+										onClick={() => {
+											setAdminValues((prev) => ({
+												...prev,
+												editReservation: true,
+											}));
+											setTimeout(() => {
+												window.scrollTo(0, position);
+											}, 30);
+										}}
+										className='btn btn-primary'
+									>
+										<i className='fas fa-plus'></i> &nbsp; Reservation
+									</button>
+								</div>
+							) : (
+								<ReservationForm
+									reservation={reservation}
+									complete={() =>
+										setAdminValues((prev) => ({
+											...prev,
+											reservation: null,
+											editReservation: false,
+										}))
+									}
+								/>
+							)}
+						</>
 					)}
 				</>
 			)}
@@ -214,6 +257,7 @@ const mapStateToProps = (state) => ({
 	auth: state.auth,
 	job: state.job,
 	reservation: state.reservation,
+	global: state.global,
 });
 
 export default connect(mapStateToProps, {

@@ -31,6 +31,9 @@ const userReducer = (state = initialState, action) => {
 				loadingDisabledDays: false,
 				disabledDays: payload.disabledDays ? payload.disabledDays : payload,
 				...(payload.reservedDays && { reservedDays: payload.reservedDays }),
+				...(payload.timeDisabledDays && {
+					timeDisabledDays: payload.timeDisabledDays,
+				}),
 				error: {},
 			};
 		case DAYAVAILABILITY_LOADED:

@@ -26,6 +26,7 @@ const { sendToCompany, sendEmail } = require('../../config/emailSender');
 
 //Middleware
 const auth = require('../../middleware/auth');
+const adminAuth = require('../../middleware/adminAuth');
 
 //Models
 const { Reservation, Day, User, Job } = require('../../config/db');
@@ -53,7 +54,7 @@ router.get('/:reservation_id', [auth], async (req, res) => {
 			return res.status(400).json({ msg: 'Reservation not found' });
 		}
 
-		if (reservation.jobs > 0)
+		if (reservation.jobs.length > 0)
 			for (let x = 0; x < reservation.jobs.length; x++)
 				reservation.jobs[x] = await Job.findOne({
 					where: { id: reservation.jobs[x] },
@@ -105,6 +106,13 @@ router.get('/', [auth], async (req, res) => {
 				},
 			],
 		});
+
+		if (req.user.type === 'customer')
+			for (let y = 0; y < reservations.length; y++)
+				for (let x = 0; x < reservations[y].jobs.length; x++)
+					reservations[y].jobs[x] = await Job.findOne({
+						where: { id: reservations[y].jobs[x] },
+					});
 
 		if (reservations.length === 0) {
 			return res.status(400).json({
@@ -168,7 +176,7 @@ router.post(
 			userId: user,
 			jobs,
 			address,
-			...(value && { value }),
+			value: value ? value : 0,
 			...(comments && { comments }),
 			status: req.user.type === 'admin' ? 'unpaid' : 'requested',
 		};
@@ -210,10 +218,10 @@ router.post(
 					<br/>
 					After login into your account <a href='${
 						process.env.WEBPAGE_URI
-					}login/'>Login</a>
-					Follow this link to pay the reservation <a href='${
+					}login/'>Login</a>.<br/>
+					Follow this link and click on the money symbol on the reservation to pay for it <a href='${
 						process.env.WEBPAGE_URI
-					}reservations/0/'>Reservations</a>`
+					}reservations/0/'>My Reservations</a>`
 				);
 			} else {
 				await sendToCompany(
@@ -231,6 +239,63 @@ router.post(
 						Determine the price and correct time for the job so the user can proceed with the payment`
 				);
 			}
+
+			return res.json(reservation);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).json({ msg: 'Server Error' });
+		}
+	}
+);
+
+//@route    POST api/reservation/disable
+//@desc     Disable Hour Range
+//@access   Private
+router.post(
+	'/disable',
+	[
+		auth,
+		adminAuth,
+		[
+			check('user', 'User is required').not().isEmpty(),
+			check('hourFrom', 'Time is required').not().isEmpty(),
+			check('hourTo', 'Time is required').not().isEmpty(),
+		],
+	],
+	async (req, res) => {
+		let errors = [];
+		const errorsResult = validationResult(req);
+		if (!errorsResult.isEmpty()) errors = errorsResult.array();
+
+		let { hourFrom, hourTo, user } = req.body;
+
+		if (errors.length > 0) return res.status(400).json({ errors });
+
+		hourFrom = new Date(hourFrom);
+		hourTo = new Date(hourTo);
+
+		let reservationFields = {
+			hourFrom,
+			hourTo,
+			userId: user,
+			jobs: [],
+			address: '',
+			value: 0,
+			status: 'canceled',
+		};
+
+		try {
+			let reservation = await Reservation.create(reservationFields);
+
+			reservation = await Reservation.findOne({
+				where: { id: reservation.id },
+				order: [['hourFrom', 'desc']],
+				include: [
+					{ model: User, as: 'user', attributes: { exclude: ['password'] } },
+				],
+			});
+
+			await addResToDay(reservation);
 
 			return res.json(reservation);
 		} catch (err) {
@@ -346,32 +411,102 @@ router.put('/payment/update', [auth], async (req, res) => {
 //@route    PUT api/reservation/:reservation_id
 //@desc     Update a reservation
 //@access   Private
-router.put('/:reservation_id', [auth], async (req, res) => {
-	let { hourFrom, hourTo } = req.body;
+router.put(
+	'/:reservation_id',
+	[auth, [check('address', 'Address is required').not().isEmpty()]],
+	async (req, res) => {
+		let errors = [];
+		const errorsResult = validationResult(req);
+		if (!errorsResult.isEmpty()) errors = errorsResult.array();
 
-	try {
-		let reservation = await Reservation.findOne({
-			where: { id: req.params.reservation_id },
-			include: [
-				{ model: User, as: 'user', attributes: { exclude: ['password'] } },
-				{ model: Job, as: 'job' },
-			],
-		});
-		await removeResFromDay(reservation);
+		let { hourFrom, hourTo, jobs, address, comments, value } = req.body;
 
-		reservation.hourFrom = new Date(hourFrom);
-		reservation.hourTo = new Date(hourTo);
+		const regex1 = /^\$?\d+(\.(\d{2}))?$/;
 
-		reservation.save();
+		if (req.user.type === 'admin') {
+			if (!value) errors.push({ msg: 'Value is required', param: 'value' });
+			else if (!regex1.test(value))
+				errors.push({ msg: 'Invalid Price. eg: 350.50', param: 'value' });
+		}
 
-		await addResToDay(reservation);
+		if (jobs.length === 0)
+			errors.push({ msg: 'You must have at least one job', param: 'jobs' });
 
-		return res.json(reservation);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ msg: 'Server Error' });
+		if (jobs.some((item) => item === ''))
+			errors.push({
+				msg: 'All jobs must have an item selected',
+				param: 'jobs',
+			});
+
+		if (errors.length > 0) return res.status(400).json({ errors });
+
+		try {
+			let reservation = await Reservation.findOne({
+				where: { id: req.params.reservation_id },
+				include: [
+					{ model: User, as: 'user', attributes: { exclude: ['password'] } },
+				],
+			});
+
+			const originalValue = reservation.value;
+
+			reservation.address = address;
+			reservation.jobs = jobs;
+			if (value) {
+				reservation.value = value;
+				reservation.status = 'unpaid';
+			}
+			if (comments) reservation.comments = comments;
+
+			if (hourFrom && hourTo) {
+				await removeResFromDay(reservation);
+
+				reservation.hourFrom = new Date(hourFrom);
+				reservation.hourTo = new Date(hourTo);
+
+				await addResToDay(reservation);
+			}
+
+			await reservation.save();
+
+			if (originalValue === 0 && reservation.value && reservation.value !== 0) {
+				hourFrom = moment(hourFrom);
+				hourTo = moment(hourTo);
+
+				await sendEmail(
+					reservation.user.email,
+					'Reservation Ready for Payment',
+					`Hello ${reservation.user.name} ${reservation.user.lastname}!
+					The reservation registered on the ${hourFrom
+						.utc()
+						.format('MM/DD/YY')} from ${hourFrom
+						.utc()
+						.format('h a')} to ${hourTo
+						.utc()
+						.format('h a')} is ready to be payed.
+					<br/>
+					After login into your account <a href='${
+						process.env.WEBPAGE_URI
+					}login/'>Login</a>.<br/>
+					Follow this link and click on the money symbol to pay for it. <a href='${
+						process.env.WEBPAGE_URI
+					}reservations/0/'>My Reservations</a>`
+				);
+			}
+
+			if (req.user.type === 'customer')
+				for (let x = 0; x < jobs.length; x++)
+					reservation.jobs[x] = await Job.findOne({
+						where: { id: jobs[x] },
+					});
+
+			return res.json(reservation);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).json({ msg: 'Server Error' });
+		}
 	}
-});
+);
 
 //@route    PUT api/reservation/cancel/:reservation_id
 //@desc     Cancel a reservation
@@ -382,17 +517,18 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 			where: { id: req.params.reservation_id },
 			include: [
 				{ model: User, as: 'user', attributes: { exclude: ['password'] } },
-				{ model: Job, as: 'job' },
 			],
 		});
 
 		if (reservation.paymentId !== '') {
 			reservation.status = 'canceled';
 
-			reservation.save();
+			await reservation.save();
 
 			const hourFrom = moment(reservation.hourFrom);
 			const hourTo = moment(reservation.hourTo);
+
+			await removeResFromDay(reservation);
 
 			await sendToCompany(
 				'Refund',
@@ -433,6 +569,8 @@ router.delete('/:reservation_id', [auth], async (req, res) => {
 			},
 		});
 
+		console.log(req.params.reservation_id);
+
 		await removeResFromDay(reservation);
 
 		await reservation.destroy();
@@ -458,7 +596,7 @@ const removeResFromDay = async (reservation) => {
 
 	day.reservations = day.reservations.filter((item) => item !== reservation.id);
 
-	if (day.reservations.length > 0) day.save();
+	if (day.reservations.length > 0) await day.save();
 	else
 		await Day.destroy({
 			where: {
@@ -481,7 +619,7 @@ const addResToDay = async (reservation) => {
 
 	if (day) {
 		day.reservations = [...day.reservations, reservation.id];
-		day.save();
+		await day.save();
 	} else {
 		day = {
 			date: new Date(reservation.hourFrom).setUTCHours(00, 00, 00),

@@ -43,7 +43,11 @@ const HeroSection = ({ clearReservations, clearJobs }) => {
 				360 Virtual Walkthrough brings drone data + 360 videos and photos into
 				one solution -{' '}
 				<span>
-					<Link to='/vrm' className='btn-link'>
+					<Link
+						to='/vrm'
+						onClick={() => window.scroll(0, 0)}
+						className='btn-link'
+					>
 						Learn More
 					</Link>
 				</span>

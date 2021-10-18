@@ -97,42 +97,13 @@
 
 			&-icon {
 				font-size: 1.3rem;
+				background-color: unset;
 			}
 
 			@media screen and (max-width: 500px) {
 				padding: 0.8rem 1rem;
 				font-size: 1rem;
 			}
-		}
-	}
-
-	.tooltip {
-		position: relative;
-		z-index: 10;
-
-		.tooltiptext {
-			visibility: hidden;
-			background-color: $color-light-3;
-			color: $color-white;
-			font-size: 1.4rem;
-			max-width: 100%;
-			width: max-content;
-			text-align: center;
-			border-radius: 0.6rem;
-			padding: 0.5rem 1rem;
-			top: -3.3rem;
-			left: 50%;
-			transform: translateX(-50%);
-			transition: all 0.1s ease-out;
-
-			/* Position the tooltip */
-			position: absolute;
-			z-index: 50;
-		}
-
-		&:hover .tooltiptext {
-			visibility: visible;
-			transform: translateX(-50%) scale(1);
 		}
 	}
 }

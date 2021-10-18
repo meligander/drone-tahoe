@@ -13,15 +13,13 @@
 	}
 
 	.heading-primary-subheading {
-		font-weight: 300;
-		font-size: 2.2rem;
-		margin: 0 0 2rem -1.5rem;
+		margin: 0 0 0.8rem -1.5rem !important;
 		display: inline-block;
 	}
 
-	&__group {
+	&-inner {
 		width: 80%;
-		margin: 1.5rem auto;
+		margin: 0 auto;
 
 		@media screen and (max-width: 650px) {
 			width: 90%;
@@ -83,7 +81,6 @@
 	}
 
 	&-cancel {
-		margin-left: 2rem;
 		background-color: inherit;
 		border: none;
 		cursor: pointer;

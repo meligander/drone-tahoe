@@ -6,6 +6,7 @@ import { logOut } from '../../../actions/auth';
 import { clearReservations } from '../../../actions/reservation';
 import { clearJobs } from '../../../actions/jobs';
 import { clearUsers } from '../../../actions/user';
+import { setNavbarHeight } from '../../../actions/global';
 
 import './Navbar.scss';
 
@@ -14,7 +15,7 @@ const Navbar = ({
 	clearReservations,
 	clearJobs,
 	clearUsers,
-	navbarHeight,
+	setNavbarHeight,
 	auth: { loggedUser, loading },
 }) => {
 	const [click, setClick] = useState(false);
@@ -27,22 +28,17 @@ const Navbar = ({
 
 	useEffect(() => {
 		showButton();
-		setHeigth();
-		// eslint-disable-next-line
-	}, []);
-
-	const setHeigth = () => {
 		setTimeout(() => {
-			navbarHeight(ref.current.offsetHeight);
+			setNavbarHeight(ref.current.offsetHeight);
 		}, 30);
-	};
+	}, [setNavbarHeight]);
 
 	const showButton = () => {
 		setButton(window.innerWidth > 960);
 	};
 
 	window.addEventListener('resize', showButton);
-	window.addEventListener('resize', setHeigth);
+	window.addEventListener('resize', setNavbarHeight);
 
 	return (
 		<nav
@@ -255,4 +251,5 @@ export default connect(mapStateToProps, {
 	clearReservations,
 	clearJobs,
 	clearUsers,
+	setNavbarHeight,
 })(Navbar);

@@ -52,8 +52,13 @@ export const loadUser = (login) => async (dispatch) => {
 
 export const loginUser = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+
+	let user = {};
+	for (const prop in formData)
+		if (formData[prop] !== '') user[prop] = formData[prop];
+
 	try {
-		const res = await api.post('/auth', formData);
+		const res = await api.post('/auth', user);
 		dispatch({
 			type: LOGIN_SUCCESS,
 			payload: res.data,
@@ -141,10 +146,12 @@ export const googleLogin = (googleData) => async (dispatch) => {
 export const signup = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
-	try {
-		if (formData.formImg) await api.post('/user/upload-img', formData.formImg);
+	let user = {};
+	for (const prop in formData)
+		if (formData[prop] !== '') user[prop] = formData[prop];
 
-		await api.post('/auth/signup', formData);
+	try {
+		await api.post('/auth/signup', user);
 
 		dispatch({
 			type: EMAIL_SENT,
@@ -218,8 +225,12 @@ export const sendPasswordLink = (email) => async (dispatch) => {
 export const resetPassword = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
+	let user = {};
+	for (const prop in formData)
+		if (formData[prop] !== '') user[prop] = formData[prop];
+
 	try {
-		const res = await api.put('/auth/reset-password', formData);
+		const res = await api.put('/auth/reset-password', user);
 
 		dispatch({
 			type: PASSWORD_CHANGED,
@@ -286,8 +297,12 @@ export const activation = (token) => async (dispatch) => {
 export const sendEmail = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
+	let data = {};
+	for (const prop in formData)
+		if (formData[prop] !== '') data[prop] = formData[prop];
+
 	try {
-		const res = await api.post('/auth/send-email', formData);
+		const res = await api.post('/auth/send-email', data);
 
 		dispatch({
 			type: EMAIL_SENT,

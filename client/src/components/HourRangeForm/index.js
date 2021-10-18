@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 
-import { registerReservation } from '../../actions/reservation';
+import { disableHourRange } from '../../actions/reservation';
 
 import Alert from '../layouts/Alert';
 
 const HourRangeForm = ({
-	registerReservation,
+	disableHourRange,
 	setToggleModal,
 	confirm,
 	auth: { loggedUser },
@@ -84,7 +84,7 @@ const HourRangeForm = ({
 
 	const onSubmit = (e) => {
 		e.preventDefault();
-		registerReservation(
+		disableHourRange(
 			{
 				hourFrom: moment(date)
 					.set('hour', hourFrom)
@@ -180,4 +180,4 @@ const mapStateToProps = (state) => ({
 	reservation: state.reservation,
 });
 
-export default connect(mapStateToProps, { registerReservation })(HourRangeForm);
+export default connect(mapStateToProps, { disableHourRange })(HourRangeForm);

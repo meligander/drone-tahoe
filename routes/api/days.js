@@ -9,47 +9,6 @@ const adminAuth = require('../../middleware/adminAuth');
 //Models
 const { Day, Reservation } = require('../../config/db');
 
-//@route    GET api/day/schedule/:month/:year
-//@desc     Get disabled and used days of a month
-//@access   Public
-router.get('/schedule/:month/:year', async (req, res) => {
-	try {
-		const month = Number(req.params.month);
-		const year = Number(req.params.year);
-
-		const monthDays = new Date(year, month + 1, 0).getDate();
-
-		let reservedDays = [];
-		let disabledDays = [];
-		let hoursDisabledDays = [];
-
-		const days = await Day.findAll({
-			where: {
-				date: {
-					[Op.between]: [
-						new Date(year, month, 1).setUTCHours(0, 0, 0),
-						new Date(year, month, monthDays).setUTCHours(23, 23, 59),
-					],
-				},
-			},
-		});
-
-		for (let x = 0; x < days.length; x++) {
-			if (!days[x].reservations) disabledDays.push(days[x].date);
-			else {
-				if (days[x].reservations.every((item) => item.jobs.length === 0))
-					hoursDisabledDays.push(days[x].date);
-				else reservedDays.push(days[x].date);
-			}
-		}
-
-		res.json({ disabledDays, reservedDays, hoursDisabledDays });
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ msg: 'Server Error' });
-	}
-});
-
 //@route    GET api/day/:date/:reservation_id
 //@desc     Get day availability
 //@access   Public
@@ -118,6 +77,55 @@ router.get('/:date/:reservation_id', [auth], async (req, res) => {
 		}
 
 		res.json(finalArray);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
+//@route    GET api/day/schedule/:month/:year
+//@desc     Get disabled and used days of a month
+//@access   Public
+router.get('/schedule/:month/:year', async (req, res) => {
+	try {
+		const month = Number(req.params.month);
+		const year = Number(req.params.year);
+
+		const monthDays = new Date(year, month + 1, 0).getDate();
+
+		let reservedDays = [];
+		let disabledDays = [];
+		let timeDisabledDays = [];
+
+		const days = await Day.findAll({
+			where: {
+				date: {
+					[Op.between]: [
+						new Date(year, month, 1).setUTCHours(0, 0, 0),
+						new Date(year, month, monthDays).setUTCHours(23, 23, 59),
+					],
+				},
+			},
+		});
+
+		for (let x = 0; x < days.length; x++) {
+			let reservations = days[x].reservations;
+
+			for (let y = 0; y < reservations.length; y++) {
+				reservations[y] = await Reservation.findOne({
+					where: { id: reservations[y] },
+				});
+			}
+
+			if (!reservations) disabledDays.push(days[x].date);
+			else {
+				if (reservations.every((item) => item.jobs.length === 0))
+					timeDisabledDays.push(days[x].date);
+				else reservedDays.push(days[x].date);
+			}
+		}
+
+		res.json({ disabledDays, reservedDays, timeDisabledDays });
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });

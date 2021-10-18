@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Switch, Route } from 'react-router-dom';
 
 import EditUser from '../../pages/EditUser';
@@ -12,7 +13,7 @@ import JobsList from '../../pages/JobsList';
 import ManageSchedule from '../../pages/ManageSchedule';
 import UsersList from '../../pages/UsersList';
 
-const Routes = ({ footer, navbar }) => {
+const Routes = ({ global: { navbar, footer } }) => {
 	return (
 		<div
 			className='container'
@@ -66,4 +67,8 @@ const Routes = ({ footer, navbar }) => {
 	);
 };
 
-export default Routes;
+const mapStateToProps = (state) => ({
+	global: state.global,
+});
+
+export default connect(mapStateToProps)(Routes);

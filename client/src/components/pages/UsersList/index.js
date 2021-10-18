@@ -172,7 +172,10 @@ const ReservationsList = ({
 																: `/edit-user/${user.id}`
 														}
 														className='btn-icon'
-														onClick={() => clearUser()}
+														onClick={() => {
+															clearUser();
+															window.scroll(0, 0);
+														}}
 													>
 														<i className='far fa-edit'></i>
 													</Link>

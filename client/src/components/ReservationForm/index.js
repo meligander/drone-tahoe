@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Moment from 'react-moment';
 
+import { updateReservation } from '../../actions/reservation';
+
 import Schedule from '../Schedule';
+import UserField from '../UserField';
 
 import './ReservationForm.scss';
-import UserField from '../UserField';
 
 const ReservationForm = ({
 	reservation,
 	complete,
-	jobId,
+	match,
 	job: { jobs: jobsList },
 	auth: { loggedUser },
+	updateReservation,
 }) => {
 	const [formData, setFormData] = useState({
 		id: 0,
@@ -26,18 +30,29 @@ const ReservationForm = ({
 	const [adminValues, setAdminValues] = useState({
 		searchDisplay: false,
 		clear: false,
+		changeDate: false,
 	});
 
-	const { searchDisplay, clear } = adminValues;
+	const { searchDisplay, clear, changeDate } = adminValues;
 	const { jobs, user, address, comments, value } = formData;
 
 	useEffect(() => {
 		setFormData((prev) => ({
 			...prev,
-			jobs: reservation ? reservation.jobs : [jobId ? jobId : ''],
-			user: reservation ? reservation.user : null,
+			jobs: reservation
+				? reservation.jobs
+				: [
+						match.params.job_id && match.params.job_id !== '0'
+							? match.params.job_id
+							: '',
+				  ],
+			...(reservation && {
+				user: reservation.user,
+				address: reservation.address,
+				value: reservation.value,
+			}),
 		}));
-	}, [reservation, jobId]);
+	}, [reservation, match]);
 
 	const onChange = (e) => {
 		let newArray = jobs;
@@ -66,12 +81,32 @@ const ReservationForm = ({
 
 	return (
 		<div className='reservation-form'>
-			<div className='reservation-form__group'>
-				<h4 className='heading-primary-subheading'>
-					{reservation ? 'Update' : 'New'} Reservation:
-				</h4>
-				{reservation && (
-					<>
+			<form
+				onSubmit={async (e) => {
+					e.preventDefault();
+					const answer = await updateReservation(reservation.id, formData);
+					if (answer) complete();
+				}}
+			>
+				{loggedUser.type === 'customer' && (
+					<div className='btn-top-right'>
+						<button
+							className='reservation-form-cancel'
+							onClick={(e) => {
+								e.preventDefault();
+								restart();
+								complete();
+							}}
+						>
+							<i className='fas fa-times'></i>
+						</button>
+					</div>
+				)}
+				<div className='reservation-form-inner'>
+					<h4 className='heading-primary-subheading'>
+						{reservation ? 'Update' : 'New'} Reservation:
+					</h4>
+					{reservation && (
 						<p className='heading-primary-subheading-update'>
 							<Moment
 								date={reservation.hourFrom}
@@ -83,158 +118,218 @@ const ReservationForm = ({
 							<Moment date={reservation.hourFrom} utc format='h a' /> -{' '}
 							<Moment date={reservation.hourTo} utc format='h a' />
 						</p>
-						{loggedUser.type === 'customer' && (
-							<button
-								className='reservation-form-cancel'
-								onClick={() => {
-									complete();
-									restart();
-								}}
-							>
-								<i className='fas fa-times'></i>
-							</button>
-						)}
-					</>
-				)}
+					)}
 
-				{loggedUser && loggedUser.type === 'admin' && (
-					<UserField
-						selectFinalUser={(user) => {
-							setFormData((prev) => ({ ...prev, user: user ? user.id : null }));
-						}}
-						reservationUser={reservation ? user : null}
-						searchDisplay={searchDisplay}
-						switchDisplay={(show) =>
-							setAdminValues((prev) => ({ ...prev, searchDisplay: show }))
-						}
-						clear={clear}
-						completeClear={() =>
-							setAdminValues((prev) => ({ ...prev, clear: false }))
-						}
-					/>
-				)}
-				<div className='form__group'>
-					<input
-						className='form__input'
-						type='text'
-						value={address}
-						onChange={onChange}
-						id='address'
-						name='address'
-						placeholder='Address for the Job'
-					/>
-					<label htmlFor='address' className='form__label'>
-						Address for the Job
-					</label>
-				</div>
-				<div className='jobs-list'>
-					<p className='jobs-list-title'>Jobs List</p>
-					{jobs.length > 0 &&
-						jobs.map((job, i) => (
-							<div className='form__group-job' key={i}>
-								<div className='form__group'>
-									<select
-										className={`form__input ${job === '' ? 'empty' : ''}`}
-										id={i}
-										name='jobs'
-										value={job}
-										disabled={reservation}
-										onFocus={() =>
-											setAdminValues((prev) => ({
-												...prev,
-												searchDisplay: false,
-											}))
-										}
-										onChange={onChange}
-									>
-										<option value=''>* Job {i + 1}</option>
-										{jobsList.length > 0 &&
-											jobsList.map((item) => (
-												<option key={`jl-${i}-${item.id}`} value={item.id}>
-													{item.title}
-												</option>
-											))}
-									</select>
-									<label
-										htmlFor='job'
-										className={`form__label ${job === '' ? 'hide' : ''}`}
-									>
-										Job {i + 1}
-									</label>
-								</div>
-								<button
-									className='btn-icon'
-									onClick={() => {
-										jobs.splice(i, 1);
-										setFormData((prev) => ({
-											...prev,
-											jobs,
-										}));
-									}}
-								>
-									<i className='far fa-trash-alt'></i>
-								</button>
-							</div>
-						))}
-					<div className='btn-right'>
-						<button
-							className='btn btn-quaternary'
-							onClick={() =>
-								setFormData((prev) => ({ ...prev, jobs: [...jobs, ''] }))
+					{reservation && loggedUser && loggedUser.type === 'admin' && (
+						<>
+							<p className='reservation-form-item'>
+								<span className='reservation-form-title'>Status:</span>{' '}
+								{reservation.status.charAt(0).toUpperCase() +
+									reservation.status.slice(1)}
+							</p>
+							{reservation.state !== 'unpaid' ||
+								(reservation.state !== 'requested' && (
+									<>
+										<p className='reservation-form-item'>
+											<span className='reservation-form-title'>
+												Payment method:
+											</span>{' '}
+											{reservation.paymentId !== '' ? 'Paypal' : 'Cash'}
+										</p>
+										{reservation.paymentId !== '' && (
+											<p className='reservation-form-item'>
+												<span className='reservation-form-title'>
+													PayPal ID:
+												</span>{' '}
+												{reservation.paymentId}
+											</p>
+										)}
+									</>
+								))}
+						</>
+					)}
+
+					{loggedUser && loggedUser.type === 'admin' && (
+						<UserField
+							selectFinalUser={(user) => {
+								setFormData((prev) => ({
+									...prev,
+									user: user ? user.id : null,
+								}));
+							}}
+							reservationUser={reservation ? user : null}
+							searchDisplay={searchDisplay}
+							switchDisplay={(show) =>
+								setAdminValues((prev) => ({ ...prev, searchDisplay: show }))
 							}
-						>
-							<i className='fas fa-plus'></i> &nbsp; Job
-						</button>
-					</div>
-				</div>
-				<div className='form__group'>
-					<textarea
-						type='text'
-						className='form__input textarea'
-						value={comments}
-						id='comments'
-						rows='3'
-						onChange={onChange}
-						placeholder='Special Request'
-						name='comments'
-					/>
-					<label htmlFor='comments' className='form__label'>
-						Special Request
-					</label>
-				</div>
-				{loggedUser.type === 'admin' && (
+							clear={clear}
+							completeClear={() =>
+								setAdminValues((prev) => ({ ...prev, clear: false }))
+							}
+						/>
+					)}
 					<div className='form__group'>
 						<input
 							className='form__input'
 							type='text'
-							value={value}
+							value={address}
 							onChange={onChange}
-							id='value'
-							name='value'
-							placeholder='Value'
+							disabled={
+								reservation &&
+								reservation.status !== 'requested' &&
+								((loggedUser.type === 'customer' &&
+									reservation.status === 'unpaid') ||
+									loggedUser.type !== 'customer')
+							}
+							id='address'
+							name='address'
+							placeholder='Address for the Job'
 						/>
 						<label htmlFor='address' className='form__label'>
-							Value
+							Address for the Job
 						</label>
 					</div>
-				)}
-				{reservation && loggedUser && loggedUser.type === 'admin' && (
-					<>
-						<p className='reservation-form-item'>
-							<span className='reservation-form-title'>Payment method:</span>{' '}
-							{reservation.paymentId !== '' ? 'Paypal' : 'Cash'}
-						</p>
-						{reservation.paymentId !== '' && (
-							<p className='reservation-form-item'>
-								<span className='reservation-form-title'>PayPal ID:</span>{' '}
-								{reservation.paymentId}
-							</p>
-						)}
-					</>
-				)}
-			</div>
+					<div className='jobs-list'>
+						<p className='jobs-list-title'>Jobs List</p>
+						{jobs.length > 0 &&
+							jobs.map((job, i) => (
+								<div className='form__group-job' key={i}>
+									<div className='form__group'>
+										<select
+											className={`form__input ${job === '' ? 'empty' : ''}`}
+											id={i}
+											name='jobs'
+											value={job}
+											disabled={
+												reservation &&
+												reservation.status !== 'requested' &&
+												((loggedUser.type === 'customer' &&
+													reservation.status === 'unpaid') ||
+													loggedUser.type !== 'customer')
+											}
+											onFocus={() =>
+												setAdminValues((prev) => ({
+													...prev,
+													searchDisplay: false,
+												}))
+											}
+											onChange={onChange}
+										>
+											<option value=''>* Job {i + 1}</option>
+											{jobsList.length > 0 &&
+												jobsList.map((item) => (
+													<option key={`jl-${i}-${item.id}`} value={item.id}>
+														{item.title}
+													</option>
+												))}
+										</select>
+										<label
+											htmlFor='job'
+											className={`form__label ${job === '' ? 'hide' : ''}`}
+										>
+											Job {i + 1}
+										</label>
+									</div>
+									<button
+										className='btn-icon'
+										onClick={() => {
+											jobs.splice(i, 1);
+											setFormData((prev) => ({
+												...prev,
+												jobs,
+											}));
+										}}
+									>
+										<i className='far fa-trash-alt'></i>
+									</button>
+								</div>
+							))}
+						<div className='btn-right'>
+							<button
+								className='btn btn-quaternary'
+								onClick={(e) => {
+									e.preventDefault();
+									setFormData((prev) => ({ ...prev, jobs: [...jobs, ''] }));
+								}}
+							>
+								<i className='fas fa-plus'></i> &nbsp; Job
+							</button>
+						</div>
+					</div>
+					<div className='form__group'>
+						<textarea
+							type='text'
+							className='form__input textarea'
+							value={comments}
+							id='comments'
+							disabled={
+								reservation &&
+								reservation.status !== 'unpaid' &&
+								reservation.status !== 'requested'
+							}
+							rows='3'
+							onChange={onChange}
+							placeholder='Special Request'
+							name='comments'
+						/>
+						<label htmlFor='comments' className='form__label'>
+							Special Request
+						</label>
+					</div>
+					{(loggedUser.type === 'admin' ||
+						(loggedUser.type === 'customer' &&
+							value !== 0 &&
+							value !== '')) && (
+						<div className='form__group'>
+							<input
+								className='form__input'
+								type='text'
+								value={value}
+								onChange={onChange}
+								disabled={
+									(reservation &&
+										reservation.status !== 'unpaid' &&
+										reservation.status !== 'requested') ||
+									loggedUser.type === 'customer'
+								}
+								id='value'
+								name='value'
+								placeholder='Value'
+							/>
+							<label htmlFor='address' className='form__label'>
+								Value
+							</label>
+						</div>
+					)}
 
-			{((reservation && reservation.status !== 'canceled') || !reservation) && (
+					{reservation && (
+						<div className='btn-center'>
+							{!changeDate && (
+								<button className='btn' type='submit'>
+									<i className='far fa-save'></i>
+								</button>
+							)}
+
+							{reservation.status !== 'canceled' &&
+								reservation.status !== 'refunded' && (
+									<button
+										className='btn'
+										onClick={(e) => {
+											e.preventDefault();
+											setAdminValues((prev) => ({
+												...prev,
+												changeDate: !changeDate,
+											}));
+										}}
+									>
+										{changeDate ? 'Keep Date' : 'Change Date'}
+									</button>
+								)}
+						</div>
+					)}
+				</div>
+			</form>
+			{(changeDate || !reservation) && (
 				<Schedule
 					complete={() => {
 						restart();
@@ -252,4 +347,6 @@ const mapStateToProps = (state) => ({
 	auth: state.auth,
 });
 
-export default connect(mapStateToProps)(ReservationForm);
+export default connect(mapStateToProps, { updateReservation })(
+	withRouter(ReservationForm)
+);

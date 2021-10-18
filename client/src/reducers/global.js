@@ -1,7 +1,13 @@
-import { LOADINGSPINNER_UPDATED } from '../actions/types';
+import {
+	FOOTER_HEIGHT_SETTED,
+	LOADINGSPINNER_UPDATED,
+	NAVBAR_HEIGHT_SETTED,
+} from '../actions/types';
 
 const initialState = {
 	loadingSpinner: false,
+	footer: 0,
+	navbar: 0,
 };
 
 const globalReducer = (state = initialState, action) => {
@@ -11,6 +17,16 @@ const globalReducer = (state = initialState, action) => {
 			return {
 				...state,
 				loadingSpinner: payload,
+			};
+		case NAVBAR_HEIGHT_SETTED:
+			return {
+				...state,
+				navbar: payload,
+			};
+		case FOOTER_HEIGHT_SETTED:
+			return {
+				...state,
+				footer: payload,
 			};
 		default:
 			return state;

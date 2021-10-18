@@ -85,8 +85,12 @@ export const loadJobs = (filterData, bulkLoad) => async (dispatch) => {
 export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
+	let job = {};
+	for (const prop in formData)
+		if (formData[prop] !== '') job[prop] = formData[prop];
+
 	try {
-		const res = await api.post(`/job/${job_id ? job_id : '0'}`, formData);
+		const res = await api.post(`/job/${job_id ? job_id : '0'}`, job);
 
 		dispatch({
 			type: job_id ? JOB_UPDATED : JOB_REGISTERED,

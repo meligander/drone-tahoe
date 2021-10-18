@@ -272,14 +272,15 @@ const Schedule = ({
 					}))
 				}
 				confirm={() => {
-					/* updateReservation(
+					updateReservation(
+						reservation.id,
 						{
+							...reservation,
 							hourFrom: moment(hourFrom).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
 							hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
 						},
-						reservation.id,
-						 moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]')
-					); */
+						moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]')
+					);
 					complete();
 				}}
 				text='Are you sure you want to modify the reservation?'

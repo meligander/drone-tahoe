@@ -93,7 +93,31 @@
 	}
 
 	&-payment {
-		padding: 2.5rem 6rem 0;
+		.payment {
+			width: 50%;
+			margin: 3.5rem auto -0.5rem;
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+
+			@media screen and (max-width: 650px) {
+				width: 70%;
+			}
+			@media screen and (max-width: 500px) {
+				width: 85%;
+				margin: 2.5rem auto -0.5rem;
+			}
+
+			&-text {
+				align-self: center;
+				font-size: 1.5rem;
+				margin: 1rem 0;
+			}
+
+			.btn {
+				margin: 0;
+			}
+		}
 	}
 
 	&-text {

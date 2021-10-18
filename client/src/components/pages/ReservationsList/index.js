@@ -37,7 +37,6 @@ const ReservationsList = ({
 		toggleReservation: false,
 		showFilter: false,
 		reservation: null,
-		update: false,
 		searchDisplay: false,
 		clear: false,
 		checkout: false,
@@ -50,7 +49,6 @@ const ReservationsList = ({
 		toggleReservation,
 		showFilter,
 		reservation,
-		update,
 		searchDisplay,
 		clear,
 		checkout,
@@ -91,6 +89,7 @@ const ReservationsList = ({
 					setAdminValues((prev) => ({
 						...prev,
 						toggleDeleteConf: !toggleDeleteConf,
+						reservation: null,
 					}))
 				}
 				toggleModal={toggleDeleteConf}
@@ -103,10 +102,12 @@ const ReservationsList = ({
 			/>
 			<PopUp
 				type='payment'
+				toUpdate={reservation && reservation.id}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,
 						checkout: false,
+						reservation: null,
 					}))
 				}
 				toggleModal={checkout}
@@ -114,12 +115,13 @@ const ReservationsList = ({
 			{toggleReservation && (
 				<PopUp
 					type='schedule'
-					toUpdate={update ? reservation : null}
+					toUpdate={reservation}
 					toggleModal={toggleReservation}
 					setToggleModal={() =>
 						setAdminValues((prev) => ({
 							...prev,
 							toggleReservation: !toggleReservation,
+							reservation: null,
 						}))
 					}
 				/>
@@ -263,7 +265,10 @@ const ReservationsList = ({
 												</td>
 												<td>
 													<Link
-														onClick={clearUsers}
+														onClick={() => {
+															clearUsers();
+															window.scroll(0, 0);
+														}}
 														className='btn-link text-dark'
 														to={`/edit-user/${res.user.id}`}
 													>{`${res.user.name} ${res.user.lastname}`}</Link>
@@ -272,22 +277,22 @@ const ReservationsList = ({
 													{res.status.charAt(0).toUpperCase() +
 														res.status.slice(1)}
 												</td>
-												{res.status === 'unpaid' && (
-													<td>
+												<td>
+													{res.status === 'unpaid' && (
 														<button
 															className='btn-icon'
 															onClick={() =>
 																setAdminValues((prev) => ({
 																	...prev,
 																	checkout: true,
+																	reservation: res,
 																}))
 															}
 														>
 															<i className='fas fa-dollar-sign'></i>
 														</button>
-													</td>
-												)}
-
+													)}
+												</td>
 												<td>
 													<button
 														className='btn-icon'
@@ -296,7 +301,6 @@ const ReservationsList = ({
 																...prev,
 																toggleReservation: !toggleReservation,
 																reservation: res,
-																update: true,
 															}))
 														}
 													>
@@ -338,7 +342,6 @@ const ReservationsList = ({
 							onClick={() =>
 								setAdminValues((prev) => ({
 									...prev,
-									update: false,
 									toggleReservation: !toggleReservation,
 								}))
 							}
