@@ -208,6 +208,7 @@ router.post(
 					reservation.user.email,
 					'Reservation Registered',
 					`Hello ${reservation.user.name} ${reservation.user.lastname}!
+					<br/><br/>
 					A reservation has been registered on the ${hourFrom
 						.utc()
 						.format('MM/DD/YY')} from ${hourFrom
@@ -219,9 +220,9 @@ router.post(
 					After login into your account <a href='${
 						process.env.WEBPAGE_URI
 					}login/'>Login</a>.<br/>
-					Follow this link and click on the money symbol on the reservation to pay for it <a href='${
+					Follow this link and click on the money symbol on the reservation to pay for it. <a href='${
 						process.env.WEBPAGE_URI
-					}reservations/0/'>My Reservations</a>`
+					}reservation/0/'>My Reservations</a>`
 				);
 			} else {
 				await sendToCompany(
@@ -236,7 +237,7 @@ router.post(
 						.utc()
 						.format('h a')} to ${hourTo.utc().format('h a')}. 
 						<br/>
-						Determine the price and correct time for the job so the user can proceed with the payment`
+						Determine the price and correct time for the job so the user can proceed with the payment.`
 				);
 			}
 
@@ -309,9 +310,17 @@ router.post(
 //@desc     Make reservation payment
 //@access   Private
 router.post('/payment', [auth], async (req, res) => {
-	let { job } = req.body;
+	let { jobs, value } = req.body;
 
 	const request = new paypal.orders.OrdersCreateRequest();
+
+	let result = [];
+
+	for (let x = 0; x < jobs.length; x++) {
+		const match = result.findIndex((job) => jobs[x].id === job.id);
+		if (match === -1) result = [...result, { ...jobs[x], quantity: 1 }];
+		else result[match].quantity = result[match].quantity + 1;
+	}
 
 	request.prefer('return=representation');
 	request.requestBody({
@@ -320,24 +329,24 @@ router.post('/payment', [auth], async (req, res) => {
 			{
 				amount: {
 					currency_code: 'USD',
-					value: job.price,
+					value,
 					breakdown: {
 						item_total: {
 							currency_code: 'USD',
-							value: job.price,
+							value,
 						},
 					},
 				},
-				items: [
-					{
-						name: job.title,
+				items: result.map((item) => {
+					return {
+						name: item.title,
 						unit_amount: {
 							currency_code: 'USD',
-							value: job.price,
+							value: value / jobs.length,
 						},
-						quantity: 1,
-					},
-				],
+						quantity: item.quantity,
+					};
+				}),
 			},
 		],
 		application_context: {
@@ -349,6 +358,63 @@ router.post('/payment', [auth], async (req, res) => {
 		const order = await paypalClient.execute(request);
 
 		res.json({ id: order.result.id });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
+//@route    PUT api/reservation/payment/:reservation_id
+//@desc     Update payment status
+//@access   Private
+router.put('/payment/:reservation_id', [auth], async (req, res) => {
+	try {
+		const { paymentId } = req.body;
+
+		let reservation = await Reservation.findOne({
+			where: { id: req.params.reservation_id },
+			include: [
+				{ model: User, as: 'user', attributes: { exclude: ['password'] } },
+			],
+		});
+
+		reservation.status = paymentId ? 'pending' : 'paid';
+		if (paymentId) reservation.paymentId = paymentId;
+
+		await reservation.save();
+
+		const hourFrom = moment(reservation.hourFrom);
+		const hourTo = moment(reservation.hourTo);
+
+		await sendEmail(
+			reservation.user.email,
+			'Reservation Payed',
+			`Hello ${reservation.user.name} ${reservation.user.lastname}!
+			<br/><br/>
+			The reservation registered on the ${hourFrom
+				.utc()
+				.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
+				.utc()
+				.format('h a')} has been payed.
+				<br/>
+				The amount payed was $${reservation.value}.`
+		);
+
+		if (req.user.type === 'customer')
+			await sendToCompany(
+				'Reservation Payed',
+				`The user ${reservation.user.name} ${
+					reservation.user.lastname
+				}, email ${reservation.user.email}, has payed $${
+					reservation.value
+				} for the reservation on the ${hourFrom
+					.utc()
+					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
+					.utc()
+					.format('h a')}.`
+			);
+
+		res.json(reservation);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });
@@ -377,28 +443,65 @@ router.get('/payment/:reservation_id', [auth], async (req, res) => {
 	}
 });
 
-//@route    PUT api/reservation/payment/update
-//@desc     Update payment status
+//@route    PUT api/reservation/status/update
+//@desc     Update pending and paid status
 //@access   Private
-router.put('/payment/update', [auth], async (req, res) => {
+router.put('/status/update', [auth], async (req, res) => {
 	try {
-		let reservations = await Reservation.findAll({
+		let pendingReservations = await Reservation.findAll({
 			where: { status: 'pending' },
 		});
 
-		for (let x = 0; x < reservations.length; x++) {
-			const orderID = reservations[x].paymentId;
+		let completedReservations = await Reservation.findAll({
+			where: { hourFrom: { [Op.lte]: new Date() }, status: 'paid' },
+		});
+
+		let canceledReservations = await Reservation.findAll({
+			where: { status: 'canceled' },
+		});
+
+		for (let x = 0; x < pendingReservations.length; x++) {
+			const orderID = pendingReservations[x].paymentId;
+
+			if (orderID) {
+				const request = new paypal.orders.OrdersGetRequest(orderID);
+
+				let order = await paypalClient.execute(request);
+				if (
+					order.result.status === 'COMPLETED' &&
+					order.result.purchase_units[0].payments.captures.every(
+						(item) => item.status === 'COMPLETED'
+					)
+				) {
+					pendingReservations[x].status = 'paid';
+					await pendingReservations[x].save();
+				}
+			}
+		}
+
+		for (let x = 0; x < canceledReservations.length; x++) {
+			const orderID = canceledReservations[x].paymentId;
 
 			if (orderID) {
 				const request = new paypal.orders.OrdersGetRequest(orderID);
 
 				let order = await paypalClient.execute(request);
 
-				if (order.result.status === 'COMPLETED') {
-					reservations[x].status = 'completed';
-					await reservations[x].save();
+				if (
+					order.result.status === 'COMPLETED' &&
+					order.result.purchase_units[0].payments.captures.every(
+						(item) => item.status === 'REFUNDED'
+					)
+				) {
+					canceledReservations[x].status = 'refunded';
+					await canceledReservations[x].save();
 				}
 			}
+		}
+
+		for (let x = 0; x < completedReservations.length; x++) {
+			completedReservations[x].status = 'completed';
+			await completedReservations[x].save();
 		}
 
 		res.json('Reservations Updated');
@@ -424,7 +527,8 @@ router.put(
 		const regex1 = /^\$?\d+(\.(\d{2}))?$/;
 
 		if (req.user.type === 'admin') {
-			if (!value) errors.push({ msg: 'Value is required', param: 'value' });
+			if (!value || value === '0')
+				errors.push({ msg: 'Value is required', param: 'value' });
 			else if (!regex1.test(value))
 				errors.push({ msg: 'Invalid Price. eg: 350.50', param: 'value' });
 		}
@@ -448,7 +552,7 @@ router.put(
 				],
 			});
 
-			const originalValue = reservation.value;
+			const originalStatus = reservation.status;
 
 			reservation.address = address;
 			reservation.jobs = jobs;
@@ -469,14 +573,15 @@ router.put(
 
 			await reservation.save();
 
-			if (originalValue === 0 && reservation.value && reservation.value !== 0) {
-				hourFrom = moment(hourFrom);
-				hourTo = moment(hourTo);
+			if (originalStatus === 'requested' && value) {
+				hourFrom = moment(reservation.hourFrom);
+				hourTo = moment(reservation.hourTo);
 
 				await sendEmail(
 					reservation.user.email,
 					'Reservation Ready for Payment',
 					`Hello ${reservation.user.name} ${reservation.user.lastname}!
+					<br/><br/>
 					The reservation registered on the ${hourFrom
 						.utc()
 						.format('MM/DD/YY')} from ${hourFrom
@@ -490,7 +595,7 @@ router.put(
 					}login/'>Login</a>.<br/>
 					Follow this link and click on the money symbol to pay for it. <a href='${
 						process.env.WEBPAGE_URI
-					}reservations/0/'>My Reservations</a>`
+					}reservation/0/'>My Reservations</a>`
 				);
 			}
 
@@ -520,8 +625,35 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 			],
 		});
 
-		if (reservation.paymentId !== '') {
+		if (reservation.paymentId) {
 			reservation.status = 'canceled';
+
+			const requestID = new paypal.orders.OrdersGetRequest(
+				reservation.paymentId
+			);
+
+			const order = await paypalClient.execute(requestID);
+
+			for (
+				let x = 0;
+				x < order.result.purchase_units[0].payments.captures.length;
+				x++
+			) {
+				const id = order.result.purchase_units[0].payments.captures[x].id;
+				const value =
+					order.result.purchase_units[0].payments.captures[x].amount.value;
+
+				const request = new paypal.payments.CapturesRefundRequest(id);
+
+				request.requestBody({
+					amoutn: {
+						currency_code: 'USD',
+						value,
+					},
+				});
+
+				await paypalClient.execute(request);
+			}
 
 			await reservation.save();
 
@@ -542,7 +674,7 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 					.utc()
 					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
 					.utc()
-					.format('h a')}`
+					.format('h a')}.`
 			);
 		} else {
 			await removeResFromDay(reservation);
@@ -568,8 +700,6 @@ router.delete('/:reservation_id', [auth], async (req, res) => {
 				id: req.params.reservation_id,
 			},
 		});
-
-		console.log(req.params.reservation_id);
 
 		await removeResFromDay(reservation);
 

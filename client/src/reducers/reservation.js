@@ -10,6 +10,7 @@ import {
 	RESERVATIONS_CLEARED,
 	PAYMENT_ERROR,
 	RESERVATION_CANCELED,
+	PAYMENT_STATUS_UPDATED,
 } from '../actions/types';
 
 const initialState = {
@@ -58,6 +59,17 @@ const reservationReducer = (state = initialState, action) => {
 				),
 				error: {},
 			};
+		case PAYMENT_STATUS_UPDATED:
+			return payload
+				? {
+						...state,
+						loadingReservation: false,
+						reservations: state.reservations.map((item) =>
+							item.id === payload.id ? payload : item
+						),
+						error: {},
+				  }
+				: state;
 		case RESERVATION_DELETED:
 			return {
 				...state,

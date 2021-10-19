@@ -132,7 +132,7 @@ router.post(
 				email,
 				'Account activation',
 				`Welcome ${name} ${lastname}!
- 
+				<br/> <br/>
              Thanks for signing up with Drone Tahoe!
              You must follow this link to activate your account:
              <a href='${process.env.WEBPAGE_URI}activation/${token}/'>Activation Link</a>`
@@ -166,9 +166,10 @@ router.post('/activation', async (req, res) => {
 
 		user.password = await bcrypt.hash(user.password, salt);
 
-		user = await User.findOne({ where: { email: user.email } });
+		const oldUser = await User.findOne({ where: { email: user.email } });
 
-		if (!user) user = await User.create(user);
+		if (!oldUser) user = await User.create(user);
+		else user = oldUser;
 
 		const token = loginToken(user);
 
@@ -345,7 +346,7 @@ router.put(
 				email,
 				'Password update',
 				`Hello ${user.name} ${user.lastname}!
- 
+				<br/> <br/>
              We've received a request to change your password!
              Follow this link to complete your password update:
              <a href='${process.env.WEBPAGE_URI}resetpassword/${token}/'>Password Update Link</a>`

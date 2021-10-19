@@ -38,7 +38,6 @@ const Navbar = ({
 	};
 
 	window.addEventListener('resize', showButton);
-	window.addEventListener('resize', setNavbarHeight);
 
 	return (
 		<nav

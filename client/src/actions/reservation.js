@@ -87,7 +87,6 @@ export const loadReservations = (filterData, bulkLoad) => async (dispatch) => {
 
 export const makePayment = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
-
 	try {
 		const res = await api.post('/reservation/payment', formData);
 
@@ -112,9 +111,38 @@ export const makePayment = (formData) => async (dispatch) => {
 	}
 };
 
+export const updatePayment = (reservation_id, formData) => async (dispatch) => {
+	try {
+		console.log('hola', formData);
+		const res = await api.put(
+			`/reservation/payment/${reservation_id}`,
+			formData
+		);
+
+		dispatch({
+			type: PAYMENT_STATUS_UPDATED,
+			payload: res.data,
+		});
+
+		return true;
+	} catch (err) {
+		console.log(err);
+		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+		dispatch({
+			type: PAYMENT_ERROR,
+			payload: {
+				type: err.response.statusText,
+				status: err.response.status,
+				msg: err.response.data.msg,
+			},
+		});
+		return false;
+	}
+};
+
 export const updateStatus = () => async (dispatch) => {
 	try {
-		await api.put('/reservation/payment/update');
+		await api.put('/reservation/status/update');
 
 		dispatch({
 			type: PAYMENT_STATUS_UPDATED,
@@ -202,6 +230,7 @@ export const updateReservation =
 			dispatch(updateLoadingSpinner(false));
 			return true;
 		} catch (err) {
+			window.scrollTo(0, 0);
 			if (err.response.data.errors) {
 				const errors = err.response.data.errors;
 				errors.forEach((error) => {

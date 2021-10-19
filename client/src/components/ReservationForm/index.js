@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Moment from 'react-moment';
@@ -7,6 +7,7 @@ import { updateReservation } from '../../actions/reservation';
 
 import Schedule from '../Schedule';
 import UserField from '../UserField';
+import Alert from '../layouts/Alert';
 
 import './ReservationForm.scss';
 
@@ -18,9 +19,15 @@ const ReservationForm = ({
 	auth: { loggedUser },
 	updateReservation,
 }) => {
+	const form = useRef();
+
 	const [formData, setFormData] = useState({
 		id: 0,
-		jobs: [''],
+		jobs: [
+			match.params.job_id && match.params.job_id !== '0'
+				? match.params.job_id
+				: '',
+		],
 		user: null,
 		address: '',
 		comments: '',
@@ -34,30 +41,30 @@ const ReservationForm = ({
 	});
 
 	const { searchDisplay, clear, changeDate } = adminValues;
-	const { jobs, user, address, comments, value } = formData;
+	const { id, jobs, user, address, comments, value } = formData;
 
 	useEffect(() => {
-		setFormData((prev) => ({
-			...prev,
-			jobs: reservation
-				? reservation.jobs
-				: [
-						match.params.job_id && match.params.job_id !== '0'
-							? match.params.job_id
-							: '',
-				  ],
-			...(reservation && {
-				user: reservation.user,
-				address: reservation.address,
-				value: reservation.value,
-			}),
-		}));
-	}, [reservation, match]);
+		if (reservation) {
+			if (id !== reservation.id)
+				setFormData({
+					hourFrom: reservation.hourFrom,
+					hourTo: reservation.hourTo,
+					jobs: reservation.jobs,
+					id: reservation.id,
+					user: reservation.user,
+					address: reservation.address,
+					status: reservation.status,
+					value: reservation.value !== 0 ? reservation.value : '',
+					comments: reservation.comments ? reservation.comments : '',
+				});
+		}
+	}, [reservation, id]);
 
 	const onChange = (e) => {
 		let newArray = jobs;
 		if (e.target.name === 'jobs')
-			newArray[e.target.id] = Number(e.target.value);
+			newArray[e.target.id] =
+				e.target.value !== '' ? Number(e.target.value) : '';
 
 		setFormData((prev) => ({
 			...prev,
@@ -80,12 +87,18 @@ const ReservationForm = ({
 	};
 
 	return (
-		<div className='reservation-form'>
+		<div
+			className={`reservation-form ${
+				loggedUser.type === 'customer' ? 'border' : ''
+			}`}
+		>
 			<form
+				ref={form}
 				onSubmit={async (e) => {
 					e.preventDefault();
 					const answer = await updateReservation(reservation.id, formData);
 					if (answer) complete();
+					else form.current.scrollIntoView();
 				}}
 			>
 				{loggedUser.type === 'customer' && (
@@ -104,8 +117,17 @@ const ReservationForm = ({
 				)}
 				<div className='reservation-form-inner'>
 					<h4 className='heading-primary-subheading'>
-						{reservation ? 'Update' : 'New'} Reservation:
+						{!reservation
+							? 'New'
+							: reservation &&
+							  reservation.status !== 'canceled' &&
+							  reservation.status !== 'refunded' &&
+							  reservation.status !== 'completed'
+							? 'New'
+							: ''}{' '}
+						Reservation:
 					</h4>
+
 					{reservation && (
 						<p className='heading-primary-subheading-update'>
 							<Moment
@@ -119,7 +141,7 @@ const ReservationForm = ({
 							<Moment date={reservation.hourTo} utc format='h a' />
 						</p>
 					)}
-
+					{!changeDate && <Alert type='2' />}
 					{reservation && loggedUser && loggedUser.type === 'admin' && (
 						<>
 							<p className='reservation-form-item'>
@@ -127,16 +149,16 @@ const ReservationForm = ({
 								{reservation.status.charAt(0).toUpperCase() +
 									reservation.status.slice(1)}
 							</p>
-							{reservation.state !== 'unpaid' ||
-								(reservation.state !== 'requested' && (
+							{reservation.state !== 'unpaid' &&
+								reservation.state !== 'requested' && (
 									<>
 										<p className='reservation-form-item'>
 											<span className='reservation-form-title'>
 												Payment method:
 											</span>{' '}
-											{reservation.paymentId !== '' ? 'Paypal' : 'Cash'}
+											{reservation.paymentId ? 'Paypal' : 'Cash'}
 										</p>
-										{reservation.paymentId !== '' && (
+										{reservation.paymentId && (
 											<p className='reservation-form-item'>
 												<span className='reservation-form-title'>
 													PayPal ID:
@@ -145,7 +167,7 @@ const ReservationForm = ({
 											</p>
 										)}
 									</>
-								))}
+								)}
 						</>
 					)}
 
@@ -179,7 +201,8 @@ const ReservationForm = ({
 								reservation.status !== 'requested' &&
 								((loggedUser.type === 'customer' &&
 									reservation.status === 'unpaid') ||
-									loggedUser.type !== 'customer')
+									(loggedUser.type === 'admin' &&
+										reservation.status !== 'unpaid'))
 							}
 							id='address'
 							name='address'
@@ -205,7 +228,8 @@ const ReservationForm = ({
 												reservation.status !== 'requested' &&
 												((loggedUser.type === 'customer' &&
 													reservation.status === 'unpaid') ||
-													loggedUser.type !== 'customer')
+													(loggedUser.type === 'admin' &&
+														reservation.status !== 'unpaid'))
 											}
 											onFocus={() =>
 												setAdminValues((prev) => ({
@@ -244,17 +268,23 @@ const ReservationForm = ({
 									</button>
 								</div>
 							))}
-						<div className='btn-right'>
-							<button
-								className='btn btn-quaternary'
-								onClick={(e) => {
-									e.preventDefault();
-									setFormData((prev) => ({ ...prev, jobs: [...jobs, ''] }));
-								}}
-							>
-								<i className='fas fa-plus'></i> &nbsp; Job
-							</button>
-						</div>
+						{(!reservation ||
+							(reservation &&
+								(reservation.status === 'requested' ||
+									(loggedUser.type === 'admin' &&
+										reservation.status === 'unpaid')))) && (
+							<div className='btn-right'>
+								<button
+									className='btn btn-quaternary'
+									onClick={(e) => {
+										e.preventDefault();
+										setFormData((prev) => ({ ...prev, jobs: [...jobs, ''] }));
+									}}
+								>
+									<i className='fas fa-plus'></i> &nbsp; Job
+								</button>
+							</div>
+						)}
 					</div>
 					<div className='form__group'>
 						<textarea
@@ -302,31 +332,31 @@ const ReservationForm = ({
 						</div>
 					)}
 
-					{reservation && (
-						<div className='btn-center'>
-							{!changeDate && (
-								<button className='btn' type='submit'>
-									<i className='far fa-save'></i>
-								</button>
-							)}
-
-							{reservation.status !== 'canceled' &&
-								reservation.status !== 'refunded' && (
-									<button
-										className='btn'
-										onClick={(e) => {
-											e.preventDefault();
-											setAdminValues((prev) => ({
-												...prev,
-												changeDate: !changeDate,
-											}));
-										}}
-									>
-										{changeDate ? 'Keep Date' : 'Change Date'}
+					{reservation &&
+						reservation.status !== 'canceled' &&
+						reservation.status !== 'refunded' &&
+						reservation.status !== 'completed' && (
+							<div className='btn-center'>
+								{!changeDate && reservation.status !== 'paid' && (
+									<button className='btn' type='submit'>
+										<i className='far fa-save'></i>
 									</button>
 								)}
-						</div>
-					)}
+
+								<button
+									className='btn'
+									onClick={(e) => {
+										e.preventDefault();
+										setAdminValues((prev) => ({
+											...prev,
+											changeDate: !changeDate,
+										}));
+									}}
+								>
+									{changeDate ? 'Keep Date' : 'Change Date'}
+								</button>
+							</div>
+						)}
 				</div>
 			</form>
 			{(changeDate || !reservation) && (
@@ -335,7 +365,7 @@ const ReservationForm = ({
 						restart();
 						complete();
 					}}
-					reservation={reservation ? reservation : formData}
+					reservation={formData}
 				/>
 			)}
 		</div>

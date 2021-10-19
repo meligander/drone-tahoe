@@ -3,12 +3,11 @@ const path = require('path');
 
 require('dotenv').config();
 
-const stamp = `<div style='text-align: center; width: fit-content; margin: 2rem 2rem 1rem'>
-<img style='width: 130px;margin: 50px 40px 0' src="cid:unique@nodemailer.com" alt="logo"/>
-<h3 style='color: #15767c' >Drone Tahoe</h3>
+const stamp = `<div style='text-align: center; width: fit-content; margin: 3rem 2rem 1rem'>
+<img style='width: 100px;' src="cid:unique@nodemailer.com" alt="logo"/>
 <p>1635 N Bayshore Dr, Tahoe City, CA, 96145</p>
 <p>+1 (305) 377-7369</p>
-<a href="${process.env.WEBPAGE_URI}">www.drone-tahoe.com/</a>
+<a href="${process.env.WEBPAGE_URI}">www.drone-tahoe.com</a>
 </div>`;
 
 const attachments = [
@@ -37,7 +36,8 @@ const sendEmail = (user_email, subject, text) => {
 		to: user_email,
 		subject,
 		text,
-		html: `<div>${text}</div>${stamp}`,
+		html: `<div style='font-size: 20px;'>${text}<br/>
+		If you have any questions or concerns, please send an email to <a href="mailto:${process.env.EMAIL}">${process.env.EMAIL}</a>.<br/></div> ${stamp}`,
 		attachments,
 	};
 
@@ -71,7 +71,7 @@ const sendToCompany = (subject, message) => {
 		to: process.env.EMAIL,
 		subject,
 		message,
-		html: `<div>${message}</div>${stamp}`,
+		html: `<div style='font-size: 20px'>${message}</div><br/>${stamp}`,
 		attachments,
 	};
 

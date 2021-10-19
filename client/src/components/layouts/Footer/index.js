@@ -18,8 +18,6 @@ function Footer({ setFooterHeight }) {
 		}, 30);
 	}, [setFooterHeight]);
 
-	window.addEventListener('resize', setFooterHeight);
-
 	return (
 		<div className='footer-container' ref={ref}>
 			<section className='social-media'>

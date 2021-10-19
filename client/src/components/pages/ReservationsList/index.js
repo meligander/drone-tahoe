@@ -6,6 +6,7 @@ import Moment from 'react-moment';
 import {
 	loadReservations,
 	deleteReservation,
+	cancelReservation,
 	updateStatus,
 } from '../../../actions/reservation';
 import { clearUsers } from '../../../actions/user';
@@ -19,8 +20,10 @@ import UserField from '../../UserField';
 const ReservationsList = ({
 	deleteReservation,
 	loadReservations,
+	cancelReservation,
 	loadJobs,
 	reservation: { reservations, error, loading },
+	job: { jobs: jobList },
 	clearUsers,
 	updateStatus,
 }) => {
@@ -35,6 +38,7 @@ const ReservationsList = ({
 	const [adminValues, setAdminValues] = useState({
 		toggleDeleteConf: false,
 		toggleReservation: false,
+		toggleRefund: false,
 		showFilter: false,
 		reservation: null,
 		searchDisplay: false,
@@ -47,6 +51,7 @@ const ReservationsList = ({
 	const {
 		toggleDeleteConf,
 		toggleReservation,
+		toggleRefund,
 		showFilter,
 		reservation,
 		searchDisplay,
@@ -84,6 +89,19 @@ const ReservationsList = ({
 		<div className='list'>
 			<PopUp
 				type='confirmation'
+				confirm={() => cancelReservation(reservation.id)}
+				setToggleModal={() =>
+					setAdminValues((prev) => ({
+						...prev,
+						toggleRefund: !toggleRefund,
+						reservation: null,
+					}))
+				}
+				toggleModal={toggleRefund}
+				text='Are you sure you want to refund the payment for this reservation?'
+			/>
+			<PopUp
+				type='confirmation'
 				confirm={() => deleteReservation(reservation.id)}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
@@ -97,12 +115,20 @@ const ReservationsList = ({
 				subtext={
 					reservation &&
 					reservation.paymentId !== '' &&
+					reservation.status === 'paid' &&
 					'A paypal refund should be made before deleting it.'
 				}
 			/>
 			<PopUp
 				type='payment'
-				toUpdate={reservation && reservation.id}
+				toUpdate={
+					reservation && {
+						...reservation,
+						jobs: reservation.jobs.map((item) =>
+							jobList.find((job) => job.id === item)
+						),
+					}
+				}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,
@@ -292,6 +318,20 @@ const ReservationsList = ({
 															<i className='fas fa-dollar-sign'></i>
 														</button>
 													)}
+													{res.status === 'paid' && res.paymentId && (
+														<button
+															className='btn-icon'
+															onClick={() =>
+																setAdminValues((prev) => ({
+																	...prev,
+																	toggleRefund: true,
+																	reservation: res,
+																}))
+															}
+														>
+															<i class='fas fa-redo-alt'></i>
+														</button>
+													)}
 												</td>
 												<td>
 													<button
@@ -299,12 +339,19 @@ const ReservationsList = ({
 														onClick={() =>
 															setAdminValues((prev) => ({
 																...prev,
+
 																toggleReservation: !toggleReservation,
 																reservation: res,
 															}))
 														}
 													>
-														<i className='far fa-edit'></i>
+														{res.status !== 'refunded' &&
+														res.status !== 'completed' &&
+														res.status !== 'canceled' ? (
+															<i className='far fa-edit'></i>
+														) : (
+															<i className='fas fa-search'></i>
+														)}
 													</button>
 												</td>
 												<td>
@@ -358,11 +405,13 @@ const ReservationsList = ({
 
 const mapStateToProps = (state) => ({
 	reservation: state.reservation,
+	job: state.job,
 });
 
 export default connect(mapStateToProps, {
 	loadReservations,
 	deleteReservation,
+	cancelReservation,
 	clearUsers,
 	updateStatus,
 	loadJobs,

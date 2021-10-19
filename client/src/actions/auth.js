@@ -32,9 +32,10 @@ export const loadUser = (login) => async (dispatch) => {
 				dispatch(clearReservations());
 				dispatch(clearJobs());
 				history.push('/reservations-list');
-			} else history.push('/');
-
-			dispatch(updateLoadingSpinner(false));
+			} else {
+				history.push('/');
+				dispatch(updateLoadingSpinner(false));
+			}
 		}
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));

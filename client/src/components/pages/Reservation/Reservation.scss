@@ -40,7 +40,6 @@
 
 	&-item {
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
 		background-color: #fff;
 		padding: 1.3rem;
@@ -64,9 +63,15 @@
 
 		&-date {
 			font-size: 1.3rem;
+			width: 15%;
+
+			@media screen and (max-width: 900px) {
+				width: 20%;
+			}
 
 			@media screen and (max-width: 650px) {
 				font-size: 1.2rem;
+				width: 100%;
 			}
 
 			.date {
@@ -76,14 +81,29 @@
 
 		&-job {
 			font-size: 1.2rem;
+			width: 70%;
+
+			@media screen and (max-width: 900px) {
+				width: 60%;
+			}
 
 			@media screen and (max-width: 650px) {
 				font-size: 1.15rem;
+				width: 100%;
 			}
 		}
 
 		&-icons {
+			width: 15%;
 			min-width: fit-content;
+
+			@media screen and (max-width: 900px) {
+				width: 20%;
+			}
+
+			@media screen and (max-width: 650px) {
+				width: 100%;
+			}
 		}
 
 		&-title {

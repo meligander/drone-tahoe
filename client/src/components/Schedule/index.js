@@ -40,16 +40,33 @@ const Schedule = ({
 	const [adminValues, setAdminValues] = useState({
 		date: new Date(),
 		tab: 0,
+		disabled:
+			reservation &&
+			reservation.status !== 'requested' &&
+			((loggedUser.type === 'customer' && reservation.status === 'unpaid') ||
+				(loggedUser.type === 'admin' && reservation.status !== 'unpaid')),
+		diff: 0,
 		toggleModal: false,
 		month: today.month(),
 		year: today.year(),
 	});
 
-	const { date, tab, toggleModal, month, year } = adminValues;
+	const { date, tab, disabled, diff, toggleModal, month, year } = adminValues;
 
 	useEffect(() => {
 		checkMonthAvailability(month, year, reservation.id);
 	}, [checkMonthAvailability, month, year, reservation.id]);
+
+	useEffect(() => {
+		if (disabled) {
+			const hourFrom = moment(reservation.hourFrom);
+			const hourTo = moment(reservation.hourTo);
+			setAdminValues((prev) => ({
+				...prev,
+				diff: hourTo.utc().hour() - hourFrom.utc().hour(),
+			}));
+		}
+	}, [reservation, disabled]);
 
 	const onChangeDate = (changedDate) => {
 		setAdminValues((prev) => ({
@@ -67,14 +84,25 @@ const Schedule = ({
 		const newDate = new Date(date);
 		newDate.setHours(time);
 
+		let newHourTo = null;
+		if (disabled) {
+			const oldHourFrom = new Date(reservation.hourFrom);
+			const oldHourTo = new Date(reservation.hourTo);
+			newHourTo = new Date(date);
+			newHourTo.setHours(
+				time + (oldHourTo.getHours() - oldHourFrom.getHours())
+			);
+		}
+
 		setFormData((prev) => ({
 			...prev,
 			[type]: newDate,
+			...(newHourTo && { hourTo: newHourTo }),
 		}));
 
 		setAdminValues((prev) => ({
 			...prev,
-			tab: type === 'hourFrom' ? 2 : 3,
+			tab: type === 'hourFrom' && !newHourTo ? 2 : 3,
 		}));
 	};
 
@@ -82,20 +110,15 @@ const Schedule = ({
 		({ date, view }) => {
 			if (view === 'month' && disabledDays.length > 0) {
 				// Check if a date React-Calendar wants to check is on the list of disabled dates
-				return disabledDays.find((dDate) => isSameDay(dDate, date));
+				return disabledDays.some(
+					(disabledDay) =>
+						moment(disabledDay).utc().format('MM-DD-YYYY') ===
+						moment(date).format('MM-DD-YYYY')
+				);
 			}
 		},
 		[disabledDays]
 	);
-
-	const isSameDay = (date1, date2) => {
-		if (
-			moment(date1.substring(0, date1.length - 2)).format('MM-DD-YYYY') ===
-			moment(date2).format('MM-DD-YYYY')
-		)
-			return true;
-		return false;
-	};
 
 	const startTime = () => {
 		let posibleHours = [];
@@ -115,14 +138,21 @@ const Schedule = ({
 
 		return posibleHours.length > 0 ? (
 			<>
-				<p className='schedule-details-title'>Start time:</p>{' '}
+				<p className='schedule-details-title'>
+					{disabled ? 'Hour Range' : 'Start Time'}:
+				</p>{' '}
 				{posibleHours.map((hour, i) => (
 					<div
 						className='schedule-details-item'
 						key={i}
 						onClick={() => selectHour('hourFrom', hour)}
 					>
-						{`${hour % 12 !== 0 ? hour % 12 : 12} ${hour >= 12 ? 'pm' : 'am'}`}
+						{`${hour % 12 !== 0 ? hour % 12 : 12} ${hour >= 12 ? 'pm' : 'am'}`}{' '}
+						{disabled &&
+							' - ' +
+								`${(hour + diff) % 12 !== 0 ? (hour + diff) % 12 : 12} ${
+									hour + diff >= 12 ? 'pm' : 'am'
+								}`}
 					</div>
 				))}
 			</>
@@ -150,7 +180,7 @@ const Schedule = ({
 
 		return posibleHours.length > 0 ? (
 			<>
-				<p className='schedule-details-title'>End time:</p>{' '}
+				<p className='schedule-details-title'>End Time:</p>{' '}
 				{posibleHours.map((hour, i) => (
 					<div
 						className='schedule-details-item'

@@ -1,20 +1,26 @@
 @import '../../sass/abstracts/variables.scss';
 
 .reservation-form {
-	width: 70%;
-	margin: 3.5rem auto 0;
+	width: 75%;
+	margin: 2.5rem auto 0;
+	padding: 0.7rem 1rem 2rem;
 
 	@media screen and (max-width: 900px) {
-		width: 80%;
-	}
-
-	@media screen and (max-width: 500px) {
-		width: 90%;
+		width: 95%;
 	}
 
 	.heading-primary-subheading {
 		margin: 0 0 0.8rem -1.5rem !important;
 		display: inline-block;
+
+		@media screen and (max-width: 900px) {
+			margin: 0 0 0.8rem !important;
+		}
+	}
+
+	&.border {
+		border-radius: 4px;
+		border: 2px solid $color-dark-7;
 	}
 
 	&-inner {
@@ -90,7 +96,7 @@
 
 		.fas {
 			color: $color-dark-7;
-			font-size: 1.6rem;
+			font-size: 2rem;
 		}
 
 		&:hover {

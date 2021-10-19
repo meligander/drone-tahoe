@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { updateReservation, makePayment } from '../../actions/reservation';
+import { updatePayment, makePayment } from '../../actions/reservation';
 
 import Alert from '../layouts/Alert';
 
@@ -10,22 +10,23 @@ const PayPalButton = window.paypal.Buttons.driver('react', { React, ReactDOM });
 
 const PayPal = ({
 	reservation,
-	updateReservation,
+	updatePayment,
 	makePayment,
 	setToggleModal,
 	auth: { loggedUser },
 }) => {
 	return (
 		<div className='payment'>
+			<h3 className='heading-primary-subheading'>
+				Reservation Payment: &nbsp; ${reservation && reservation.value}
+			</h3>
 			<Alert type='2' />
-			{loggedUser.type === 'admin' && (
+			{loggedUser && loggedUser.type === 'admin' && (
 				<>
 					<button
 						className='btn btn-tertiary'
 						onClick={async () => {
-							const answer = await updateReservation(reservation, {
-								status: 'pending',
-							});
+							const answer = await updatePayment(reservation.id);
 							if (answer) setToggleModal();
 						}}
 					>
@@ -36,17 +37,17 @@ const PayPal = ({
 			)}
 
 			<PayPalButton
-				onApprove={async (data, actions) => {
-					const order = await actions.order.capture();
-					const answer = await updateReservation(reservation, {
-						status: 'pending',
-						paymentId: order.id,
-					});
-					if (answer) setToggleModal();
-				}}
 				createOrder={async () => {
 					const payment = await makePayment(reservation);
 					return payment.id;
+				}}
+				onApprove={async (data, actions) => {
+					const order = await actions.order.capture();
+					console.log(order);
+					const answer = await updatePayment(reservation.id, {
+						paymentId: order.id,
+					});
+					if (answer) setToggleModal();
 				}}
 				onError={(err) => console.log(err)}
 			/>
@@ -59,6 +60,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, {
-	updateReservation,
+	updatePayment,
 	makePayment,
 })(PayPal);

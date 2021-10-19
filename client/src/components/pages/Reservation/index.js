@@ -34,9 +34,11 @@ const Reservation = ({
 		toggleModal: false,
 		position: 0,
 		editReservation: false,
+		checkout: false,
 	});
 
-	const { reservation, toggleModal, position, editReservation } = adminValues;
+	const { reservation, toggleModal, position, editReservation, checkout } =
+		adminValues;
 
 	useEffect(() => {
 		if (loading && token) loadJobs({}, true);
@@ -83,8 +85,30 @@ const Reservation = ({
 				confirm={() => {
 					cancelReservation(reservation.id);
 				}}
-				text='Are you sure you want to cancel the reservation?'
-				subtext='An email will be sent to the admin asking for a refund.'
+				text={`Are you sure you want to ${
+					reservation &&
+					(reservation.status === 'unpaid' ||
+						reservation.status === 'requested')
+						? 'delete'
+						: 'cancel'
+				} the reservation?`}
+				subtext={
+					reservation && reservation.status === 'paid'
+						? 'We will place a refund through paypal.'
+						: ''
+				}
+			/>
+			<PopUp
+				type='payment'
+				toUpdate={reservation}
+				setToggleModal={() =>
+					setAdminValues((prev) => ({
+						...prev,
+						checkout: false,
+						reservation: null,
+					}))
+				}
+				toggleModal={checkout}
 			/>
 			<Alert type='1' />
 			{!loggedUser ? (
@@ -142,48 +166,51 @@ const Reservation = ({
 											<span className='reservation-item-title'>Value: </span>
 											{res.value ? '$' + res.value : 'Pending'}
 										</p>
-										{res.status !== 'completed' && (
-											<p>
-												<span className='reservation-item-title'>Status: </span>
-												{res.status.charAt(0).toUpperCase() +
-													res.status.slice(1)}
-											</p>
-										)}
+										<p>
+											<span className='reservation-item-title'>Status: </span>
+											{res.status.charAt(0).toUpperCase() + res.status.slice(1)}
+										</p>
 									</div>
-									{res.status !== 'canceled' && res.status !== 'refunded' ? (
-										<div className='reservation-item-icons'>
-											{res.status === 'unpaid' && (
-												<button
-													onClick={() =>
-														setAdminValues((prev) => ({
-															...prev,
-															reservation: res,
-														}))
-													}
-													className='btn-icon'
-												>
-													<i className='fas fa-dollar-sign'></i>
-												</button>
-											)}
+									<div className='reservation-item-icons'>
+										{res.status === 'unpaid' && (
 											<button
 												onClick={() => {
 													setAdminValues((prev) => ({
 														...prev,
-														reservation: {
-															...res,
-															jobs: res.jobs.map((item) => item.id),
-														},
-														editReservation: true,
+														reservation: res,
+														checkout: true,
 													}));
-
-													setTimeout(() => {
-														window.scrollTo(0, position);
-													}, 30);
 												}}
 												className='btn-icon'
 											>
-												<i className='far fa-edit'></i>
+												<i className='fas fa-dollar-sign'></i>
 											</button>
+										)}
+										<button
+											onClick={() => {
+												setAdminValues((prev) => ({
+													...prev,
+													reservation: {
+														...res,
+														jobs: res.jobs.map((item) => item.id),
+													},
+													editReservation: true,
+												}));
+
+												setTimeout(() => {
+													window.scrollTo(0, position);
+												}, 30);
+											}}
+											className='btn-icon'
+										>
+											{res.status !== 'refunded' &&
+											res.status !== 'canceled' ? (
+												<i className='far fa-edit'></i>
+											) : (
+												<i className='fas fa-search'></i>
+											)}
+										</button>
+										{res.status !== 'refunded' && res.status !== 'canceled' && (
 											<button
 												onClick={() =>
 													setAdminValues((prev) => ({
@@ -196,16 +223,8 @@ const Reservation = ({
 											>
 												<i className='far fa-trash-alt'></i>
 											</button>
-										</div>
-									) : (
-										<div className='reservation-item-job'>
-											<p>
-												<span className='reservation-item-title'>Status: </span>
-												{res.status.charAt(0).toUpperCase() +
-													res.status.slice(1)}
-											</p>
-										</div>
-									)}
+										)}
+									</div>
 								</div>
 							))
 						) : (
