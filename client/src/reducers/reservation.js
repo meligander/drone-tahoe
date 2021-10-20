@@ -91,10 +91,8 @@ const reservationReducer = (state = initialState, action) => {
 		case RESERVATIONS_ERROR:
 			return {
 				...state,
-				//reservation: null,
-				//reservations: [],
+				reservation: null,
 				loadingReservation: false,
-				loading: false,
 				error: payload,
 			};
 		case PAYMENT_ERROR:

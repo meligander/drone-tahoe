@@ -43,7 +43,7 @@ const PayPal = ({
 				}}
 				onApprove={async (data, actions) => {
 					const order = await actions.order.capture();
-					console.log(order);
+
 					const answer = await updatePayment(reservation.id, {
 						paymentId: order.id,
 					});

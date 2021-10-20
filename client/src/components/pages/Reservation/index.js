@@ -20,7 +20,6 @@ const Reservation = ({
 	auth: { loggedUser, token },
 	reservation: { reservations, loading: loadingReservations },
 	job: { loading },
-	global: { navbar },
 	loadJobs,
 	loadReservations,
 	cancelReservation,
@@ -84,10 +83,10 @@ const Reservation = ({
 
 			setAdminValues((prev) => ({
 				...prev,
-				position: item.top + item.height + scrollTop - navbar,
+				position: item.bottom + scrollTop,
 			}));
 		}
-	}, [loadingReservations, navbar]);
+	}, [loadingReservations]);
 
 	return (
 		<div className='reservation'>
@@ -300,7 +299,6 @@ const mapStateToProps = (state) => ({
 	auth: state.auth,
 	job: state.job,
 	reservation: state.reservation,
-	global: state.global,
 });
 
 export default connect(mapStateToProps, {

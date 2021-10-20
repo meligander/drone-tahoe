@@ -155,6 +155,7 @@ const ReservationsList = ({
 			<Alert type='1' />
 			<form className='form filter' onSubmit={onSubmit}>
 				<p className='filter-title'>Filter</p>
+
 				<button
 					className='filter-icon'
 					onClick={(e) => {
@@ -221,6 +222,7 @@ const ReservationsList = ({
 						}
 						clear={clear}
 						completeClear={completeClear}
+						autoComplete='off'
 					/>
 					<div className='form__group'>
 						<select
@@ -290,7 +292,7 @@ const ReservationsList = ({
 													<Link
 														onClick={() => {
 															clearUsers();
-															window.scroll(0, 0);
+															window.scrollTo(0, 0);
 														}}
 														className='btn-link text-dark'
 														to={`/edit-user/${res.user.id}`}

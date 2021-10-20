@@ -31,7 +31,7 @@ function Footer({ setFooterHeight }) {
 						<div className='footer-logo'>
 							<Link
 								to='/'
-								onClick={() => window.scroll(0, 0)}
+								onClick={() => window.scrollTo(0, 0)}
 								className='social-logo'
 							>
 								<img src={NavLogo} className='footer-logo' alt='' />

@@ -62,9 +62,7 @@ const userReducer = (state = initialState, action) => {
 			return {
 				...state,
 				user: null,
-				users: [],
 				loadingUser: false,
-				loading: false,
 				error: payload,
 			};
 		default:

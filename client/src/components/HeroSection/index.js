@@ -45,7 +45,7 @@ const HeroSection = ({ clearReservations, clearJobs }) => {
 				<span>
 					<Link
 						to='/vrm'
-						onClick={() => window.scroll(0, 0)}
+						onClick={() => window.scrollTo(0, 0)}
 						className='btn-link'
 					>
 						Learn More

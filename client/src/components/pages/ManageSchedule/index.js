@@ -201,7 +201,7 @@ const ManageSchedule = ({
 										<Link
 											onClick={() => {
 												clearUsers();
-												window.scroll(0, 0);
+												window.scrollTo(0, 0);
 											}}
 											className='btn-link'
 											to={`/edit-user/${item.user.id}`}

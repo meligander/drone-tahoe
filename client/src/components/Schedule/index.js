@@ -124,7 +124,7 @@ const Schedule = ({
 	const startTime = () => {
 		let posibleHours = [];
 
-		const minTime = disabled ? diff : loggedUser.type === 'admin' ? 1 : 2;
+		let minTime = disabled ? diff : 2;
 
 		for (let x = 0; x < availableHours.length; x++) {
 			let time =
@@ -137,6 +137,11 @@ const Schedule = ({
 				time++;
 			}
 			if (availableHours[x][1] === 17) posibleHours.push(time);
+			else if (
+				loggedUser.type === 'admin' &&
+				availableHours[x][1] - time === minTime
+			)
+				posibleHours.push(time);
 		}
 
 		return posibleHours.length > 0 ? (
@@ -167,21 +172,22 @@ const Schedule = ({
 	};
 
 	const endTime = () => {
-		let start = moment(hourFrom).hour();
+		let time = moment(hourFrom).hour();
 		let posibleHours = [];
 
-		const tillTime = availableHours.filter(
-			(item) => item[0] <= start && item[1] > start
-		)[0][1];
+		const usedRange = availableHours.filter(
+			(item) => item[0] <= time && item[1] > time
+		)[0];
 
-		start = start + (loggedUser.type === 'admin' ? 1 : 2);
+		time = time + 2;
 
-		while (start < tillTime) {
-			posibleHours.push(start);
-			start++;
+		while (time < usedRange[1]) {
+			posibleHours.push(time);
+			time++;
 		}
-		if (availableHours[availableHours.length - 1][1] === 17)
-			posibleHours.push(start);
+		if (usedRange[1] === 17) posibleHours.push(time);
+		else if (loggedUser.type === 'admin' && time === usedRange[1])
+			posibleHours.push(time);
 
 		return posibleHours.length > 0 ? (
 			<>

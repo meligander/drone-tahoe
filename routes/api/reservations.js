@@ -224,7 +224,7 @@ router.post(
 					and click on the money symbol on the reservation to pay for it.`
 				);
 			} else {
-				/* await sendToCompany(
+				await sendToCompany(
 					'Reservation Requested',
 					`The user ${reservation.user.name} ${
 						reservation.user.lastname
@@ -238,7 +238,7 @@ router.post(
 						<br/>
 						Determine the price and correct time for the job 
 						so the user can proceed with the payment.`
-				); */
+				);
 			}
 
 			return res.json(reservation);
@@ -407,7 +407,7 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 		);
 
 		if (req.user.type === 'customer')
-			/* await sendToCompany(
+			await sendToCompany(
 				'Reservation Payed',
 				`The user ${reservation.user.name} ${
 					reservation.user.lastname
@@ -418,9 +418,9 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
 					.utc()
 					.format('h a')}.`
-			); */
+			);
 
-			res.json(reservation);
+		res.json(reservation);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });
@@ -667,7 +667,7 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 
 			await removeResFromDay(reservation);
 
-			/* await sendToCompany(
+			await sendToCompany(
 				'Refund',
 				`The user ${reservation.user.name} ${
 					reservation.user.lastname
@@ -680,7 +680,7 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
 					.utc()
 					.format('h a')}.`
-			); */
+			);
 		} else {
 			await removeResFromDay(reservation);
 

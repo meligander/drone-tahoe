@@ -44,8 +44,6 @@ router.get('/', [auth, adminAuth], async (req, res) => {
 				}),
 			};
 
-			console.log(filter, req.query.type);
-
 			users = await User.findAll({
 				where: filter,
 				attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },

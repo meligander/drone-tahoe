@@ -173,8 +173,8 @@ const ReservationsList = ({
 														}
 														className='btn-icon'
 														onClick={() => {
+															window.scrollTo(0, 0);
 															clearUser();
-															window.scroll(0, 0);
 														}}
 													>
 														<i className='far fa-edit'></i>

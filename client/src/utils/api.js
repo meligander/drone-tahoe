@@ -1,8 +1,7 @@
 import axios from 'axios';
 import store from '../store';
-import history from './history';
 
-import { LOGOUT } from '../actions/types';
+import { logOut } from '../actions/auth';
 
 const api = axios.create({
 	baseURL: '/api',
@@ -18,9 +17,8 @@ api.interceptors.response.use(
 			err.response.status === 401 &&
 			err.response.data.msg !== 'Unauthorized User'
 		) {
-			store.dispatch({ type: LOGOUT });
-			history.push('/login');
 			window.scrollTo(0, 0);
+			store.dispatch(logOut());
 		}
 		return Promise.reject(err);
 	}

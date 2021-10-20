@@ -238,7 +238,7 @@ export const resetPassword = (formData) => async (dispatch) => {
 			payload: res.data,
 		});
 
-		if (res.data.type === 'admin') history.push('/dashboard');
+		if (res.data.type === 'admin') history.push('/reservations-list');
 		else history.push('/');
 
 		dispatch(setAlert('Password successfully changed', 'success', '1'));
