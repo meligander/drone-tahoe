@@ -18,10 +18,10 @@ import { setAlert } from './alert';
 import { updateLoadingSpinner } from './global';
 
 export const checkDayAvailability =
-	(date, reservation_id) => async (dispatch) => {
+	(date, reservation_id, diff) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
 		try {
-			const res = await api.get(`/day/${date}/${reservation_id}`);
+			const res = await api.get(`/day/${date}/${reservation_id}/${diff}`);
 			dispatch({
 				type: DAYAVAILABILITY_LOADED,
 				payload: res.data,
@@ -43,11 +43,13 @@ export const checkDayAvailability =
 	};
 
 export const checkMonthAvailability =
-	(month, year, reservation_id) => async (dispatch) => {
+	(month, year, reservation_id, diff) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
 
 		try {
-			const res = await api.get(`/day/${month}/${year}/${reservation_id}`);
+			const res = await api.get(
+				`/day/${month}/${year}/${reservation_id}/${diff}`
+			);
 
 			dispatch({
 				type: MONTHAVAILABILITY_LOADED,

@@ -14,6 +14,8 @@ import {
 import {
 	loadReservations,
 	deleteReservation,
+	clearReservations,
+	disableHourRange,
 } from '../../../actions/reservation';
 import { setAlert } from '../../../actions/alert';
 import { clearUsers } from '../../../actions/user';
@@ -27,14 +29,17 @@ import PopUp from '../../layouts/PopUp';
 const ManageSchedule = ({
 	day: { disabledDays, reservedDays, timeDisabledDays },
 	reservation: { loading, reservations },
+	auth: { loggedUser },
 	checkMonthSchedule,
 	checkDayAvailability,
 	loadReservations,
 	deleteReservation,
+	disableHourRange,
 	disableDate,
 	enableDate,
 	setAlert,
 	disableDateRange,
+	clearReservations,
 	clearUsers,
 }) => {
 	const today = moment();
@@ -187,7 +192,7 @@ const ManageSchedule = ({
 												format='h a'
 												utc
 												date={
-													item.jobId
+													item.jobs.length > 0
 														? item.hourTo
 														: moment(item.hourTo).add(1, 'hour')
 												}
@@ -232,6 +237,7 @@ const ManageSchedule = ({
 										}));
 										checkDayAvailability(
 											moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
+											0,
 											0
 										);
 									}}
@@ -283,8 +289,11 @@ const ManageSchedule = ({
 												...prev,
 												toggleModal: !toggleModal,
 											}));
+											if (reservations.length > 0) clearReservations();
 											checkDayAvailability(
-												moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+												moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
+												0,
+												0
 											);
 										}}
 									>
@@ -334,8 +343,28 @@ const ManageSchedule = ({
 			<PopUp
 				type='hour'
 				toggleModal={toggleModal}
-				date={date}
-				confirm={() => setAdminValues((prev) => ({ ...prev, tab: 1 }))}
+				confirm={async ({ hourFrom, hourTo }) => {
+					const answer = await disableHourRange(
+						{
+							hourFrom: moment(date)
+								.set('hour', hourFrom)
+								.format('YYYY-MM-DD[T]HH[:00:00Z]'),
+							hourTo: moment(date)
+								.set('hour', hourTo - 1)
+								.format('YYYY-MM-DD[T]HH[:00:00Z]'),
+							user: loggedUser.id,
+						},
+						reservations.length === 0 &&
+							moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+					);
+
+					if (answer)
+						setAdminValues((prev) => ({
+							...prev,
+							tab: 1,
+							toggleModal: !toggleModal,
+						}));
+				}}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,
@@ -391,6 +420,7 @@ const ManageSchedule = ({
 const mapStateToProps = (state) => ({
 	day: state.day,
 	reservation: state.reservation,
+	auth: state.auth,
 });
 
 export default connect(mapStateToProps, {
@@ -401,6 +431,8 @@ export default connect(mapStateToProps, {
 	enableDate,
 	setAlert,
 	disableDateRange,
+	disableHourRange,
 	clearUsers,
+	clearReservations,
 	deleteReservation,
 })(ManageSchedule);

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { registerUpdateJob } from '../../actions/jobs';
 
 import Alert from '../layouts/Alert';
 
-const JobForm = ({ registerUpdateJob, job, setToggleModal }) => {
+const JobForm = ({ job, setToggleModal, toggleModal, confirm }) => {
 	const [formData, setFormData] = useState({
+		id: 0,
 		title: '',
 		subtitle: '',
 		poptext: '',
@@ -15,31 +14,36 @@ const JobForm = ({ registerUpdateJob, job, setToggleModal }) => {
 
 	useEffect(() => {
 		if (job) {
-			setFormData({
-				title: job.title,
-				subtitle: job.subtitle ? job.subtitle : '',
-				poptext: job.poptext ? job.poptext : '',
+			setFormData((prev) => {
+				if (prev.id !== job.id)
+					return {
+						id: job.id,
+						title: job.title,
+						subtitle: job.subtitle ? job.subtitle : '',
+						poptext: job.poptext ? job.poptext : '',
+					};
+				else return prev;
 			});
-		} else
-			setFormData({
-				title: '',
-				subtitle: '',
-				poptext: '',
-			});
-	}, [job, setToggleModal]);
+		}
+	}, [job]);
+
+	useEffect(() => {
+		if (!toggleModal)
+			setFormData({ id: 0, title: '', subtitle: '', poptext: '' });
+	}, [toggleModal]);
 
 	const onChange = (e) => {
 		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
 	};
 
-	const onSubmit = (e) => {
-		e.preventDefault();
-		registerUpdateJob(formData, job ? job.id : null);
-		setToggleModal();
-	};
-
 	return (
-		<form className='form' onSubmit={onSubmit}>
+		<form
+			className='form'
+			onSubmit={(e) => {
+				e.preventDefault();
+				confirm(formData);
+			}}
+		>
 			<h3 className='heading-primary-subheading'>
 				{job ? 'Update' : 'New'} Job:
 			</h3>
@@ -101,4 +105,4 @@ const JobForm = ({ registerUpdateJob, job, setToggleModal }) => {
 	);
 };
 
-export default connect(null, { registerUpdateJob })(JobForm);
+export default JobForm;

@@ -3,7 +3,8 @@ const path = require('path');
 
 require('dotenv').config();
 
-const stamp = `<div style='text-align: center; width: fit-content; margin: 3rem 2rem 1rem'>
+const stamp = `<h5 style="color: #002855; margin-top: 20px; font-size: 18px">Drone Tahoe</h5>
+<div style='margin: 30px 20x 10px; font-size: 15px;text-align: center; width: fit-content;'>
 <img style='width: 100px;' src="cid:unique@nodemailer.com" alt="logo"/>
 <p>1635 N Bayshore Dr, Tahoe City, CA, 96145</p>
 <p>+1 (305) 377-7369</p>
@@ -36,8 +37,10 @@ const sendEmail = (user_email, subject, text) => {
 		to: user_email,
 		subject,
 		text,
-		html: `<div style='font-size: 20px;'>${text}<br/>
-		If you have any questions or concerns, please send an email to <a href="mailto:${process.env.EMAIL}">${process.env.EMAIL}</a>.<br/></div> ${stamp}`,
+		html: `<div style='font-size: 20px;'>${text}
+		<br/><br/>
+		If you have any questions or concerns, please send an email to 
+		<a href="mailto:${process.env.EMAIL}">${process.env.EMAIL}</a>.<br/></div> ${stamp}`,
 		attachments,
 	};
 

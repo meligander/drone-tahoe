@@ -13,13 +13,14 @@ import './ReservationForm.scss';
 
 const ReservationForm = ({
 	reservation,
-	complete,
+	setToggleModal,
 	match,
 	job: { jobs: jobsList },
 	auth: { loggedUser },
 	updateReservation,
 }) => {
 	const form = useRef();
+	const schedule = useRef();
 
 	const [formData, setFormData] = useState({
 		id: 0,
@@ -72,20 +73,6 @@ const ReservationForm = ({
 		}));
 	};
 
-	const restart = () => {
-		setFormData({
-			id: 0,
-			jobs: [''],
-			user: null,
-			comments: '',
-			address: '',
-			value: '',
-		});
-		setAdminValues({
-			clear: true,
-		});
-	};
-
 	return (
 		<div
 			className={`reservation-form ${
@@ -97,7 +84,7 @@ const ReservationForm = ({
 				onSubmit={async (e) => {
 					e.preventDefault();
 					const answer = await updateReservation(reservation.id, formData);
-					if (answer) complete();
+					if (answer) setToggleModal();
 					else form.current.scrollIntoView();
 				}}
 			>
@@ -107,8 +94,18 @@ const ReservationForm = ({
 							className='reservation-form-cancel'
 							onClick={(e) => {
 								e.preventDefault();
-								restart();
-								complete();
+								setToggleModal(); /* 
+								setFormData({
+									id: 0,
+									jobs: [''],
+									user: null,
+									comments: '',
+									address: '',
+									value: '',
+								});
+								setAdminValues({
+									clear: true,
+								}); */
 							}}
 						>
 							<i className='fas fa-times'></i>
@@ -123,7 +120,7 @@ const ReservationForm = ({
 							  reservation.status !== 'canceled' &&
 							  reservation.status !== 'refunded' &&
 							  reservation.status !== 'completed'
-							? 'New'
+							? 'Update'
 							: ''}{' '}
 						Reservation:
 					</h4>
@@ -141,7 +138,7 @@ const ReservationForm = ({
 							<Moment date={reservation.hourTo} utc format='h a' />
 						</p>
 					)}
-					{!changeDate && <Alert type='2' />}
+					{!changeDate && reservation && <Alert type='2' />}
 					{reservation && loggedUser && loggedUser.type === 'admin' && (
 						<>
 							<p className='reservation-form-item'>
@@ -149,8 +146,8 @@ const ReservationForm = ({
 								{reservation.status.charAt(0).toUpperCase() +
 									reservation.status.slice(1)}
 							</p>
-							{reservation.state !== 'unpaid' &&
-								reservation.state !== 'requested' && (
+							{reservation.status !== 'unpaid' &&
+								reservation.status !== 'requested' && (
 									<>
 										<p className='reservation-form-item'>
 											<span className='reservation-form-title'>
@@ -201,8 +198,7 @@ const ReservationForm = ({
 								reservation.status !== 'requested' &&
 								((loggedUser.type === 'customer' &&
 									reservation.status === 'unpaid') ||
-									(loggedUser.type === 'admin' &&
-										reservation.status !== 'unpaid'))
+									reservation.status !== 'unpaid')
 							}
 							id='address'
 							name='address'
@@ -228,8 +224,7 @@ const ReservationForm = ({
 												reservation.status !== 'requested' &&
 												((loggedUser.type === 'customer' &&
 													reservation.status === 'unpaid') ||
-													(loggedUser.type === 'admin' &&
-														reservation.status !== 'unpaid'))
+													reservation.status !== 'unpaid')
 											}
 											onFocus={() =>
 												setAdminValues((prev) => ({
@@ -347,6 +342,12 @@ const ReservationForm = ({
 									className='btn'
 									onClick={(e) => {
 										e.preventDefault();
+										if (!changeDate) {
+											setTimeout(() => {
+												schedule.current.scrollIntoView(true);
+											}, 30);
+										}
+
 										setAdminValues((prev) => ({
 											...prev,
 											changeDate: !changeDate,
@@ -359,15 +360,11 @@ const ReservationForm = ({
 						)}
 				</div>
 			</form>
-			{(changeDate || !reservation) && (
-				<Schedule
-					complete={() => {
-						restart();
-						complete();
-					}}
-					reservation={formData}
-				/>
-			)}
+			<div ref={schedule}>
+				{(changeDate || !reservation) && (
+					<Schedule setToggleModal={setToggleModal} reservation={formData} />
+				)}
+			</div>
 		</div>
 	);
 };

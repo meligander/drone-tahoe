@@ -4,12 +4,14 @@ import PropTypes from 'prop-types';
 
 import './Alert.scss';
 
-const Alert = ({ alerts, type }) =>
+const Alert = ({ alerts, type, classType }) =>
 	alerts !== null &&
 	alerts.map((alert) => (
 		<React.Fragment key={alert.id}>
 			{alert.type === type && (
-				<div className={`alert alert-${alert.alertType}`}>{alert.msg}</div>
+				<div className={`alert alert-${alert.alertType} ${classType}`}>
+					{alert.msg}
+				</div>
 			)}
 		</React.Fragment>
 	));

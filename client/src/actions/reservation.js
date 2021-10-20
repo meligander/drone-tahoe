@@ -48,6 +48,8 @@ export const loadReservation = (reservation_id) => async (dispatch) => {
 export const loadReservations = (filterData, bulkLoad) => async (dispatch) => {
 	if (!bulkLoad) dispatch(updateLoadingSpinner(true));
 
+	if (bulkLoad) await dispatch(updateStatus());
+
 	let filter = '';
 	const filternames = Object.keys(filterData);
 	for (let x = 0; x < filternames.length; x++) {
@@ -113,7 +115,6 @@ export const makePayment = (formData) => async (dispatch) => {
 
 export const updatePayment = (reservation_id, formData) => async (dispatch) => {
 	try {
-		console.log('hola', formData);
 		const res = await api.put(
 			`/reservation/payment/${reservation_id}`,
 			formData
@@ -183,6 +184,7 @@ export const registerReservation = (formData, date) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
+		console.log(err);
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;
 			errors.forEach((error) => {
@@ -230,7 +232,6 @@ export const updateReservation =
 			dispatch(updateLoadingSpinner(false));
 			return true;
 		} catch (err) {
-			window.scrollTo(0, 0);
 			if (err.response.data.errors) {
 				const errors = err.response.data.errors;
 				errors.forEach((error) => {
@@ -257,10 +258,12 @@ export const updateReservation =
 	};
 
 export const disableHourRange = (formData, date) => async (dispatch) => {
+	dispatch(updateLoadingSpinner(true));
+
 	let hourRange = {};
 	for (const prop in formData)
 		if (formData[prop] !== '') hourRange[prop] = formData[prop];
-	dispatch(updateLoadingSpinner(true));
+
 	try {
 		let res = await api.post('/reservation/disable', hourRange);
 
@@ -273,6 +276,8 @@ export const disableHourRange = (formData, date) => async (dispatch) => {
 
 		dispatch(setAlert('Time Range Disabled', 'success', '1'));
 		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+		return true;
 	} catch (err) {
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;
@@ -294,22 +299,29 @@ export const disableHourRange = (formData, date) => async (dispatch) => {
 				},
 			});
 		}
+		dispatch(updateLoadingSpinner(false));
+		return false;
 	}
-	dispatch(updateLoadingSpinner(false));
 };
 
-export const cancelReservation = (reservation_id) => async (dispatch) => {
+export const cancelReservation = (reservation) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
 	try {
-		await api.put(`/reservation/cancel/${reservation_id}`);
+		await api.put(`/reservation/cancel/${reservation.id}`);
 
 		dispatch({
-			type: RESERVATION_CANCELED,
-			payload: reservation_id,
+			type: !reservation.paymentId ? RESERVATION_DELETED : RESERVATION_CANCELED,
+			payload: reservation.id,
 		});
 
-		dispatch(setAlert('Reservation Canceled', 'success', '1'));
+		dispatch(
+			setAlert(
+				`Reservation ${!reservation.paymentId ? 'Deleted' : 'Canceled'}`,
+				'success',
+				'1'
+			)
+		);
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({
@@ -348,6 +360,7 @@ export const deleteReservation = (reservation, date) => async (dispatch) => {
 			)
 		);
 	} catch (err) {
+		console.log(err);
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({
 			type: RESERVATIONS_ERROR,

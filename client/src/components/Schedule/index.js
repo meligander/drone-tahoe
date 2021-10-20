@@ -21,7 +21,7 @@ import './Schedule.scss';
 const Schedule = ({
 	auth: { loggedUser },
 	reservation,
-	complete,
+	setToggleModal,
 	day: { availableHours, loadingAvailableHours, disabledDays },
 	checkMonthAvailability,
 	checkDayAvailability,
@@ -29,6 +29,11 @@ const Schedule = ({
 	registerReservation,
 }) => {
 	const today = moment().add(1, 'day');
+	const disabled =
+		reservation.id !== 0 &&
+		reservation.status !== 'requested' &&
+		((loggedUser.type === 'customer' && reservation.status === 'unpaid') ||
+			reservation.status !== 'unpaid');
 
 	const [formData, setFormData] = useState({
 		hourFrom: '',
@@ -40,22 +45,17 @@ const Schedule = ({
 	const [adminValues, setAdminValues] = useState({
 		date: new Date(),
 		tab: 0,
-		disabled:
-			reservation &&
-			reservation.status !== 'requested' &&
-			((loggedUser.type === 'customer' && reservation.status === 'unpaid') ||
-				(loggedUser.type === 'admin' && reservation.status !== 'unpaid')),
 		diff: 0,
 		toggleModal: false,
 		month: today.month(),
 		year: today.year(),
 	});
 
-	const { date, tab, disabled, diff, toggleModal, month, year } = adminValues;
+	const { date, tab, diff, toggleModal, month, year } = adminValues;
 
 	useEffect(() => {
-		checkMonthAvailability(month, year, reservation.id);
-	}, [checkMonthAvailability, month, year, reservation.id]);
+		checkMonthAvailability(month, year, reservation.id, disabled ? diff : 0);
+	}, [checkMonthAvailability, month, year, reservation.id, disabled, diff]);
 
 	useEffect(() => {
 		if (disabled) {
@@ -76,7 +76,8 @@ const Schedule = ({
 		}));
 		checkDayAvailability(
 			moment(changedDate).format('YYYY-MM-DD[T00:00:00Z]'),
-			reservation.id
+			reservation.id,
+			disabled ? diff : 0
 		);
 	};
 
@@ -123,13 +124,15 @@ const Schedule = ({
 	const startTime = () => {
 		let posibleHours = [];
 
+		const minTime = disabled ? diff : loggedUser.type === 'admin' ? 1 : 2;
+
 		for (let x = 0; x < availableHours.length; x++) {
 			let time =
 				loggedUser.type === 'admin' || availableHours[x][0] === 8
 					? availableHours[x][0]
 					: availableHours[x][0] + 1;
 
-			while (availableHours[x][1] - time > 2) {
+			while (availableHours[x][1] - time > minTime) {
 				posibleHours.push(time);
 				time++;
 			}
@@ -171,12 +174,14 @@ const Schedule = ({
 			(item) => item[0] <= start && item[1] > start
 		)[0][1];
 
-		start = start + 2;
+		start = start + (loggedUser.type === 'admin' ? 1 : 2);
 
-		while (start <= tillTime) {
+		while (start < tillTime) {
 			posibleHours.push(start);
 			start++;
 		}
+		if (availableHours[availableHours.length - 1][1] === 17)
+			posibleHours.push(start);
 
 		return posibleHours.length > 0 ? (
 			<>
@@ -229,13 +234,6 @@ const Schedule = ({
 									}));
 								} else {
 									//createReservation
-									console.log({
-										...reservation,
-										hourFrom: moment(hourFrom).format(
-											'YYYY-MM-DD[T]HH[:00:00Z]'
-										),
-										hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
-									});
 									const answer = await registerReservation(
 										{
 											...reservation,
@@ -250,12 +248,12 @@ const Schedule = ({
 										moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]')
 									);
 									if (answer) {
-										complete();
-										setAdminValues((prev) => ({
+										setToggleModal();
+										/* setAdminValues((prev) => ({
 											...prev,
 											tab: 0,
 											date: new Date(),
-										}));
+										})); */
 									}
 								}
 							}}
@@ -301,8 +299,8 @@ const Schedule = ({
 						toggleModal: !toggleModal,
 					}))
 				}
-				confirm={() => {
-					updateReservation(
+				confirm={async () => {
+					const answer = await updateReservation(
 						reservation.id,
 						{
 							...reservation,
@@ -311,7 +309,7 @@ const Schedule = ({
 						},
 						moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]')
 					);
-					complete();
+					if (answer) setToggleModal();
 				}}
 				text='Are you sure you want to modify the reservation?'
 			/>
@@ -323,7 +321,10 @@ const Schedule = ({
 					minDate={new Date(today.format())}
 					maxDate={new Date(today.year() + 1, today.month(), today.date())}
 					onActiveStartDateChange={(e) => {
-						if (e.view === 'month') {
+						if (
+							e.view === 'month' ||
+							today.year() + 1 === e.activeStartDate.getFullYear()
+						) {
 							const month = e.activeStartDate.getMonth();
 							const year = e.activeStartDate.getFullYear();
 							setAdminValues((prev) => ({ ...prev, month, year }));

@@ -64,7 +64,7 @@ const UserField = ({
 				disabled={reservationUser || lockEmail}
 				name='email'
 				id='email'
-				autoComplete='off'
+				autoComplete='new-password'
 				onFocus={() => switchDisplay(true)}
 				onChange={(e) => {
 					setAdminValues((prev) => ({

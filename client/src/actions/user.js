@@ -104,6 +104,7 @@ export const updateUser = (formData, user_id, self) => async (dispatch) => {
 		if (!self) {
 			dispatch(clearReservations());
 			history.goBack();
+			dispatch(updateLoadingSpinner(false));
 		}
 	} catch (err) {
 		if (err.response.data.errors) {
@@ -126,10 +127,10 @@ export const updateUser = (formData, user_id, self) => async (dispatch) => {
 				},
 			});
 		}
+		dispatch(updateLoadingSpinner(false));
 	}
 
 	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
 };
 
 export const deleteUser = (user_id) => async (dispatch) => {

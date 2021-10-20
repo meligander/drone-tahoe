@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
-
-import { disableHourRange } from '../../actions/reservation';
 
 import Alert from '../layouts/Alert';
 
 const HourRangeForm = ({
-	disableHourRange,
-	setToggleModal,
 	confirm,
-	auth: { loggedUser },
 	reservation: { reservations },
 	day: { availableHours, loadingAvailableHours },
-	date,
+	setToggleModal,
 }) => {
 	const [formData, setFormData] = useState({
 		hourFrom: '',
@@ -59,7 +53,7 @@ const HourRangeForm = ({
 			hourFrom: '',
 			hourTo: '',
 		});
-	}, [setToggleModal]);
+	}, [confirm]);
 
 	const onChange = (e) => {
 		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -82,27 +76,14 @@ const HourRangeForm = ({
 		}
 	};
 
-	const onSubmit = (e) => {
-		e.preventDefault();
-		disableHourRange(
-			{
-				hourFrom: moment(date)
-					.set('hour', hourFrom)
-					.format('YYYY-MM-DD[T]HH[:00:00Z]'),
-				hourTo: moment(date)
-					.set('hour', hourTo - 1)
-					.format('YYYY-MM-DD[T]HH[:00:00Z]'),
-				user: loggedUser.id,
-			},
-			false,
-			reservations.length === 0 && moment(date).format('YYYY-MM-DD[T00:00:00Z]')
-		);
-		confirm();
-		setToggleModal();
-	};
-
 	return (
-		<form className='form' onSubmit={onSubmit}>
+		<form
+			className='form'
+			onSubmit={(e) => {
+				e.preventDefault();
+				confirm(formData);
+			}}
+		>
 			<h3 className='heading-primary-subheading'>Disable Hour Range:</h3>
 			<Alert type='2' />
 			<div className='form__group'>
@@ -180,4 +161,4 @@ const mapStateToProps = (state) => ({
 	reservation: state.reservation,
 });
 
-export default connect(mapStateToProps, { disableHourRange })(HourRangeForm);
+export default connect(mapStateToProps)(HourRangeForm);

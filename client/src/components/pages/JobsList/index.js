@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
-import { loadJobs, deleteJob } from '../../../actions/jobs';
+import { loadJobs, deleteJob, registerUpdateJob } from '../../../actions/jobs';
 
 import PopUp from '../../layouts/PopUp';
 import Alert from '../../layouts/Alert';
 
-const JobsList = ({ loadJobs, deleteJob, job: { jobs, loading, error } }) => {
+const JobsList = ({
+	loadJobs,
+	deleteJob,
+	registerUpdateJob,
+	job: { jobs, loading, error },
+}) => {
 	const [formData, setFormData] = useState({
 		title: '',
 	});
@@ -59,11 +64,21 @@ const JobsList = ({ loadJobs, deleteJob, job: { jobs, loading, error } }) => {
 			<PopUp
 				type='job'
 				toUpdate={update ? job : null}
+				confirm={async (jobData) => {
+					const answer = await registerUpdateJob(jobData, job ? job.id : 0);
+					if (answer)
+						setAdminValues((prev) => ({
+							...prev,
+							toggleJob: false,
+							job: null,
+						}));
+				}}
 				toggleModal={toggleJob}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,
 						toggleJob: !toggleJob,
+						job: null,
 					}))
 				}
 			/>
@@ -191,4 +206,5 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
 	loadJobs,
 	deleteJob,
+	registerUpdateJob,
 })(JobsList);

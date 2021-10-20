@@ -220,12 +220,11 @@ router.post(
 					After login into your account <a href='${
 						process.env.WEBPAGE_URI
 					}login/'>Login</a>.<br/>
-					Follow this link and click on the money symbol on the reservation to pay for it. <a href='${
-						process.env.WEBPAGE_URI
-					}reservation/0/'>My Reservations</a>`
+					Follow this <a href='${process.env.WEBPAGE_URI}reservation/0/'>Link</a> 
+					and click on the money symbol on the reservation to pay for it.`
 				);
 			} else {
-				await sendToCompany(
+				/* await sendToCompany(
 					'Reservation Requested',
 					`The user ${reservation.user.name} ${
 						reservation.user.lastname
@@ -237,8 +236,9 @@ router.post(
 						.utc()
 						.format('h a')} to ${hourTo.utc().format('h a')}. 
 						<br/>
-						Determine the price and correct time for the job so the user can proceed with the payment.`
-				);
+						Determine the price and correct time for the job 
+						so the user can proceed with the payment.`
+				); */
 			}
 
 			return res.json(reservation);
@@ -259,8 +259,8 @@ router.post(
 		adminAuth,
 		[
 			check('user', 'User is required').not().isEmpty(),
-			check('hourFrom', 'Time is required').not().isEmpty(),
-			check('hourTo', 'Time is required').not().isEmpty(),
+			check('hourFrom', 'Start Time is required').not().isEmpty(),
+			check('hourTo', 'End Time is required').not().isEmpty(),
 		],
 	],
 	async (req, res) => {
@@ -383,6 +383,12 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 
 		await reservation.save();
 
+		if (req.user.type === 'customer')
+			for (let x = 0; x < jobs.length; x++)
+				reservation.jobs[x] = await Job.findOne({
+					where: { id: jobs[x] },
+				});
+
 		const hourFrom = moment(reservation.hourFrom);
 		const hourTo = moment(reservation.hourTo);
 
@@ -401,7 +407,7 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 		);
 
 		if (req.user.type === 'customer')
-			await sendToCompany(
+			/* await sendToCompany(
 				'Reservation Payed',
 				`The user ${reservation.user.name} ${
 					reservation.user.lastname
@@ -412,9 +418,9 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
 					.utc()
 					.format('h a')}.`
-			);
+			); */
 
-		res.json(reservation);
+			res.json(reservation);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });
@@ -560,7 +566,7 @@ router.put(
 				reservation.value = value;
 				reservation.status = 'unpaid';
 			}
-			if (comments) reservation.comments = comments;
+			reservation.comments = comments ? comments : null;
 
 			if (hourFrom && hourTo) {
 				await removeResFromDay(reservation);
@@ -593,9 +599,8 @@ router.put(
 					After login into your account <a href='${
 						process.env.WEBPAGE_URI
 					}login/'>Login</a>.<br/>
-					Follow this link and click on the money symbol to pay for it. <a href='${
-						process.env.WEBPAGE_URI
-					}reservation/0/'>My Reservations</a>`
+					Follow this <a href='${process.env.WEBPAGE_URI}reservation/0/'>Link</a> 
+					and click on the money symbol to pay for it.`
 				);
 			}
 
@@ -662,7 +667,7 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 
 			await removeResFromDay(reservation);
 
-			await sendToCompany(
+			/* await sendToCompany(
 				'Refund',
 				`The user ${reservation.user.name} ${
 					reservation.user.lastname
@@ -675,7 +680,7 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
 					.utc()
 					.format('h a')}.`
-			);
+			); */
 		} else {
 			await removeResFromDay(reservation);
 

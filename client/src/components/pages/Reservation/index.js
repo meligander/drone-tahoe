@@ -7,7 +7,6 @@ import { loadJobs } from '../../../actions/jobs';
 import {
 	loadReservations,
 	cancelReservation,
-	updateStatus,
 } from '../../../actions/reservation';
 
 import Alert from '../../layouts/Alert';
@@ -25,7 +24,6 @@ const Reservation = ({
 	loadJobs,
 	loadReservations,
 	cancelReservation,
-	updateStatus,
 }) => {
 	const list = useRef();
 
@@ -35,16 +33,38 @@ const Reservation = ({
 		position: 0,
 		editReservation: false,
 		checkout: false,
+		jobList: [],
 	});
 
-	const { reservation, toggleModal, position, editReservation, checkout } =
-		adminValues;
+	const {
+		reservation,
+		toggleModal,
+		position,
+		editReservation,
+		checkout,
+		jobList,
+	} = adminValues;
 
 	useEffect(() => {
 		if (loading && token) loadJobs({}, true);
-		if (loggedUser && loggedUser.type !== 'admin' && loadingReservations) {
-			updateStatus();
+		if (loggedUser && loggedUser.type !== 'admin' && loadingReservations)
 			loadReservations({ hourFrom: new Date(), user: loggedUser.id }, true);
+		else {
+			let jobList = [];
+
+			for (let y = 0; y < reservations.length; y++) {
+				const jobs = reservations[y].jobs;
+				let result = [];
+				for (let x = 0; x < jobs.length; x++) {
+					const match = result.findIndex((job) => jobs[x].id === job.id);
+					if (match === -1) result = [...result, { ...jobs[x], quantity: 1 }];
+					else result[match].quantity = result[match].quantity + 1;
+				}
+
+				jobList.push(result);
+			}
+
+			setAdminValues((prev) => ({ ...prev, jobList }));
 		}
 	}, [
 		loading,
@@ -52,8 +72,8 @@ const Reservation = ({
 		loggedUser,
 		loadReservations,
 		loadingReservations,
+		reservations,
 		token,
-		updateStatus,
 	]);
 
 	useEffect(() => {
@@ -83,7 +103,8 @@ const Reservation = ({
 					}))
 				}
 				confirm={() => {
-					cancelReservation(reservation.id);
+					cancelReservation(reservation);
+					setAdminValues((prev) => ({ ...prev, reservation: null }));
 				}}
 				text={`Are you sure you want to ${
 					reservation &&
@@ -141,7 +162,7 @@ const Reservation = ({
 				<>
 					<div className='reservation-list' ref={list}>
 						{!loadingReservations && reservations.length > 0 ? (
-							reservations.map((res) => (
+							reservations.map((res, i) => (
 								<div className='reservation-item' key={res.id}>
 									<div className='reservation-item-date'>
 										<Moment
@@ -153,14 +174,17 @@ const Reservation = ({
 										<Moment date={res.hourTo} utc format='h a' />
 									</div>
 									<div className='reservation-item-job'>
-										{res.jobs.map((item, i) => (
-											<p key={i}>
-												<span className='reservation-item-title'>
-													Job {i + 1}:{' '}
-												</span>{' '}
-												{item.title}
-											</p>
-										))}
+										{jobList.length > 0 &&
+											jobList[i] &&
+											jobList[i].length > 0 &&
+											jobList[i].map((item, index) => (
+												<p key={`j${i}-${index}`}>
+													<span className='reservation-item-title'>
+														{item.quantity}{' '}
+													</span>{' '}
+													{item.title}
+												</p>
+											))}
 
 										<p>
 											<span className='reservation-item-title'>Value: </span>
@@ -255,7 +279,7 @@ const Reservation = ({
 							) : (
 								<ReservationForm
 									reservation={reservation}
-									complete={() =>
+									setToggleModal={() =>
 										setAdminValues((prev) => ({
 											...prev,
 											reservation: null,
@@ -283,5 +307,4 @@ export default connect(mapStateToProps, {
 	loadJobs,
 	loadReservations,
 	cancelReservation,
-	updateStatus,
 })(Reservation);

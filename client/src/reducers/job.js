@@ -72,8 +72,6 @@ const jobReducer = (state = initialState, action) => {
 			return {
 				...state,
 				job: null,
-				jobs: [],
-				loading: false,
 				loadingJob: false,
 				error: payload,
 			};

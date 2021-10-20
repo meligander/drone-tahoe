@@ -66,20 +66,21 @@ router.get('/', async (req, res) => {
 //@access   Private && Auth
 router.post(
 	'/:job_id',
-	[auth, adminAuth, check('title', 'Title is required').not().isEmpty()],
+	[auth, adminAuth, [check('title', 'Title is required').not().isEmpty()]],
 	async (req, res) => {
 		let errors = [];
-
 		const errorsResult = validationResult(req);
 		if (!errorsResult.isEmpty()) errors = errorsResult.array();
+
+		if (errors.length > 0) return res.status(400).json({ errors });
 
 		const { title, subtitle, poptext } = req.body;
 
 		//Build profile object
 		let jobFields = {
 			title,
-			...(subtitle && subtitle !== '' && { subtitle }),
-			...(poptext && poptext !== '' && { poptext }),
+			subtitle: subtitle ? subtitle : null,
+			poptext: poptext ? poptext : null,
 		};
 
 		try {

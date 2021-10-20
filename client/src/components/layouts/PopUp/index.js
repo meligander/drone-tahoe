@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import logo from '../../../img/logoDRONE-dark-cropped-final.png';
 import HourRangeForm from '../../HourRangeForm';
@@ -16,11 +16,7 @@ const PopUp = ({
 	subtext,
 	type,
 	toUpdate,
-	date,
 }) => {
-	const [instanceKey, setInstanceKey] = useState(0);
-	const handleReset = () => setInstanceKey((i) => i + 1);
-
 	const selectType = () => {
 		switch (type) {
 			case 'confirmation':
@@ -28,6 +24,24 @@ const PopUp = ({
 					<div className='popup-text'>
 						<p>{text}</p>
 						{subtext ? <p>{subtext}</p> : ''}
+						<div className='popup-btns'>
+							<button
+								className='btn btn-success'
+								onClick={() => {
+									confirm();
+									setToggleModal();
+								}}
+							>
+								OK
+							</button>
+							<button
+								type='button'
+								className='btn btn-danger'
+								onClick={setToggleModal}
+							>
+								Cancel
+							</button>
+						</div>
 					</div>
 				);
 			case 'schedule':
@@ -35,25 +49,25 @@ const PopUp = ({
 					<div className='popup-schedule wrapper wrapper-popup'>
 						<ReservationForm
 							reservation={toUpdate}
-							complete={setToggleModal}
-							key={instanceKey}
+							setToggleModal={setToggleModal}
 						/>
 					</div>
 				);
 			case 'job':
 				return (
 					<div className='popup-job wrapper wrapper-popup'>
-						<JobForm job={toUpdate} setToggleModal={setToggleModal} />
+						<JobForm
+							toggleModal={toggleModal}
+							confirm={confirm}
+							job={toUpdate}
+							setToggleModal={setToggleModal}
+						/>
 					</div>
 				);
 			case 'hour':
 				return (
 					<div className='popup-hour wrapper wrapper-popup'>
-						<HourRangeForm
-							date={date}
-							setToggleModal={setToggleModal}
-							confirm={confirm}
-						/>
+						<HourRangeForm setToggleModal={setToggleModal} confirm={confirm} />
 					</div>
 				);
 			case 'payment':
@@ -76,7 +90,6 @@ const PopUp = ({
 						type='button'
 						onClick={() => {
 							setToggleModal();
-							if (type === 'schedule') handleReset();
 						}}
 						className='popup-heading-btn'
 					>
@@ -84,26 +97,6 @@ const PopUp = ({
 					</button>
 				</div>
 				{selectType()}
-				{type === 'confirmation' && (
-					<div className='popup-btns'>
-						<button
-							className='btn btn-success'
-							onClick={() => {
-								confirm();
-								setToggleModal();
-							}}
-						>
-							OK
-						</button>
-						<button
-							type='button'
-							className='btn btn-danger'
-							onClick={setToggleModal}
-						>
-							Cancel
-						</button>
-					</div>
-				)}
 			</div>
 		</div>
 	);

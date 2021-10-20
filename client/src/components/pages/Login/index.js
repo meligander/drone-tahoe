@@ -81,7 +81,6 @@ const Login = ({
 						<h2 className='heading-primary'>
 							{forgotPassword ? 'Change Password' : 'Login'}
 						</h2>
-						<Alert type='1' />
 						{forgotPassword ? (
 							<>
 								<div className='form-section'>
@@ -129,6 +128,7 @@ const Login = ({
 						) : (
 							<>
 								<div className='form-section'>
+									<Alert type='1' />
 									<div className='form__group'>
 										<input
 											className='form__input'

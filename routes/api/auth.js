@@ -86,16 +86,16 @@ router.post(
 		const regex3 =
 			/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
-		if (email !== '' && !regex1.test(email))
+		if (email && !regex1.test(email))
 			errors.push({ msg: 'Invalid email', param: 'email' });
 
-		if (cel !== '' && !regex3.test(cel))
+		if (cel && !regex3.test(cel))
 			errors.push({
 				msg: 'Invalid cellphone e.g: (123) 456-7890',
 				param: 'cel',
 			});
 
-		if (passwordConf !== '' && password !== '' && password !== passwordConf)
+		if (passwordConf && password && password !== passwordConf)
 			errors.push({
 				msg: "Passwords don't match",
 				param: 'passwordConf',
@@ -109,9 +109,11 @@ router.post(
 
 		try {
 			//See if users exists
-			const user = await User.findOne({ where: { email } });
+			if (email) {
+				const user = await User.findOne({ where: { email } });
 
-			if (user) errors.push({ msg: 'User already exists', param: 'email' });
+				if (user) errors.push({ msg: 'User already exists', param: 'email' });
+			}
 
 			if (errors.length > 0) return res.status(400).json({ errors });
 
@@ -134,8 +136,8 @@ router.post(
 				`Welcome ${name} ${lastname}!
 				<br/> <br/>
              Thanks for signing up with Drone Tahoe!
-             You must follow this link to activate your account:
-             <a href='${process.env.WEBPAGE_URI}activation/${token}/'>Activation Link</a>`
+             You must follow this <a href='${process.env.WEBPAGE_URI}activation/${token}/'>Link</a> 
+			 to activate your account.`
 			);
 
 			res.json({ msg: 'Email sent' });
@@ -348,8 +350,8 @@ router.put(
 				`Hello ${user.name} ${user.lastname}!
 				<br/> <br/>
              We've received a request to change your password!
-             Follow this link to complete your password update:
-             <a href='${process.env.WEBPAGE_URI}resetpassword/${token}/'>Password Update Link</a>`
+             Follow this <a href='${process.env.WEBPAGE_URI}resetpassword/${token}/'>Link</a> 
+			 to complete your password update.`
 			);
 
 			res.json({ msg: 'Email sent' });

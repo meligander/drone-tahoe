@@ -20,7 +20,7 @@ api.interceptors.response.use(
 		) {
 			store.dispatch({ type: LOGOUT });
 			history.push('/login');
-			window.scroll(0, 0);
+			window.scrollTo(0, 0);
 		}
 		return Promise.reject(err);
 	}

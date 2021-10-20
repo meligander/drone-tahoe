@@ -9,10 +9,59 @@ const adminAuth = require('../../middleware/adminAuth');
 //Models
 const { Day, Reservation } = require('../../config/db');
 
-//@route    GET api/day/:date/:reservation_id
+//@route    GET api/day/schedule/:month/:year
+//@desc     Get disabled and used days of a month
+//@access   Public
+router.get('/schedule/:month/:year', async (req, res) => {
+	try {
+		const month = Number(req.params.month);
+		const year = Number(req.params.year);
+
+		const monthDays = new Date(year, month + 1, 0).getDate();
+
+		let reservedDays = [];
+		let disabledDays = [];
+		let timeDisabledDays = [];
+
+		const days = await Day.findAll({
+			where: {
+				date: {
+					[Op.between]: [
+						new Date(year, month, 1).setUTCHours(0, 0, 0),
+						new Date(year, month, monthDays).setUTCHours(23, 23, 59),
+					],
+				},
+			},
+		});
+
+		for (let x = 0; x < days.length; x++) {
+			let reservations = days[x].reservations;
+
+			if (!reservations) disabledDays.push(days[x].date);
+			else {
+				for (let y = 0; y < reservations.length; y++) {
+					reservations[y] = await Reservation.findOne({
+						where: { id: reservations[y] },
+					});
+				}
+
+				if (reservations.every((item) => item.jobs.length === 0))
+					timeDisabledDays.push(days[x].date);
+				else reservedDays.push(days[x].date);
+			}
+		}
+
+		res.json({ disabledDays, reservedDays, timeDisabledDays });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
+//@route    GET api/day/:date/:reservation_id/:diff
 //@desc     Get day availability
 //@access   Public
-router.get('/:date/:reservation_id', [auth], async (req, res) => {
+router.get('/:date/:reservation_id/:diff', [auth], async (req, res) => {
 	try {
 		const date = new Date(req.params.date);
 
@@ -48,7 +97,14 @@ router.get('/:date/:reservation_id', [auth], async (req, res) => {
 			moment(a.hourFrom).diff(moment(b.hourFrom))
 		);
 
-		const time = req.user.type === 'customer' ? 2 : 1;
+		const time =
+			req.params.diff === '0'
+				? req.user.type === 'customer'
+					? 2
+					: 1
+				: req.user.type === 'customer'
+				? Number(req.params.diff)
+				: Number(req.params.diff) - 1;
 
 		let finalArray = [];
 		let newArray = [];
@@ -83,59 +139,10 @@ router.get('/:date/:reservation_id', [auth], async (req, res) => {
 	}
 });
 
-//@route    GET api/day/schedule/:month/:year
-//@desc     Get disabled and used days of a month
-//@access   Public
-router.get('/schedule/:month/:year', async (req, res) => {
-	try {
-		const month = Number(req.params.month);
-		const year = Number(req.params.year);
-
-		const monthDays = new Date(year, month + 1, 0).getDate();
-
-		let reservedDays = [];
-		let disabledDays = [];
-		let timeDisabledDays = [];
-
-		const days = await Day.findAll({
-			where: {
-				date: {
-					[Op.between]: [
-						new Date(year, month, 1).setUTCHours(0, 0, 0),
-						new Date(year, month, monthDays).setUTCHours(23, 23, 59),
-					],
-				},
-			},
-		});
-
-		for (let x = 0; x < days.length; x++) {
-			let reservations = days[x].reservations;
-
-			for (let y = 0; y < reservations.length; y++) {
-				reservations[y] = await Reservation.findOne({
-					where: { id: reservations[y] },
-				});
-			}
-
-			if (!reservations) disabledDays.push(days[x].date);
-			else {
-				if (reservations.every((item) => item.jobs.length === 0))
-					timeDisabledDays.push(days[x].date);
-				else reservedDays.push(days[x].date);
-			}
-		}
-
-		res.json({ disabledDays, reservedDays, timeDisabledDays });
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ msg: 'Server Error' });
-	}
-});
-
-//@route    GET api/day/:month/:year/:reservation_id
+//@route    GET api/day/:month/:year/:reservation_id/:diff
 //@desc     Get unavailability of a month
 //@access   Public
-router.get('/:month/:year/:reservation_id', [auth], async (req, res) => {
+router.get('/:month/:year/:reservation_id/:diff', [auth], async (req, res) => {
 	try {
 		const month = Number(req.params.month);
 		const year = Number(req.params.year);
@@ -155,7 +162,14 @@ router.get('/:month/:year/:reservation_id', [auth], async (req, res) => {
 			},
 		});
 
-		const time = req.user.type === 'customer' ? 2 : 1;
+		const time =
+			req.params.diff === '0'
+				? req.user.type === 'customer'
+					? 2
+					: 1
+				: req.user.type === 'customer'
+				? Number(req.params.diff)
+				: Number(req.params.diff) - 1;
 
 		for (let x = 0; x < days.length; x++) {
 			let pass = false;

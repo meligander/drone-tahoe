@@ -7,7 +7,6 @@ import {
 	loadReservations,
 	deleteReservation,
 	cancelReservation,
-	updateStatus,
 } from '../../../actions/reservation';
 import { clearUsers } from '../../../actions/user';
 import { loadJobs } from '../../../actions/jobs';
@@ -25,7 +24,6 @@ const ReservationsList = ({
 	reservation: { reservations, error, loading },
 	job: { jobs: jobList },
 	clearUsers,
-	updateStatus,
 }) => {
 	const initialValue = {
 		hourFrom: '',
@@ -61,11 +59,10 @@ const ReservationsList = ({
 
 	useEffect(() => {
 		if (loading) {
-			updateStatus();
 			loadJobs({}, true);
 			loadReservations({ hourFrom: new Date() }, true);
 		}
-	}, [loading, loadReservations, updateStatus, loadJobs]);
+	}, [loading, loadReservations, loadJobs]);
 
 	const onChange = (e) => {
 		setFormData((prev) => ({
@@ -102,7 +99,7 @@ const ReservationsList = ({
 			/>
 			<PopUp
 				type='confirmation'
-				confirm={() => deleteReservation(reservation.id)}
+				confirm={() => deleteReservation(reservation)}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,
@@ -329,7 +326,7 @@ const ReservationsList = ({
 																}))
 															}
 														>
-															<i class='fas fa-redo-alt'></i>
+															<i className='fas fa-redo-alt'></i>
 														</button>
 													)}
 												</td>
@@ -413,6 +410,5 @@ export default connect(mapStateToProps, {
 	deleteReservation,
 	cancelReservation,
 	clearUsers,
-	updateStatus,
 	loadJobs,
 })(ReservationsList);

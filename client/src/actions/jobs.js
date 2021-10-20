@@ -1,5 +1,4 @@
 import api from '../utils/api';
-import history from '../utils/history';
 
 import {
 	JOB_LOADED,
@@ -100,7 +99,9 @@ export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
 		dispatch(
 			setAlert(`Job ${job_id ? 'Updated' : 'Registered'}`, 'success', '1')
 		);
-		history.push('/jobs-list');
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+		return true;
 	} catch (err) {
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;
@@ -122,9 +123,9 @@ export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
 				},
 			});
 		}
+		dispatch(updateLoadingSpinner(false));
+		return false;
 	}
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
 };
 
 export const deleteJob = (job_id) => async (dispatch) => {
