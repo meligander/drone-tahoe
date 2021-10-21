@@ -1,11 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import './HeroSection.scss';
 
 import Logo from '../../img/logoDRONE-dark-cropped-final.png';
 import HeroVideo from '../../img/glenn/landing-video.m4v';
 
-const HeroSection = ({ clearReservations, clearJobs }) => {
+const HeroSection = ({
+	clearReservations,
+	clearJobs,
+	auth: { loggedUser },
+}) => {
 	return (
 		<div className='hero-container'>
 			<video
@@ -27,7 +32,11 @@ const HeroSection = ({ clearReservations, clearJobs }) => {
 				</p>
 				<div className='hero-button'>
 					<Link
-						to='/reservation/0'
+						to={
+							!loggedUser || (loggedUser && loggedUser.type !== 'admin')
+								? '/reservation/0'
+								: '/reservations-list'
+						}
 						onClick={() => {
 							clearReservations();
 							clearJobs();
@@ -35,7 +44,9 @@ const HeroSection = ({ clearReservations, clearJobs }) => {
 						}}
 						className='btn btn-primary'
 					>
-						Schedule Now
+						{!loggedUser || (loggedUser && loggedUser.type !== 'admin')
+							? 'Schedule Now'
+							: 'Reservations'}
 					</Link>
 				</div>
 			</div>
@@ -56,4 +67,8 @@ const HeroSection = ({ clearReservations, clearJobs }) => {
 	);
 };
 
-export default HeroSection;
+const mapStateToProps = (state) => ({
+	auth: state.auth,
+});
+
+export default connect(mapStateToProps)(HeroSection);

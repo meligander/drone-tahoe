@@ -23,6 +23,7 @@ const Reservation = ({
 	loadJobs,
 	loadReservations,
 	cancelReservation,
+	match,
 }) => {
 	const list = useRef();
 
@@ -30,7 +31,8 @@ const Reservation = ({
 		reservation: null,
 		toggleModal: false,
 		position: 0,
-		editReservation: false,
+		editReservation:
+			match.params.job_id && match.params.job_id !== '0' ? true : false,
 		checkout: false,
 		jobList: [],
 	});
@@ -85,8 +87,12 @@ const Reservation = ({
 				...prev,
 				position: item.bottom + scrollTop,
 			}));
+			if (match.params.job_id && match.params.job_id !== '0')
+				setTimeout(() => {
+					window.scrollTo(0, item.bottom + scrollTop);
+				}, 30);
 		}
-	}, [loadingReservations]);
+	}, [loadingReservations, match.params.job_id]);
 
 	return (
 		<div className='reservation'>

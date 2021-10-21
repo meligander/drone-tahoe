@@ -20,7 +20,7 @@
 
 	&.border {
 		border-radius: 4px;
-		border: 2px solid $color-dark-7;
+		border: 2px solid $color-dark;
 	}
 
 	&-inner {
@@ -43,12 +43,12 @@
 	&-title {
 		font-size: 1.2rem;
 		margin-right: 0.5rem;
-		color: $color-dark-7;
+		color: $color-dark;
 		font-weight: 500;
 	}
 
 	.jobs-list {
-		border: 1px solid $color-dark-7;
+		border: 1px solid $color-dark;
 		padding: 1rem 1.8rem;
 		border-radius: 6px;
 		margin: 1rem 0 1.5rem;
@@ -82,7 +82,7 @@
 		}
 
 		&__label {
-			color: $color-dark-7;
+			color: $color-dark;
 		}
 	}
 
@@ -95,7 +95,7 @@
 		transform: perspective(1px) scale(0.9) translateY(4px);
 
 		.fas {
-			color: $color-dark-7;
+			color: $color-dark;
 			font-size: 2rem;
 		}
 

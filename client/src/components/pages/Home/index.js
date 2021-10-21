@@ -10,7 +10,7 @@ import Booking from '../Booking';
 import { clearReservations } from '../../../actions/reservation';
 import { clearJobs } from '../../../actions/jobs';
 
-const Home = ({ clearReservations, clearJobs }) => {
+const Home = ({ clearReservations, clearJobs, auth: { loggedUser } }) => {
 	return (
 		<div>
 			<HeroSection
@@ -20,9 +20,15 @@ const Home = ({ clearReservations, clearJobs }) => {
 			<ServicesSection />
 			<About clearJobs={clearJobs} clearReservations={clearReservations} />
 			<Testimonials />
-			<Booking />
+			{(!loggedUser || (loggedUser && loggedUser.type !== 'admin')) && (
+				<Booking />
+			)}
 		</div>
 	);
 };
 
-export default connect(null, { clearJobs, clearReservations })(Home);
+const mapStateToProps = (state) => ({
+	auth: state.auth,
+});
+
+export default connect(mapStateToProps, { clearJobs, clearReservations })(Home);

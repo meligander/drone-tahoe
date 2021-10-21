@@ -7,9 +7,9 @@
 		margin: 0 auto;
 		width: 80%;
 		z-index: 400;
-		background-color: rgba(lighten($color-dark-8, 40%), 0.88);
+		background-color: rgba(lighten($color-tertiary, 40%), 0.88);
 		border-radius: 3px;
-		box-shadow: 0 2rem 4rem rgba($color-dark-7, 0.2);
+		box-shadow: 0 2rem 4rem rgba($color-dark, 0.2);
 		padding: 1rem 1rem 2.5rem;
 		overflow: hidden;
 		animation: grow 0.35s;
@@ -125,7 +125,7 @@
 		line-height: 2.8rem;
 		font-size: 1.8rem;
 		margin-bottom: 1rem;
-		color: $color-dark-7;
+		color: $color-dark;
 		text-align: center;
 		font-weight: 300;
 
@@ -174,7 +174,7 @@
 		display: flex;
 		justify-content: space-between;
 		padding: 0 0.5rem 1rem;
-		border-bottom: 1px solid $color-dark-6;
+		border-bottom: 1px solid $color-quaternary;
 
 		@media screen and (max-width: 500px) {
 			padding: 0 0.3rem 0.5rem;
@@ -197,7 +197,7 @@
 
 			.fas {
 				cursor: pointer;
-				color: $color-dark-7;
+				color: $color-dark;
 				font-size: 2.5rem;
 				transition: all 0.2s ease;
 
@@ -206,7 +206,7 @@
 				}
 
 				&:hover {
-					color: lighten($color-dark-7, 10%);
+					color: lighten($color-dark, 10%);
 					transform: translateY(-3px);
 				}
 

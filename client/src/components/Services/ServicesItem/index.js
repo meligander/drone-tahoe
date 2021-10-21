@@ -24,7 +24,6 @@ const Services = ({
 					<Link
 						to={`/reservation/${job}`}
 						onClick={() => {
-							window.scrollTo(0, 0);
 							clearReservations();
 							clearJobs();
 						}}

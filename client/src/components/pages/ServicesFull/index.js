@@ -22,42 +22,31 @@ const ServicesFull = ({ loadJobs, job: { jobs, loading } }) => {
 				{!loading &&
 					jobs.map((item, i) => (
 						<div className='card' key={i}>
-							<div
-								className={`card__side card__side--front card__side--front-${
-									i + 1
-								}`}
-							>
-								<div className={`card__image card__image--${i + 1}`}>
-									&nbsp;
-								</div>
-								<h4 className='card__heading'>
-									<span
-										className={`card__heading--span card__heading--span--${
-											i + 1
-										}`}
-									>
-										{item.title}
-									</span>
-								</h4>
-							</div>
-							<div
-								className={`card__side card__side--back card__side--back-${
-									i + 1
-								}`}
-							>
-								<div className='card__cta'>
-									<div className='card__price-box'>
-										<p className='card__price-only'>{item.subtitle}</p>
-										<p className='card__price-value'>{item.poptext}</p>
-									</div>
-									<div className='popup-button'>
-										<Link
-											to='/booking'
-											onClick={() => window.scrollTo(0, 0)}
-											className='btn btn-quaternary'
+							<div className='card-inner'>
+								<div className={`card-front card-front-${i + 1}`}>
+									<h4 className={`card-heading card-heading-${i + 1}`}>
+										<span
+											className={`card-heading-span card-heading-span-${i + 1}`}
 										>
-											Contact Us
-										</Link>
+											{item.title}
+										</span>
+									</h4>
+								</div>
+								<div className={`card-back card-back-${i + 1}`}>
+									<div className='card-cta'>
+										<div className='card-price-box'>
+											<p className='card-price-only'>{item.subtitle}</p>
+											<p className='card-price-value'>{item.poptext}</p>
+										</div>
+										<div className='popup-button'>
+											<Link
+												to='/booking'
+												onClick={() => window.scrollTo(0, 0)}
+												className='btn btn-quaternary'
+											>
+												Contact Us
+											</Link>
+										</div>
 									</div>
 								</div>
 							</div>

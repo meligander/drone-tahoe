@@ -7,7 +7,7 @@
 	display: flex;
 	top: 0;
 	left: 0;
-	background-color: rgba($color-dark-7, 0.8);
+	background-color: rgba($color-dark, 0.8);
 	padding: 15rem 0;
 	z-index: 400;
 	transition: all 0.3s;
@@ -17,6 +17,6 @@
 		(backdrop-filter: blur(10px)) {
 		-webkit-backdrop-filter: blur(10px);
 		backdrop-filter: blur(10px);
-		background-color: rgba($color-dark-7, 0.3);
+		background-color: rgba($color-dark, 0.3);
 	}
 }

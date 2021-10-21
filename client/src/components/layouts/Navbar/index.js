@@ -55,6 +55,18 @@ const Navbar = ({
 				</div>
 
 				<ul className={click ? 'nav-menu active' : 'nav-menu'}>
+					<li className='nav-item'>
+						<Link
+							to='/'
+							className='nav-links'
+							onClick={() => {
+								closeMobileMenu();
+								window.scrollTo(0, 0);
+							}}
+						>
+							Home
+						</Link>
+					</li>
 					{!loading && loggedUser && (
 						<li className='nav-links-salute'>
 							<Link
@@ -128,18 +140,6 @@ const Navbar = ({
 						</>
 					) : (
 						<>
-							<li className='nav-item'>
-								<Link
-									to='/'
-									className='nav-links'
-									onClick={() => {
-										closeMobileMenu();
-										window.scrollTo(0, 0);
-									}}
-								>
-									Home
-								</Link>
-							</li>
 							<li className='nav-item'>
 								<Link
 									to='/servicesfull'

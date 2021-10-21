@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import './About.scss';
 
-const About = ({ clearReservations, clearJobs }) => {
+const About = ({ clearReservations, clearJobs, auth: { loggedUser } }) => {
 	return (
 		<section className='about' id='about'>
 			<div className='about-text'>
@@ -29,9 +30,14 @@ const About = ({ clearReservations, clearJobs }) => {
 					</ul>
 				</div>
 			</div>
+
 			<div className='about-text-link'>
 				<Link
-					to='/reservation/0'
+					to={
+						!loggedUser || (loggedUser && loggedUser.type !== 'admin')
+							? '/reservation/0'
+							: '/reservations-list'
+					}
 					onClick={() => {
 						clearReservations();
 						clearJobs();
@@ -39,12 +45,19 @@ const About = ({ clearReservations, clearJobs }) => {
 					}}
 					className='btn'
 				>
-					Schedule Your Project Today
+					{!loggedUser || (loggedUser && loggedUser.type !== 'admin')
+						? 'Schedule Your Project Today'
+						: 'Reservations'}
 				</Link>
 			</div>
+
 			<div className='about-image'></div>
 		</section>
 	);
 };
 
-export default About;
+const mapStateToProps = (state) => ({
+	auth: state.auth,
+});
+
+export default connect(mapStateToProps)(About);

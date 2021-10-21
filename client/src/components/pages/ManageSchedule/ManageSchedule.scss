@@ -46,7 +46,7 @@
 
 		&-title {
 			font-weight: 400;
-			color: $color-dark-7;
+			color: $color-dark;
 			font-size: 1.7rem;
 			margin: 1rem 2rem 1rem;
 
@@ -68,7 +68,7 @@
 			color: $color-white;
 			border-radius: 0.8rem;
 			margin: 0.5rem 0;
-			background-color: $color-dark-8;
+			background-color: $color-tertiary;
 			display: flex;
 			align-items: center;
 			justify-content: space-around;
@@ -76,17 +76,17 @@
 			transform: scale(0.95);
 
 			&.disabled {
-				background-color: $color-light-2 !important;
+				background-color: $color-quinary !important;
 
 				&:hover {
 					transform: scale(1);
-					background-color: lighten($color-light-2, 5%);
+					background-color: lighten($color-quinary, 5%);
 				}
 			}
 
 			&:hover {
 				transform: scale(1);
-				background-color: lighten($color-dark-8, 5%);
+				background-color: lighten($color-tertiary, 5%);
 			}
 		}
 

@@ -2,7 +2,7 @@
 
 .reservation {
 	.btn-link {
-		color: $color-dark-6;
+		color: $color-quaternary;
 		font-size: 1.5rem;
 	}
 
@@ -21,7 +21,7 @@
 		width: 70vw;
 		margin: 0 auto;
 		padding: 1rem 1.5rem;
-		background-color: lighten($color-light-7, 48%);
+		background-color: lighten($color-secondary, 48%);
 
 		@media screen and (max-width: 900px) {
 			width: 80vw;
@@ -108,7 +108,7 @@
 
 		&-title {
 			font-size: 1.4rem;
-			color: $color-dark-7;
+			color: $color-dark;
 
 			@media screen and (max-width: 650px) {
 				font-size: 1.3rem;

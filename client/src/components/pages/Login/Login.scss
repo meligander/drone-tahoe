@@ -63,7 +63,7 @@
 		&-sign {
 			font-size: 1.1rem;
 			margin-top: 1.5rem;
-			color: #fff /* darken($color-primary-dark, 10%) */;
+			color: $color-white;
 			font-weight: 400;
 
 			&:nth-child(3) {
@@ -78,7 +78,7 @@
 
 	&-img {
 		width: 50%;
-		background-color: $color-dark-6;
+		background-color: $color-quaternary;
 		background-image: linear-gradient(
 				rgba($color-white, 0.5),
 				rgba($color-white, 0.6)
@@ -94,7 +94,7 @@
 		}
 
 		&-text {
-			color: $color-dark-7;
+			color: $color-dark;
 			position: absolute;
 			font-size: 4rem;
 			font-weight: 400;
@@ -128,7 +128,7 @@
 
 	.btn-link {
 		font-size: 1rem;
-		color: $color-dark-7;
+		color: $color-dark;
 	}
 
 	.alert {
