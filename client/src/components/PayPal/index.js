@@ -39,11 +39,11 @@ const PayPal = ({
 			<PayPalButton
 				createOrder={async () => {
 					const payment = await makePayment(reservation);
+					console.log(payment);
 					return payment.id;
 				}}
 				onApprove={async (data, actions) => {
 					const order = await actions.order.capture();
-
 					const answer = await updatePayment(reservation.id, {
 						paymentId: order.id,
 					});

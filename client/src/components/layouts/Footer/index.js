@@ -15,7 +15,7 @@ function Footer({ setFooterHeight }) {
 	useEffect(() => {
 		setTimeout(() => {
 			setFooterHeight(ref.current.offsetHeight);
-		}, 30);
+		}, 50);
 	}, [setFooterHeight]);
 
 	return (

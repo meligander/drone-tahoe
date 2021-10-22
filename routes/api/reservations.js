@@ -384,9 +384,9 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 		await reservation.save();
 
 		if (req.user.type === 'customer')
-			for (let x = 0; x < jobs.length; x++)
+			for (let x = 0; x < reservation.jobs.length; x++)
 				reservation.jobs[x] = await Job.findOne({
-					where: { id: jobs[x] },
+					where: { id: reservation.jobs[x] },
 				});
 
 		const hourFrom = moment(reservation.hourFrom);
@@ -667,24 +667,27 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 
 			await removeResFromDay(reservation);
 
-			await sendToCompany(
-				'Refund',
-				`The user ${reservation.user.name} ${
-					reservation.user.lastname
-				}, email ${
-					reservation.user.email
-				}, has requested a refund for the Paypal payment, ID ${
-					reservation.paymentId
-				}, for the reservation on the ${hourFrom
-					.utc()
-					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
-					.utc()
-					.format('h a')}.`
-			);
+			if (req.user.type === 'customer')
+				await sendToCompany(
+					'Refund',
+					`The user ${reservation.user.name} ${
+						reservation.user.lastname
+					}, email ${
+						reservation.user.email
+					}, has requested a refund for the Paypal payment, ID ${
+						reservation.paymentId
+					}, for the reservation on the ${hourFrom
+						.utc()
+						.format('MM/DD/YY')} from ${hourFrom
+						.utc()
+						.format('h a')} to ${hourTo.utc().format('h a')}.`
+				);
 		} else {
 			await removeResFromDay(reservation);
 
 			await reservation.destroy();
+
+			reservation = reservation.id;
 		}
 
 		return res.json(reservation);

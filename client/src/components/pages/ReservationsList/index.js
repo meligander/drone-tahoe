@@ -86,7 +86,7 @@ const ReservationsList = ({
 		<div className='list'>
 			<PopUp
 				type='confirmation'
-				confirm={() => cancelReservation(reservation.id)}
+				confirm={() => cancelReservation(reservation)}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,

@@ -72,7 +72,7 @@ const Schedule = ({
 		setAdminValues((prev) => ({
 			...prev,
 			date: changedDate,
-			tab: 1,
+			...(changedDate.getMonth() === date.getMonth() && { tab: 1 }),
 		}));
 		checkDayAvailability(
 			moment(changedDate).format('YYYY-MM-DD[T00:00:00Z]'),

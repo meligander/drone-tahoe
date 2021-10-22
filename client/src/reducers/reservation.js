@@ -51,12 +51,17 @@ const reservationReducer = (state = initialState, action) => {
 			};
 		case RESERVATION_CANCELED:
 		case RESERVATION_UPDATED:
+			console.log(payload);
 			return {
 				...state,
 				loadingReservation: false,
-				reservations: state.reservations.map((item) =>
-					item.id === payload.id ? payload : item
-				),
+				reservations: payload.id
+					? state.reservations.map((item) =>
+							item.id === payload.id ? payload : item
+					  )
+					: state.reservations.filter(
+							(reservation) => reservation.id !== payload
+					  ),
 				error: {},
 			};
 		case PAYMENT_STATUS_UPDATED:

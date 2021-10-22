@@ -308,11 +308,11 @@ export const cancelReservation = (reservation) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
 	try {
-		await api.put(`/reservation/cancel/${reservation.id}`);
+		const res = await api.put(`/reservation/cancel/${reservation.id}`);
 
 		dispatch({
 			type: !reservation.paymentId ? RESERVATION_DELETED : RESERVATION_CANCELED,
-			payload: reservation.id,
+			payload: res.data,
 		});
 
 		dispatch(
