@@ -51,7 +51,6 @@ const reservationReducer = (state = initialState, action) => {
 			};
 		case RESERVATION_CANCELED:
 		case RESERVATION_UPDATED:
-			console.log(payload);
 			return {
 				...state,
 				loadingReservation: false,
@@ -97,6 +96,7 @@ const reservationReducer = (state = initialState, action) => {
 			return {
 				...state,
 				reservation: null,
+				loading: false,
 				loadingReservation: false,
 				error: payload,
 			};

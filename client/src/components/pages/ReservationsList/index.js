@@ -261,7 +261,7 @@ const ReservationsList = ({
 			{!loading && (
 				<>
 					{reservations.length > 0 ? (
-						<div>
+						<>
 							<div className='wrapper'>
 								<table className='icon-6'>
 									<thead>
@@ -377,7 +377,7 @@ const ReservationsList = ({
 								&nbsp;
 								{reservations.length}
 							</div>
-						</div>
+						</>
 					) : (
 						<h3 className='heading-primary-subheading u-center-text text-danger'>
 							{error.msg}

@@ -64,23 +64,45 @@ const ManageSchedule = ({
 			const startDate = moment(date[0], 'DD/MM/YYYY');
 			const endDate = moment(date[1], 'DD/MM/YYYY');
 
-			const betweenArrays =
+			const isAfter = today.isAfter(startDate);
+			const betweenReserved =
+				!isAfter &&
 				reservedDays.some((item) => {
 					const compareDate = moment(item).add(1, 'day');
 					return compareDate.isBetween(startDate, endDate);
-				}) ||
+				});
+			const betweenDisabled =
+				!isAfter &&
+				!betweenReserved &&
 				disabledDays.some((item) => {
 					const compareDate = moment(item).add(1, 'day');
 					return compareDate.isBetween(startDate, endDate);
-				}) ||
+				});
+			const betweenTimeDisabled =
+				!isAfter &&
+				!betweenReserved &&
+				!betweenDisabled &&
 				timeDisabledDays.some((item) => {
 					const compareDate = moment(item).add(1, 'day');
 					return compareDate.isBetween(startDate, endDate);
 				});
 
-			if (betweenArrays) {
+			const notAllowed =
+				isAfter || betweenReserved || betweenDisabled || betweenTimeDisabled;
+
+			if (notAllowed) {
 				setAlert(
-					'Can not choose a range with a disabled day or a day with a reservation in between.',
+					`Can not choose a range with a ${
+						isAfter
+							? 'date older than today.'
+							: `${
+									betweenReserved
+										? 'reserved date'
+										: betweenDisabled
+										? 'disabled day'
+										: 'disabled time range'
+							  } in between.`
+					}`,
 					'danger',
 					'2'
 				);
@@ -91,7 +113,15 @@ const ManageSchedule = ({
 				}));
 			}
 		}
-	}, [range, date, setAlert, disabledDays, reservedDays, timeDisabledDays]);
+	}, [
+		range,
+		date,
+		setAlert,
+		disabledDays,
+		reservedDays,
+		timeDisabledDays,
+		today,
+	]);
 
 	const onChangeDate = (changedDate) => {
 		let loadRes;
@@ -227,24 +257,26 @@ const ManageSchedule = ({
 									</div>
 								))}
 							</div>
-							<div className='btn-right'>
-								<button
-									className='btn btn-quaternary'
-									onClick={() => {
-										setAdminValues((prev) => ({
-											...prev,
-											toggleModal: !toggleModal,
-										}));
-										checkDayAvailability(
-											moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
-											0,
-											0
-										);
-									}}
-								>
-									<i className='fas fa-ban'></i> &nbsp; Hour Range
-								</button>
-							</div>
+							{today.isBefore(moment(date)) && (
+								<div className='btn-right'>
+									<button
+										className='btn btn-quaternary'
+										onClick={() => {
+											setAdminValues((prev) => ({
+												...prev,
+												toggleModal: !toggleModal,
+											}));
+											checkDayAvailability(
+												moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
+												0,
+												0
+											);
+										}}
+									>
+										<i className='fas fa-ban'></i> &nbsp; Hour Range
+									</button>
+								</div>
+							)}
 						</>
 					)
 				);
@@ -263,42 +295,50 @@ const ManageSchedule = ({
 							<Moment date={date} format='MM/DD/YYYY' />
 						</h5>
 						<div className='btn-center'>
-							{disable ? (
-								<button
-									className='btn'
-									onClick={() =>
-										enableDate(moment(date).format('YYYY-MM-DD[T00:00:00Z]'))
-									}
-								>
-									<i className='far fa-check-circle'></i> &nbsp; Date
-								</button>
-							) : (
+							{today.isBefore(moment(date)) && (
 								<>
-									<button
-										className='btn'
-										onClick={() =>
-											disableDate(moment(date).format('YYYY-MM-DD[T00:00:00Z]'))
-										}
-									>
-										<i className='fas fa-ban'></i> &nbsp; Date
-									</button>
-									<button
-										className='btn'
-										onClick={() => {
-											setAdminValues((prev) => ({
-												...prev,
-												toggleModal: !toggleModal,
-											}));
-											if (reservations.length > 0) clearReservations();
-											checkDayAvailability(
-												moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
-												0,
-												0
-											);
-										}}
-									>
-										<i className='fas fa-ban'></i> &nbsp; Hour Range
-									</button>
+									{disable ? (
+										<button
+											className='btn'
+											onClick={() =>
+												enableDate(
+													moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+												)
+											}
+										>
+											<i className='far fa-check-circle'></i> &nbsp; Date
+										</button>
+									) : (
+										<>
+											<button
+												className='btn'
+												onClick={() =>
+													disableDate(
+														moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+													)
+												}
+											>
+												<i className='fas fa-ban'></i> &nbsp; Date
+											</button>
+											<button
+												className='btn'
+												onClick={() => {
+													setAdminValues((prev) => ({
+														...prev,
+														toggleModal: !toggleModal,
+													}));
+													if (reservations.length > 0) clearReservations();
+													checkDayAvailability(
+														moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
+														0,
+														0
+													);
+												}}
+											>
+												<i className='fas fa-ban'></i> &nbsp; Hour Range
+											</button>
+										</>
+									)}
 								</>
 							)}
 						</div>
@@ -311,6 +351,7 @@ const ManageSchedule = ({
 							<Moment date={date[0]} format='MM/DD/YYYY' /> -{' '}
 							<Moment date={date[1]} format='MM/DD/YYYY' />
 						</h5>
+
 						<div className='btn-center'>
 							<button
 								className='btn'
@@ -380,7 +421,7 @@ const ManageSchedule = ({
 						selectRange={range}
 						onChange={onChangeDate}
 						tileDisabled={tileDisabled}
-						minDate={new Date(today.format())}
+						minDate={new Date(2021, 9, 1)}
 						maxDate={new Date(today.year() + 1, today.month(), today.date())}
 						onActiveStartDateChange={(e) => {
 							if (e.view === 'month') {

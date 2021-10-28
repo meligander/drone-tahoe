@@ -41,32 +41,110 @@
 	}
 
 	&-title {
-		font-size: 1.2rem;
+		font-size: 2rem;
 		margin-right: 0.5rem;
 		color: $color-dark;
-		font-weight: 500;
+		font-weight: 400;
+	}
+
+	&-total {
+		font-size: 1.8rem;
+		font-weight: 300;
 	}
 
 	.jobs-list {
-		border: 1px solid $color-dark;
-		padding: 1rem 1.8rem;
-		border-radius: 6px;
-		margin: 1rem 0 1.5rem;
+		margin: 1.5rem 0 2rem;
+		position: relative;
 
-		@media screen and (max-width: 500px) {
-			padding: 0.8rem 1rem;
+		@media screen and (max-width: 650px) {
 			margin: 1rem 0;
+		}
+
+		&-item {
+			margin: 1rem;
+			border: 1px solid $color-quaternary;
+			padding: 1rem 1.8rem;
+			border-radius: 6px;
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+
+			@media screen and (max-width: 650px) {
+				margin: 1rem 0;
+				flex-direction: column;
+				align-items: center;
+			}
+
+			&-group {
+				width: 90%;
+
+				@media screen and (max-width: 650px) {
+					width: 100%;
+				}
+
+				.form__group {
+					transition: all 0.2s ease-out;
+					opacity: 1;
+					height: auto;
+
+					&.hide {
+						display: table-column;
+						transition: all 0.2s ease-out;
+						height: 0;
+						transform: translateY(-10px);
+						opacity: 0;
+					}
+				}
+
+				.switch {
+					margin-top: -0.8rem;
+					justify-content: end;
+
+					@media screen and (max-width: 500px) {
+						margin-top: 0;
+					}
+
+					.form__input-switch {
+						transform: scale(0.7);
+					}
+
+					.form__label-switch {
+						font-size: 1.1rem;
+						margin: 0 0.5rem 0 0;
+					}
+				}
+			}
+
+			&-title {
+				font-size: 1.3rem;
+				color: $color-quaternary;
+				margin-left: -0.4rem;
+				margin-bottom: 1rem;
+			}
+
+			.btn-icon {
+				margin-top: 2.8rem;
+
+				@media screen and (max-width: 900px) {
+					margin-top: 3.5rem;
+				}
+
+				@media screen and (max-width: 650px) {
+					margin-top: 0.5rem;
+				}
+			}
 		}
 
 		&-title {
 			font-size: 1.5rem;
 			margin-bottom: 0.8rem;
 			margin-left: -0.2rem;
+			color: $color-dark;
 		}
 	}
 
 	.form {
-		&__group-job {
+		/* &__group-job {
 			display: flex;
 			align-items: center;
 
@@ -74,12 +152,12 @@
 				margin-left: 0;
 				margin-bottom: 1.8rem;
 			}
-		}
+		} */
 
-		&__group select {
+		/* &__group select {
 			margin-bottom: 0;
 			width: 95%;
-		}
+		} */
 
 		&__label {
 			color: $color-dark;

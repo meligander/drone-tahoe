@@ -63,6 +63,7 @@ const userReducer = (state = initialState, action) => {
 				...state,
 				user: null,
 				loadingUser: false,
+				loading: false,
 				error: payload,
 			};
 		default:

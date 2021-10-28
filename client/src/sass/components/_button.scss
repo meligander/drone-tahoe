@@ -199,13 +199,24 @@
 		.fa-redo-alt {
 			color: $color-senary;
 			position: relative;
+			font-size: 28px;
+
+			@media screen and (max-width: 500px) {
+				font-size: 24px;
+			}
 
 			&::after {
 				position: absolute;
 				content: '$';
-				font-size: 1.2rem;
-				top: 0.1rem;
-				right: 0.6rem;
+				font-size: 18px;
+				top: 4px;
+				right: 10px;
+
+				@media screen and (max-width: 500px) {
+					font-size: 15px;
+					top: 4px;
+					right: 8.5px;
+				}
 			}
 		}
 	}

@@ -307,7 +307,6 @@ const Schedule = ({
 				}
 				confirm={async () => {
 					const answer = await updateReservation(
-						reservation.id,
 						{
 							...reservation,
 							hourFrom: moment(hourFrom).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),

@@ -74,6 +74,7 @@ router.get('/', [auth], async (req, res) => {
 	try {
 		const filter = {
 			...(req.query.user && { userId: req.query.user }),
+			...(req.query.status && { status: req.query.status }),
 			...((req.query.hourFrom || req.query.hourTo) && {
 				hourFrom: {
 					...(req.query.hourFrom && req.query.hourTo
@@ -321,6 +322,22 @@ router.post('/payment', [auth], async (req, res) => {
 		if (match === -1) result = [...result, { ...jobs[x], quantity: 1 }];
 		else result[match].quantity = result[match].quantity + 1;
 	}
+
+	/* "amount": {
+		"currency_code": "USD",
+		"value": "90.00",
+			"breakdown": {
+				"item_total": {
+					 "currency_code": "USD",
+					 "value": "100.00"
+				 },
+				"discount": {
+					 "currency_code": "USD",
+					 "value": "10.00"
+				 }
+			 }
+		},
+	"items": [] */
 
 	request.prefer('return=representation');
 	request.requestBody({

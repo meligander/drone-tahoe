@@ -19,13 +19,14 @@ const EditUser = ({
 	updateUser,
 }) => {
 	const isAdmin = loggedUser && loggedUser.type === 'admin';
-	const id = match.params.user_id;
+	const pathId = match.params.user_id;
 
 	let adminType = location.pathname.replace('/', '');
 
-	if (id) adminType = adminType.replace(`/${id}`, '');
+	if (pathId) adminType = adminType.replace(`/${pathId}`, '');
 
 	const [formData, setFormData] = useState({
+		id: '',
 		name: '',
 		lastname: '',
 		email: '',
@@ -44,14 +45,15 @@ const EditUser = ({
 			(!userLoaded && adminType !== 'signup' && email === '') ||
 			(adminType === 'profile' && email !== loggedUser.email)
 		) {
-			if (id) {
-				if (loadingUser) loadUser(id);
+			if (pathId) {
+				if (loadingUser) loadUser(pathId);
 				else userLoaded = user;
 			} else userLoaded = loggedUser;
 
 			if (userLoaded)
 				setFormData((prev) => ({
 					...prev,
+					id: userLoaded.id,
 					name: userLoaded.name,
 					lastname: userLoaded.lastname,
 					type: userLoaded.type,
@@ -59,7 +61,7 @@ const EditUser = ({
 					cel: userLoaded.cel === '0' ? '' : userLoaded.cel,
 				}));
 		}
-	}, [loggedUser, loadingUser, user, id, loadUser, email, adminType]);
+	}, [loggedUser, loadingUser, user, pathId, loadUser, email, adminType]);
 
 	const onChange = (e) => {
 		setFormData((prev) => ({
@@ -72,12 +74,7 @@ const EditUser = ({
 		e.preventDefault();
 
 		if (adminType === 'signup') signup(formData);
-		else
-			updateUser(
-				formData,
-				adminType === 'profile' ? loggedUser.id : id,
-				adminType === 'profile'
-			);
+		else updateUser(formData, adminType === 'profile');
 	};
 
 	const title = () => {

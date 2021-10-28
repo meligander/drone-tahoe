@@ -79,7 +79,7 @@ export const loadUsers = (filterData, search) => async (dispatch) => {
 	if (!search) dispatch(updateLoadingSpinner(false));
 };
 
-export const updateUser = (formData, user_id, self) => async (dispatch) => {
+export const updateUser = (formData, self) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
 	let user = {};
@@ -87,7 +87,7 @@ export const updateUser = (formData, user_id, self) => async (dispatch) => {
 		if (formData[prop] !== '') user[prop] = formData[prop];
 
 	try {
-		const res = await api.put(`/user/${user_id}`, user);
+		const res = await api.put(`/user/${formData.id}`, user);
 
 		dispatch({
 			type: self ? USERAUTH_LOADED : USER_UPDATED,
