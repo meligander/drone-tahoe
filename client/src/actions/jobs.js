@@ -9,7 +9,7 @@ import {
 	JOBS_ERROR,
 	JOBS_CLEARED,
 	JOB_CLEARED,
-	JOB_DELETION_ERROR,
+	JOB_ERROR,
 } from './types';
 
 import { setAlert } from './alert';
@@ -27,7 +27,7 @@ export const loadJob = (job_id) => async (dispatch) => {
 		});
 	} catch (err) {
 		dispatch({
-			type: JOBS_ERROR,
+			type: JOB_ERROR,
 			payload: {
 				type: err.response.statusText,
 				status: err.response.status,
@@ -109,13 +109,13 @@ export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
 				dispatch(setAlert(error.msg, 'danger', '2'));
 			});
 			dispatch({
-				type: JOBS_ERROR,
+				type: JOB_ERROR,
 				payload: errors,
 			});
 		} else {
 			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
 			dispatch({
-				type: JOBS_ERROR,
+				type: JOB_ERROR,
 				payload: {
 					type: err.response.statusText,
 					status: err.response.status,
@@ -143,7 +143,7 @@ export const deleteJob = (job_id) => async (dispatch) => {
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({
-			type: JOB_DELETION_ERROR,
+			type: JOB_ERROR,
 			payload: {
 				type: err.response.statusText,
 				status: err.response.status,

@@ -312,7 +312,10 @@ const Schedule = ({
 							hourFrom: moment(hourFrom).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
 							hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
 						},
-						moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]')
+						moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]'),
+						moment(reservation.hourFrom).format('YYYY-MM-DD[T00:00:00Z]'),
+						moment(hourFrom).format('YYYY-MM-DD') !==
+							moment(reservation.hourFrom).format('YYYY-MM-DD')
 					);
 					if (answer) setToggleModal();
 				}}

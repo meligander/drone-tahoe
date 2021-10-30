@@ -45,7 +45,7 @@ router.get('/schedule/:month/:year', async (req, res) => {
 					});
 				}
 
-				if (reservations.every((item) => item.jobs.length === 0))
+				if (reservations.every((item) => item.status === 'hourRange'))
 					timeDisabledDays.push(days[x].date);
 				else reservedDays.push(days[x].date);
 			}

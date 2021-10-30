@@ -6,6 +6,7 @@ import {
 	USERS_ERROR,
 	USER_CLEARED,
 	USERS_CLEARED,
+	USER_ERROR,
 } from '../actions/types';
 
 const initialState = {
@@ -58,11 +59,17 @@ const userReducer = (state = initialState, action) => {
 				loadingUser: true,
 				error: {},
 			};
-		case USERS_ERROR:
+		case USER_ERROR:
 			return {
 				...state,
 				user: null,
 				loadingUser: false,
+				error: payload,
+			};
+		case USERS_ERROR:
+			return {
+				...state,
+				users: [],
 				loading: false,
 				error: payload,
 			};

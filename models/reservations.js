@@ -4,6 +4,8 @@ module.exports = (sequelize, type) => {
 		hourTo: { type: type.DATE, allowNull: false },
 		paymentId: type.STRING,
 		address: { type: type.STRING, allowNull: false },
+		total: { type: type.FLOAT },
+		travelExpenses: { type: type.FLOAT },
 		comments: type.TEXT,
 		status: {
 			type: type.ENUM,
@@ -16,6 +18,7 @@ module.exports = (sequelize, type) => {
 				'completed',
 				'canceled',
 				'refunded',
+				'hourRange',
 			],
 		},
 	});

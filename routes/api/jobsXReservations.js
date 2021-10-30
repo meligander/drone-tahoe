@@ -34,20 +34,19 @@ router.get('/:res_job_id', [auth], async (req, res) => {
 //@access   Private
 router.get('/one/:reservation_id', [auth], async (req, res) => {
 	try {
+		console.log(req.query);
 		const jobsXReservations = await JobXReservation.findAll({
-			include: [
-				{
-					model: Reservation,
-					as: 'reservation',
-					where: {
-						id: req.params.reservation_id,
+			where: {
+				reservationId: req.params.reservation_id,
+			},
+			...(req.query.type === 'full' && {
+				include: [
+					{
+						model: Job,
+						as: 'job',
 					},
-				},
-				{
-					model: Job,
-					as: 'job',
-				},
-			],
+				],
+			}),
 		});
 
 		if (jobsXReservations.length === 0) {

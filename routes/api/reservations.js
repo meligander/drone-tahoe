@@ -29,7 +29,13 @@ const auth = require('../../middleware/auth');
 const adminAuth = require('../../middleware/adminAuth');
 
 //Models
-const { Reservation, Day, User, Job } = require('../../config/db');
+const {
+	Reservation,
+	Day,
+	User,
+	Job,
+	JobXReservation,
+} = require('../../config/db');
 
 //@route    GET api/reservation/:reservation_id
 //@desc     Get the info of a reservation
@@ -108,13 +114,6 @@ router.get('/', [auth], async (req, res) => {
 			],
 		});
 
-		if (req.user.type === 'customer')
-			for (let y = 0; y < reservations.length; y++)
-				for (let x = 0; x < reservations[y].jobs.length; x++)
-					reservations[y].jobs[x] = await Job.findOne({
-						where: { id: reservations[y].jobs[x] },
-					});
-
 		if (reservations.length === 0) {
 			return res.status(400).json({
 				msg: 'No reservation with those characteristics',
@@ -147,38 +146,32 @@ router.post(
 		const errorsResult = validationResult(req);
 		if (!errorsResult.isEmpty()) errors = errorsResult.array();
 
-		let { hourFrom, hourTo, user, jobs, address, comments, value } = req.body;
+		let {
+			hourFrom,
+			hourTo,
+			user,
+			jobs,
+			address,
+			comments,
+			total,
+			travelExpenses,
+		} = req.body;
 
-		const regex1 = /^\$?\d+(\.(\d{2}))?$/;
-
-		if (req.user.type === 'admin') {
-			if (!value) errors.push({ msg: 'Value is required', param: 'value' });
-			else if (!regex1.test(value))
-				errors.push({ msg: 'Invalid Price. eg: 350.50', param: 'value' });
-		}
-
-		if (jobs.length === 0)
-			errors.push({ msg: 'You must have at least one job', param: 'jobs' });
-
-		if (jobs.some((item) => item === ''))
-			errors.push({
-				msg: 'All jobs must have an item selected',
-				param: 'jobs',
-			});
+		errors = checkReservation(jobs, errors, req.user.type);
 
 		if (errors.length > 0) return res.status(400).json({ errors });
 
 		hourFrom = new Date(hourFrom);
 		hourTo = new Date(hourTo);
 
-		let reservationFields = {
+		const reservationFields = {
 			hourFrom,
 			hourTo,
 			userId: user,
-			jobs,
 			address,
-			value: value ? value : 0,
 			...(comments && { comments }),
+			...(total && { total }),
+			travelExpenses,
 			status: req.user.type === 'admin' ? 'unpaid' : 'requested',
 		};
 
@@ -193,11 +186,16 @@ router.post(
 				],
 			});
 
-			if (req.user.type === 'customer')
-				for (let x = 0; x < jobs.length; x++)
-					reservation.jobs[x] = await Job.findOne({
-						where: { id: jobs[x] },
-					});
+			for (let x = 0; x < jobs.length; x++) {
+				const jobsXReservationFields = {
+					reservationId: reservation.id,
+					jobId: jobs[x].jobId,
+					value: jobs[x].value === '' ? 0 : jobs[x].value,
+					...(jobs[x].discount !== null && { discount: jobs[x].discount }),
+				};
+
+				await JobXReservation.create(jobsXReservationFields);
+			}
 
 			await addResToDay(reservation);
 
@@ -283,7 +281,7 @@ router.post(
 			jobs: [],
 			address: '',
 			value: 0,
-			status: 'canceled',
+			status: 'hourRange',
 		};
 
 		try {
@@ -311,17 +309,11 @@ router.post(
 //@desc     Make reservation payment
 //@access   Private
 router.post('/payment', [auth], async (req, res) => {
-	let { jobs, value } = req.body;
+	let { jobs, total } = req.body;
 
 	const request = new paypal.orders.OrdersCreateRequest();
 
-	let result = [];
-
-	for (let x = 0; x < jobs.length; x++) {
-		const match = result.findIndex((job) => jobs[x].id === job.id);
-		if (match === -1) result = [...result, { ...jobs[x], quantity: 1 }];
-		else result[match].quantity = result[match].quantity + 1;
-	}
+	const discount = jobs.reduce((sum, item) => sum + item.discount, 0);
 
 	/* "amount": {
 		"currency_code": "USD",
@@ -346,22 +338,27 @@ router.post('/payment', [auth], async (req, res) => {
 			{
 				amount: {
 					currency_code: 'USD',
-					value,
+					value: total,
 					breakdown: {
 						item_total: {
 							currency_code: 'USD',
-							value,
+							value: total + discount,
+						},
+						discount: {
+							currency_code: 'USD',
+							value: discount,
 						},
 					},
 				},
-				items: result.map((item) => {
+				items: jobs.map((item) => {
 					return {
-						name: item.title,
+						name: item.job.title,
 						unit_amount: {
 							currency_code: 'USD',
-							value: value / jobs.length,
+							value: item.value,
+							...(item.discount !== null && { discount: item.discount }),
 						},
-						quantity: item.quantity,
+						quantity: 1,
 					};
 				}),
 			},
@@ -400,36 +397,35 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 
 		await reservation.save();
 
-		if (req.user.type === 'customer')
-			for (let x = 0; x < reservation.jobs.length; x++)
-				reservation.jobs[x] = await Job.findOne({
-					where: { id: reservation.jobs[x] },
-				});
-
 		const hourFrom = moment(reservation.hourFrom);
 		const hourTo = moment(reservation.hourTo);
 
 		await sendEmail(
 			reservation.user.email,
-			'Reservation Payed',
+			'Reservation Paid',
 			`Hello ${reservation.user.name} ${reservation.user.lastname}!
 			<br/><br/>
 			The reservation registered on the ${hourFrom
 				.utc()
 				.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
 				.utc()
-				.format('h a')} has been payed.
+				.format('h a')} has been paid.
 				<br/>
-				The amount payed was $${reservation.value}.`
+				The amount paid is $${reservation.total}
+				${
+					reservation.paymentId
+						? ` and the PayPal ID is ${reservation.paymentId}`
+						: ''
+				}.`
 		);
 
 		if (req.user.type === 'customer')
 			await sendToCompany(
-				'Reservation Payed',
+				'Reservation Paid',
 				`The user ${reservation.user.name} ${
 					reservation.user.lastname
-				}, email ${reservation.user.email}, has payed $${
-					reservation.value
+				}, email ${reservation.user.email}, has paid $${
+					reservation.total
 				} for the reservation on the ${hourFrom
 					.utc()
 					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
@@ -545,25 +541,10 @@ router.put(
 		const errorsResult = validationResult(req);
 		if (!errorsResult.isEmpty()) errors = errorsResult.array();
 
-		let { hourFrom, hourTo, jobs, address, comments, value } = req.body;
+		let { hourFrom, hourTo, jobs, address, comments, total, travelExpenses } =
+			req.body;
 
-		const regex1 = /^\$?\d+(\.(\d{2}))?$/;
-
-		if (req.user.type === 'admin') {
-			if (!value || value === '0')
-				errors.push({ msg: 'Value is required', param: 'value' });
-			else if (!regex1.test(value))
-				errors.push({ msg: 'Invalid Price. eg: 350.50', param: 'value' });
-		}
-
-		if (jobs.length === 0)
-			errors.push({ msg: 'You must have at least one job', param: 'jobs' });
-
-		if (jobs.some((item) => item === ''))
-			errors.push({
-				msg: 'All jobs must have an item selected',
-				param: 'jobs',
-			});
+		errors = checkReservation(jobs, errors, req.user.type);
 
 		if (errors.length > 0) return res.status(400).json({ errors });
 
@@ -578,12 +559,13 @@ router.put(
 			const originalStatus = reservation.status;
 
 			reservation.address = address;
-			reservation.jobs = jobs;
-			if (value) {
-				reservation.value = value;
-				reservation.status = 'unpaid';
+
+			if (total) {
+				reservation.total = total;
+				if (reservation.status === 'requested') reservation.status = 'unpaid';
 			}
 			reservation.comments = comments ? comments : null;
+			reservation.travelExpenses = travelExpenses;
 
 			if (hourFrom && hourTo) {
 				await removeResFromDay(reservation);
@@ -596,7 +578,34 @@ router.put(
 
 			await reservation.save();
 
-			if (originalStatus === 'requested' && value) {
+			let originalJobs = await JobXReservation.findAll({
+				where: { reservationId: req.params.reservation_id },
+			});
+
+			for (let x = 0; x < jobs.length; x++) {
+				const jobsXReservationFields = {
+					reservationId: req.params.reservation_id,
+					jobId: jobs[x].jobId,
+					value: jobs[x].value === '' ? 0 : jobs[x].value,
+					...(jobs[x].discount !== null && { discount: jobs[x].discount }),
+				};
+
+				if (jobs[x].id === 0)
+					await JobXReservation.create(jobsXReservationFields);
+				else {
+					await JobXReservation.update(jobsXReservationFields, {
+						where: { id: jobs[x].id },
+					});
+
+					originalJobs = originalJobs.filter((item) => item.id !== jobs[x].id);
+				}
+			}
+
+			if (originalJobs.length > 0)
+				for (let x = 0; x < originalJobs.length; x++)
+					await originalJobs[x].destroy();
+
+			if (originalStatus === 'requested' && total) {
 				hourFrom = moment(reservation.hourFrom);
 				hourTo = moment(reservation.hourTo);
 
@@ -611,7 +620,7 @@ router.put(
 						.utc()
 						.format('h a')} to ${hourTo
 						.utc()
-						.format('h a')} is ready to be payed.
+						.format('h a')} is ready to be paid.
 					<br/>
 					After login into your account <a href='${
 						process.env.WEBPAGE_URI
@@ -620,12 +629,6 @@ router.put(
 					and click on the money symbol to pay for it.`
 				);
 			}
-
-			if (req.user.type === 'customer')
-				for (let x = 0; x < jobs.length; x++)
-					reservation.jobs[x] = await Job.findOne({
-						where: { id: jobs[x] },
-					});
 
 			return res.json(reservation);
 		} catch (err) {
@@ -752,12 +755,7 @@ const removeResFromDay = async (reservation) => {
 	day.reservations = day.reservations.filter((item) => item !== reservation.id);
 
 	if (day.reservations.length > 0) await day.save();
-	else
-		await Day.destroy({
-			where: {
-				id: day.id,
-			},
-		});
+	else await day.destroy();
 };
 
 const addResToDay = async (reservation) => {
@@ -783,6 +781,46 @@ const addResToDay = async (reservation) => {
 
 		await Day.create(day);
 	}
+};
+
+const checkReservation = (jobs, errors, type) => {
+	const regex1 = /^\$?\d+(\.(\d{2}))?$/;
+
+	if (jobs.length === 0)
+		errors.push({ msg: 'You must have at least one job', param: 'jobs' });
+
+	if (jobs.some((item) => item.jobId === ''))
+		errors.push({
+			msg: 'All jobs must have an item selected',
+			param: 'jobs',
+		});
+
+	if (type === 'admin') {
+		const emptyValue = jobs.some(
+			(item) => item.value === '' || item.value === 0
+		);
+		const emptyDiscount = jobs.some(
+			(item) =>
+				(item.discount !== null && item.discount === '') || item.discount === 0
+		);
+		if (emptyValue || emptyDiscount)
+			errors.push({
+				msg: emptyValue
+					? 'All jobs must have a specified value'
+					: 'Discount fields can not be empty',
+				param: 'jobs',
+			});
+		else if (
+			jobs.some(
+				(item) =>
+					!regex1.test(item.value) ||
+					(item.discount !== null && !regex1.test(item.discount))
+			)
+		)
+			errors.push({ msg: 'Invalid Value. eg: 350.50', param: 'jobs' });
+	}
+
+	return errors;
 };
 
 module.exports = router;

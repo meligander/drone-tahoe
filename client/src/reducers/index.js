@@ -6,6 +6,7 @@ import day from './day';
 import global from './global';
 import job from './job';
 import reservation from './reservation';
+import jobsXreservation from './jobsXReservations';
 import user from './user';
 
 export default combineReducers({
@@ -15,5 +16,6 @@ export default combineReducers({
 	global,
 	job,
 	reservation,
+	jobsXreservation,
 	user,
 });

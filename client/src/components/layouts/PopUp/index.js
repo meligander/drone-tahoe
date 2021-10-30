@@ -16,6 +16,7 @@ const PopUp = ({
 	subtext,
 	type,
 	toUpdate,
+	clearJobs,
 }) => {
 	const selectType = () => {
 		switch (type) {
@@ -90,6 +91,7 @@ const PopUp = ({
 						type='button'
 						onClick={() => {
 							setToggleModal();
+							if (clearJobs) clearJobs();
 						}}
 						className='popup-heading-btn'
 					>

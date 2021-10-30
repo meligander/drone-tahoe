@@ -4,6 +4,10 @@ import { connect } from 'react-redux';
 import Moment from 'react-moment';
 
 import { updateReservation } from '../../actions/reservation';
+import {
+	loadReservationJobs,
+	clearJobsXReservations,
+} from '../../actions/jobsXReservations';
 
 import Schedule from '../Schedule';
 import UserField from '../UserField';
@@ -17,7 +21,10 @@ const ReservationForm = ({
 	match,
 	job: { jobs: jobsList },
 	auth: { loggedUser },
+	jobsXreservation: { jobsXreservations, loading },
 	updateReservation,
+	loadReservationJobs,
+	clearJobsXReservations,
 }) => {
 	const form = useRef();
 	const schedule = useRef();
@@ -33,7 +40,7 @@ const ReservationForm = ({
 		jobs: [
 			{
 				id: 0,
-				job:
+				jobId:
 					match.params.job_id && match.params.job_id !== '0'
 						? match.params.job_id
 						: '',
@@ -44,74 +51,94 @@ const ReservationForm = ({
 		user: null,
 		address: '',
 		comments: '',
+		travelExpenses: null,
+		total: '',
 	});
 
 	const [adminValues, setAdminValues] = useState({
 		searchDisplay: false,
 		clear: false,
 		changeDate: false,
-		total: 0,
 	});
 
-	const { searchDisplay, clear, changeDate, total } = adminValues;
-	const { id, jobs, user, address, comments } = formData;
+	const { searchDisplay, clear, changeDate } = adminValues;
+	const { id, jobs, user, address, comments, total, travelExpenses } = formData;
 
 	useEffect(() => {
 		if (reservation) {
-			if (id !== reservation.id) {
-				setFormData({
-					id: reservation.id,
-					hourFrom: reservation.hourFrom,
-					hourTo: reservation.hourTo,
-					//Jobs
-					//jobs: reservation.jobs,
-					user: reservation.user,
-					address: reservation.address,
-					status: reservation.status,
-					comments: reservation.comments ? reservation.comments : '',
-				});
+			if (!reservation.jobs && loading) {
+				loadReservationJobs(reservation.id);
+			} else {
+				if (id !== reservation.id) {
+					setFormData({
+						id: reservation.id,
+						hourFrom: reservation.hourFrom,
+						hourTo: reservation.hourTo,
+						jobs: jobsXreservations.map((item) => {
+							return { ...item, value: item.value === 0 ? '' : item.value };
+						}),
+						user: reservation.user,
+						address: reservation.address,
+						status: reservation.status,
+						comments: reservation.comments ? reservation.comments : '',
+						total: reservation.total ? reservation.total : '',
+						travelExpenses: reservation.travelExpenses
+							? reservation.travelExpenses
+							: '',
+					});
+				}
 			}
 		}
-	}, [reservation, id]);
+	}, [reservation, id, loading, loadReservationJobs, jobsXreservations]);
+
+	const getTotal = (expence) => {
+		const total = Number(
+			jobs.reduce((sum, item) => {
+				let itemValue = item.value;
+				if (item.discount !== null) itemValue = itemValue - item.discount;
+				return sum + itemValue;
+			}, 0)
+		);
+		return expence ? total + expence : total;
+	};
 
 	const onChange = (e) => {
 		setFormData((prev) => ({
 			...prev,
-			[e.target.name]: e.target.value,
+			[e.target.name]:
+				e.target.name !== 'travelExpenses'
+					? e.target.value
+					: !isNaN(Number(e.target.value))
+					? Number(e.target.value)
+					: travelExpenses,
+			...(e.target.name === 'travelExpenses' &&
+				!isNaN(Number(e.target.value)) && {
+					total: getTotal(Number(e.target.value)),
+				}),
 		}));
-	};
-
-	const getTotal = () => {
-		const total = jobs.reduce((sum, item) => {
-			let itemValue = Number(item.value);
-			if (item.discount !== null) itemValue = itemValue - Number(item.discount);
-			return sum + itemValue;
-		}, 0);
-
-		setAdminValues((prev) => ({ ...prev, total }));
 	};
 
 	const onChangeJobs = (e) => {
 		if (
-			e.target.name === 'job' ||
+			e.target.name === 'jobId' ||
 			(e.target.name === 'value' &&
 				Number(jobs[e.target.id].discount) <= Number(e.target.value)) ||
 			(e.target.name === 'discount' &&
 				Number(jobs[e.target.id].value >= Number(e.target.value)))
 		) {
-			jobs[e.target.id][e.target.name] = e.target.value;
-
-			if (e.target.name !== 'job') getTotal();
+			jobs[e.target.id][e.target.name] =
+				e.target.name !== 'jobId' ? Number(e.target.value) : e.target.value;
 
 			setFormData((prev) => ({
 				...prev,
 				jobs,
+				...(e.target.name !== 'jobId' && { total: getTotal() }),
 			}));
 		}
 	};
 
 	const jobListItem = (job, i) => {
-		const index = jobs.findIndex((j) => Number(j.job) === job.id);
+		const index = jobs.findIndex((j) => Number(j.jobId) === job.id);
 
 		if (index === -1 || index === i)
 			return <option value={job.id}>{job.title}</option>;
@@ -128,8 +155,10 @@ const ReservationForm = ({
 				onSubmit={async (e) => {
 					e.preventDefault();
 					const answer = await updateReservation(formData);
-					if (answer) setToggleModal();
-					else form.current.scrollIntoView();
+					if (answer) {
+						setToggleModal();
+						clearJobsXReservations();
+					} else form.current.scrollIntoView();
 				}}
 			>
 				{loggedUser.type === 'customer' && (
@@ -138,7 +167,8 @@ const ReservationForm = ({
 							className='reservation-form-cancel'
 							onClick={(e) => {
 								e.preventDefault();
-								setToggleModal(); /* 
+								setToggleModal();
+								clearJobsXReservations(); /* 
 								setFormData({
 									id: 0,
 									jobs: [''],
@@ -257,11 +287,11 @@ const ReservationForm = ({
 										<div className='form__group'>
 											<select
 												className={`form__input ${
-													item.job === '' ? 'empty' : ''
+													item.jobId === '' ? 'empty' : ''
 												}`}
 												id={i}
-												name='job'
-												value={item.job}
+												name='jobId'
+												value={item.jobId}
 												disabled={disabled}
 												onFocus={() =>
 													setAdminValues((prev) => ({
@@ -282,78 +312,104 @@ const ReservationForm = ({
 											<label
 												htmlFor='item'
 												className={`form__label ${
-													item.job === '' ? 'hide' : ''
+													item.jobId === '' ? 'hide' : ''
 												}`}
 											>
 												Type of Job
 											</label>
 										</div>
-										<div className='form__group'>
-											<input
-												className='form__input'
-												type='text'
-												value={item.value}
-												onChange={onChangeJobs}
-												disabled={disabled}
-												id={i}
-												name='value'
-												placeholder='Price'
-											/>
-											<label htmlFor={i} className='form__label'>
-												Price
-											</label>
-										</div>
-										<div
-											className={`form__group ${
-												item.discount === null ? 'hide' : ''
-											}`}
-										>
-											<input
-												className='form__input'
-												type='text'
-												value={item.discount !== null ? item.discount : ''}
-												onChange={onChangeJobs}
-												disabled={disabled}
-												id={i}
-												name='discount'
-												placeholder='Discount'
-											/>
-											<label htmlFor={i} className='form__label'>
-												Discount
-											</label>
-										</div>
+										{(loggedUser.type === 'admin' ||
+											(loggedUser.type === 'customer' &&
+												reservation &&
+												reservation.type !== 'requested')) && (
+											<>
+												<div className='form__group'>
+													<input
+														className='form__input'
+														type='text'
+														value={item.value}
+														onChange={onChangeJobs}
+														disabled={
+															disabled || loggedUser.type === 'customer'
+														}
+														id={i}
+														name='value'
+														placeholder='Value'
+													/>
+													<label htmlFor={i} className='form__label'>
+														Value
+													</label>
+												</div>
+												{(loggedUser.type === 'admin' ||
+													(loggedUser.type === 'customer' &&
+														item.discount !== null)) && (
+													<div
+														className={`form__group ${
+															item.discount === null ? 'hide' : ''
+														}`}
+													>
+														<input
+															className='form__input'
+															type='text'
+															value={
+																item.discount !== null ? item.discount : ''
+															}
+															onChange={onChangeJobs}
+															disabled={
+																disabled || loggedUser.type === 'customer'
+															}
+															id={i}
+															name='discount'
+															placeholder='Discount'
+														/>
+														<label htmlFor={i} className='form__label'>
+															Discount
+														</label>
+													</div>
+												)}
 
-										<div className='form__group switch'>
-											<label
-												className='form__label-switch'
-												htmlFor='discountChk'
-											>
-												Discount
-											</label>
-											<input
-												checked={item.discount !== null}
-												type='checkbox'
-												id='discountChk'
-												name='discountChk'
-												onChange={() => {
-													jobs[i].discount = item.discount !== null ? null : '';
+												{loggedUser.type === 'admin' && (
+													<div className='form__group switch'>
+														<label
+															className='form__label-switch'
+															htmlFor='discountChk'
+														>
+															Discount
+														</label>
+														<input
+															checked={item.discount !== null}
+															type='checkbox'
+															id='discountChk'
+															name='discountChk'
+															onChange={() => {
+																jobs[i].discount =
+																	item.discount !== null ? null : '';
 
-													if (jobs[i].discount === null) getTotal();
-
-													setFormData((prev) => ({ ...prev, jobs }));
-												}}
-												className='form__input-switch'
-											/>
-										</div>
+																setFormData((prev) => ({
+																	...prev,
+																	jobs,
+																	...(jobs[i].discount === null && {
+																		total: getTotal(),
+																	}),
+																}));
+															}}
+															className='form__input-switch'
+														/>
+													</div>
+												)}
+											</>
+										)}
 									</div>
 									{!disabled && (
 										<button
 											className='btn-icon'
-											onClick={() => {
+											onClick={(e) => {
+												e.preventDefault();
 												jobs.splice(i, 1);
 												setFormData((prev) => ({
 													...prev,
 													jobs,
+													total: getTotal(),
 												}));
 											}}
 										>
@@ -378,7 +434,7 @@ const ReservationForm = ({
 												...jobs,
 												{
 													id: 0,
-													job: '',
+													jobId: '',
 													value: '',
 													discount: null,
 												},
@@ -411,7 +467,51 @@ const ReservationForm = ({
 							Special Request
 						</label>
 					</div>
-					{total !== 0 && (
+					{(loggedUser.type === 'admin' ||
+						(loggedUser.type === 'customer' && travelExpenses !== null)) && (
+						<div
+							className={`form__group ${travelExpenses === null ? 'hide' : ''}`}
+						>
+							<input
+								className='form__input'
+								type='text'
+								value={travelExpenses !== null ? travelExpenses : ''}
+								onChange={onChange}
+								disabled={disabled || loggedUser.type === 'customer'}
+								id='travelExpenses'
+								name='travelExpenses'
+								placeholder='Travel Expences'
+							/>
+							<label htmlFor='travelExpenses' className='form__label'>
+								Travel Expences
+							</label>
+						</div>
+					)}
+
+					{loggedUser.type === 'admin' && (
+						<div className='form__group switch'>
+							<label className='form__label-switch' htmlFor='travelExpChk'>
+								Travel Expences
+							</label>
+							<input
+								checked={travelExpenses !== null}
+								type='checkbox'
+								id='travelExpChk'
+								name='travelExpChk'
+								onChange={() =>
+									setFormData((prev) => ({
+										...prev,
+										travelExpenses: travelExpenses !== null ? null : '',
+										...(travelExpenses === null && {
+											total: getTotal(),
+										}),
+									}))
+								}
+								className='form__input-switch'
+							/>
+						</div>
+					)}
+					{total !== '' && total !== 0 && (
 						<h4 className='reservation-form-total'>
 							<span className='reservation-form-title'>Total:</span> ${total}
 						</h4>
@@ -462,8 +562,11 @@ const ReservationForm = ({
 const mapStateToProps = (state) => ({
 	job: state.job,
 	auth: state.auth,
+	jobsXreservation: state.jobsXreservation,
 });
 
-export default connect(mapStateToProps, { updateReservation })(
-	withRouter(ReservationForm)
-);
+export default connect(mapStateToProps, {
+	updateReservation,
+	loadReservationJobs,
+	clearJobsXReservations,
+})(withRouter(ReservationForm));

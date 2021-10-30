@@ -10,6 +10,7 @@ import {
 } from '../../../actions/reservation';
 import { clearUsers } from '../../../actions/user';
 import { loadJobs } from '../../../actions/jobs';
+import { clearJobsXReservations } from '../../../actions/jobsXReservations';
 
 import PopUp from '../../layouts/PopUp';
 import Alert from '../../layouts/Alert';
@@ -22,8 +23,8 @@ const ReservationsList = ({
 	cancelReservation,
 	loadJobs,
 	reservation: { reservations, error, loading },
-	job: { jobs: jobList },
 	clearUsers,
+	clearJobsXReservations,
 }) => {
 	const initialValue = {
 		hourFrom: '',
@@ -118,14 +119,8 @@ const ReservationsList = ({
 			/>
 			<PopUp
 				type='payment'
-				toUpdate={
-					reservation && {
-						...reservation,
-						jobs: reservation.jobs.map((item) =>
-							jobList.find((job) => job.id === item)
-						),
-					}
-				}
+				clearJobs={clearJobsXReservations}
+				toUpdate={reservation && reservation}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
 						...prev,
@@ -138,6 +133,7 @@ const ReservationsList = ({
 			{toggleReservation && (
 				<PopUp
 					type='schedule'
+					clearJobs={clearJobsXReservations}
 					toUpdate={reservation}
 					toggleModal={toggleReservation}
 					setToggleModal={() =>
@@ -404,7 +400,6 @@ const ReservationsList = ({
 
 const mapStateToProps = (state) => ({
 	reservation: state.reservation,
-	job: state.job,
 });
 
 export default connect(mapStateToProps, {
@@ -413,4 +408,5 @@ export default connect(mapStateToProps, {
 	cancelReservation,
 	clearUsers,
 	loadJobs,
+	clearJobsXReservations,
 })(ReservationsList);

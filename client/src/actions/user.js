@@ -10,6 +10,7 @@ import {
 	USERS_ERROR,
 	USER_CLEARED,
 	USERS_CLEARED,
+	USER_ERROR,
 } from './types';
 
 import { setAlert } from './alert';
@@ -27,7 +28,7 @@ export const loadUser = (user_id) => async (dispatch) => {
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({
-			type: USERS_ERROR,
+			type: USER_ERROR,
 			payload: {
 				type: err.response.statusText,
 				status: err.response.status,
@@ -60,11 +61,12 @@ export const loadUsers = (filterData, search) => async (dispatch) => {
 		});
 	} catch (err) {
 		if (
-			!search ||
-			(err.response.status === 401 &&
-				err.response.data.msg !== 'Unauthorized User')
-		)
+			err.response.status === 401 &&
+			err.response.data.msg !== 'Unauthorized User'
+		) {
 			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			window.scrollTo(0, 0);
+		}
 		dispatch({
 			type: USERS_ERROR,
 			payload: {
@@ -73,7 +75,6 @@ export const loadUsers = (filterData, search) => async (dispatch) => {
 				msg: err.response.data.msg,
 			},
 		});
-		if (!search) window.scrollTo(0, 0);
 	}
 
 	if (!search) dispatch(updateLoadingSpinner(false));
@@ -113,13 +114,13 @@ export const updateUser = (formData, self) => async (dispatch) => {
 				dispatch(setAlert(error.msg, 'danger', '1'));
 			});
 			dispatch({
-				type: USERS_ERROR,
+				type: USER_ERROR,
 				payload: errors,
 			});
 		} else {
 			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 			dispatch({
-				type: USERS_ERROR,
+				type: USER_ERROR,
 				payload: {
 					type: err.response.statusText,
 					status: err.response.status,
@@ -148,7 +149,7 @@ export const deleteUser = (user_id) => async (dispatch) => {
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch({
-			type: USERS_ERROR,
+			type: USER_ERROR,
 			payload: {
 				type: err.response.statusText,
 				status: err.response.status,

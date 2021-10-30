@@ -202,7 +202,7 @@ const ManageSchedule = ({
 						<>
 							<Alert type='1' />
 							<h5 className='manage-schedule-details-title'>
-								{reservations.every((item) => item.jobs.length === 0)
+								{reservations.every((item) => item.status === 'hourRange')
 									? 'Unavailable Time Ranges'
 									: 'Reservations'}{' '}
 								- <Moment format='MM/DD/YY' date={date} />
@@ -211,7 +211,7 @@ const ManageSchedule = ({
 								{reservations.map((item) => (
 									<div
 										className={`manage-schedule-details-item tooltip ${
-											item.jobs.length === 0 && 'disabled'
+											item.status === 'hourRange' && 'disabled'
 										}`}
 										key={item.id}
 									>
@@ -222,7 +222,7 @@ const ManageSchedule = ({
 												format='h a'
 												utc
 												date={
-													item.jobs.length > 0
+													item.status !== 'hourRange'
 														? item.hourTo
 														: moment(item.hourTo).add(1, 'hour')
 												}
@@ -236,7 +236,7 @@ const ManageSchedule = ({
 											className='btn-link'
 											to={`/edit-user/${item.user.id}`}
 										>{`${item.user.name} ${item.user.lastname}`}</Link>
-										{item.jobs.length > 0 ? (
+										{item.status !== 'hourRange' ? (
 											<p>{item.address}</p>
 										) : (
 											<button
@@ -247,7 +247,8 @@ const ManageSchedule = ({
 
 													deleteReservation(
 														item,
-														moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+														reservations.length === 1 &&
+															moment(date).format('YYYY-MM-DD[T00:00:00Z]')
 													);
 												}}
 											>

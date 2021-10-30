@@ -8,6 +8,7 @@ import {
 	loadReservations,
 	cancelReservation,
 } from '../../../actions/reservation';
+import { clearJobsXReservations } from '../../../actions/jobsXReservations';
 
 import Alert from '../../layouts/Alert';
 import Loading from '../../layouts/Loading';
@@ -23,6 +24,7 @@ const Reservation = ({
 	loadJobs,
 	loadReservations,
 	cancelReservation,
+	clearJobsXReservations,
 	match,
 }) => {
 	const list = useRef();
@@ -34,46 +36,21 @@ const Reservation = ({
 		editReservation:
 			match.params.job_id && match.params.job_id !== '0' ? true : false,
 		checkout: false,
-		jobList: [],
 	});
 
-	const {
-		reservation,
-		toggleModal,
-		position,
-		editReservation,
-		checkout,
-		jobList,
-	} = adminValues;
+	const { reservation, toggleModal, position, editReservation, checkout } =
+		adminValues;
 
 	useEffect(() => {
 		if (loading && token) loadJobs({}, true);
 		if (loggedUser && loggedUser.type !== 'admin' && loadingReservations)
 			loadReservations({ hourFrom: new Date(), user: loggedUser.id }, true);
-		else {
-			let jobList = [];
-
-			for (let y = 0; y < reservations.length; y++) {
-				const jobs = reservations[y].jobs;
-				let result = [];
-				for (let x = 0; x < jobs.length; x++) {
-					const match = result.findIndex((job) => jobs[x].id === job.id);
-					if (match === -1) result = [...result, { ...jobs[x], quantity: 1 }];
-					else result[match].quantity = result[match].quantity + 1;
-				}
-
-				jobList.push(result);
-			}
-
-			setAdminValues((prev) => ({ ...prev, jobList }));
-		}
 	}, [
 		loading,
 		loadJobs,
 		loggedUser,
 		loadReservations,
 		loadingReservations,
-		reservations,
 		token,
 	]);
 
@@ -85,7 +62,7 @@ const Reservation = ({
 
 			setAdminValues((prev) => ({
 				...prev,
-				position: item.bottom + scrollTop,
+				position: item.bottom + scrollTop - 60,
 			}));
 			if (match.params.job_id && match.params.job_id !== '0')
 				setTimeout(() => {
@@ -134,6 +111,7 @@ const Reservation = ({
 						reservation: null,
 					}))
 				}
+				clearJobs={clearJobsXReservations}
 				toggleModal={checkout}
 			/>
 			<Alert type='1' />
@@ -178,22 +156,10 @@ const Reservation = ({
 										<Moment date={res.hourFrom} utc format='h a' /> -{' '}
 										<Moment date={res.hourTo} utc format='h a' />
 									</div>
-									<div className='reservation-item-job'>
-										{jobList.length > 0 &&
-											jobList[i] &&
-											jobList[i].length > 0 &&
-											jobList[i].map((item, index) => (
-												<p key={`j${i}-${index}`}>
-													<span className='reservation-item-title'>
-														{item.quantity}{' '}
-													</span>{' '}
-													{item.title}
-												</p>
-											))}
-
+									<div className='reservation-item-status'>
 										<p>
 											<span className='reservation-item-title'>Value: </span>
-											{res.value ? '$' + res.value : 'Pending'}
+											{res.total ? '$' + res.total : 'Pending'}
 										</p>
 										<p>
 											<span className='reservation-item-title'>Status: </span>
@@ -219,10 +185,7 @@ const Reservation = ({
 											onClick={() => {
 												setAdminValues((prev) => ({
 													...prev,
-													reservation: {
-														...res,
-														jobs: res.jobs.map((item) => item.id),
-													},
+													reservation: res,
 													editReservation: true,
 												}));
 
@@ -311,4 +274,5 @@ export default connect(mapStateToProps, {
 	loadJobs,
 	loadReservations,
 	cancelReservation,
+	clearJobsXReservations,
 })(Reservation);
