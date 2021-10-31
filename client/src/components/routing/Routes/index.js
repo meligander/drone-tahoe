@@ -25,9 +25,13 @@ const Routes = ({ global: { navbar, footer } }) => {
 		>
 			<Switch>
 				<PublicRoutes path='/signup' component={EditUser} />
-				<PublicRoutes path='/activation/:token' component={Activation} />
 				<PublicRoutes path='/resetpassword/:token' component={ChangePassword} />
 				<Route exact path='/reservation/:job_id' component={Reservation} />
+				<PrivateRoutes
+					path='/activation/:token'
+					component={Activation}
+					types={['admin', 'customer']}
+				/>
 				<PrivateRoutes
 					path='/profile'
 					component={EditUser}

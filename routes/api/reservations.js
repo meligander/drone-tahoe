@@ -81,6 +81,11 @@ router.get('/', [auth], async (req, res) => {
 		const filter = {
 			...(req.query.user && { userId: req.query.user }),
 			...(req.query.status && { status: req.query.status }),
+			...(req.query.available && {
+				status: {
+					[Op.not]: ['canceled', 'refunded'],
+				},
+			}),
 			...((req.query.hourFrom || req.query.hourTo) && {
 				hourFrom: {
 					...(req.query.hourFrom && req.query.hourTo

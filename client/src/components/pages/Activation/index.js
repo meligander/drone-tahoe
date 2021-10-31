@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -14,16 +14,37 @@ const Activation = ({
 	activation,
 	clearJobs,
 	clearReservations,
+	global: { footer, navbar },
 }) => {
 	const token = match.params.token;
+	const container = useRef();
+
+	const [adminValues, setAdminValues] = useState({
+		float: true,
+	});
+
+	const { float } = adminValues;
 
 	useEffect(() => {
 		activation(token);
 	}, [token, activation]);
 
+	useEffect(() => {
+		if (container.current) {
+			console.log('hola');
+			const item = container.current.getBoundingClientRect();
+
+			if (item.height + footer + navbar + 60 >= window.innerHeight)
+				setAdminValues((prev) => ({
+					...prev,
+					float: false,
+				}));
+		}
+	}, [footer, navbar]);
+
 	return (
 		!loading && (
-			<div className='activation'>
+			<div ref={container} className={`activation ${float ? 'float' : ''}`}>
 				{error !== '' ? (
 					<>
 						<h2 className='activation-error-header'>
@@ -61,6 +82,7 @@ const Activation = ({
 
 const mapStateToProps = (state) => ({
 	auth: state.auth,
+	global: state.global,
 });
 
 export default connect(mapStateToProps, {

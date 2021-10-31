@@ -164,6 +164,7 @@ const ManageSchedule = ({
 					hourFrom: changedDate,
 					hourTo: changedDate,
 					type: 'all',
+					available: true,
 				});
 		}
 

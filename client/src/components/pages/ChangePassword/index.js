@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { resetPassword } from '../../../actions/auth';
@@ -7,13 +7,37 @@ import Alert from '../../layouts/Alert';
 
 import './ChangePassword.scss';
 
-const ChangePassword = ({ resetPassword, match }) => {
+const ChangePassword = ({
+	resetPassword,
+	match,
+	global: { footer, navbar },
+}) => {
+	const container = useRef();
+
 	const [formData, setFormData] = useState({
 		password: '',
 		passwordConf: '',
 	});
 
 	const { password, passwordConf } = formData;
+
+	const [adminValues, setAdminValues] = useState({
+		float: true,
+	});
+
+	const { float } = adminValues;
+
+	useEffect(() => {
+		if (container.current) {
+			const item = container.current.getBoundingClientRect();
+
+			if (item.height + footer + navbar + 60 >= window.innerHeight)
+				setAdminValues((prev) => ({
+					...prev,
+					float: false,
+				}));
+		}
+	}, [footer, navbar]);
 
 	const onSubmit = (e) => {
 		e.preventDefault();
@@ -29,7 +53,7 @@ const ChangePassword = ({ resetPassword, match }) => {
 
 	return (
 		<>
-			<div className='changepassword'>
+			<div className={`changepassword ${float ? 'float' : ''}`} ref={container}>
 				<h2 className='heading-primary'>Reset Password</h2>
 				<form onSubmit={onSubmit} className='form'>
 					<Alert type='1' />
@@ -70,4 +94,8 @@ const ChangePassword = ({ resetPassword, match }) => {
 	);
 };
 
-export default connect(null, { resetPassword })(ChangePassword);
+const mapStateToProps = (state) => ({
+	global: state.global,
+});
+
+export default connect(mapStateToProps, { resetPassword })(ChangePassword);

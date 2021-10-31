@@ -74,6 +74,10 @@ const EditUser = ({
 		clearEmailSent,
 	]);
 
+	useEffect(() => {
+		if (emailSent) window.scrollTo(0, 0);
+	}, [emailSent]);
+
 	const onChange = (e) => {
 		setFormData((prev) => ({
 			...prev,
