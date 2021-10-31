@@ -26,6 +26,10 @@
 			padding: 0.7rem 0.8rem 1.5rem;
 		}
 
+		.form__group .form__label {
+			color: $color-dark;
+		}
+
 		&.confirmation {
 			z-index: 600;
 			width: 60%;
@@ -43,14 +47,24 @@
 				padding: 0.7rem 0.8rem 1.5rem;
 			}
 		}
+
+		.fas,
+		.far {
+			font-size: 1.7rem;
+		}
 	}
 
 	&-schedule {
 		margin-top: 1rem;
 
 		.reservation-form {
-			margin: 1rem auto;
+			margin: 1rem auto 0;
+			padding: 0.7rem 1rem 0;
 			width: 90%;
+		}
+
+		.fa-save {
+			font-size: 1.3rem;
 		}
 	}
 
@@ -66,6 +80,22 @@
 
 		.form {
 			width: 80%;
+		}
+	}
+
+	&-email {
+		margin: 2.5rem auto 0;
+		width: 75%;
+
+		@media screen and (max-width: 650px) {
+			width: 85%;
+		}
+		@media screen and (max-width: 500px) {
+			width: 95%;
+
+			.heading-primary-subheading {
+				margin-left: 0;
+			}
 		}
 	}
 

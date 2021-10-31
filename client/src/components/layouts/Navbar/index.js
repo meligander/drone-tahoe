@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import { logOut } from '../../../actions/auth';
 import { clearReservations } from '../../../actions/reservation';
+import { clearJobsXReservations } from '../../../actions/jobsXReservations';
 import { clearJobs } from '../../../actions/jobs';
 import { clearUsers } from '../../../actions/user';
 import { setNavbarHeight } from '../../../actions/global';
@@ -15,6 +16,7 @@ const Navbar = ({
 	clearReservations,
 	clearJobs,
 	clearUsers,
+	clearJobsXReservations,
 	setNavbarHeight,
 	auth: { loggedUser, loading },
 }) => {
@@ -92,6 +94,7 @@ const Navbar = ({
 										closeMobileMenu();
 										clearReservations();
 										clearJobs();
+										clearJobsXReservations();
 										window.scrollTo(0, 0);
 									}}
 								>
@@ -135,6 +138,20 @@ const Navbar = ({
 									}}
 								>
 									Jobs
+								</Link>
+							</li>
+							<li className='nav-item'>
+								<Link
+									to='/promotions'
+									className='nav-links'
+									onClick={() => {
+										closeMobileMenu();
+										clearJobs();
+										clearJobsXReservations();
+										window.scrollTo(0, 0);
+									}}
+								>
+									Promotions
 								</Link>
 							</li>
 						</>
@@ -251,4 +268,5 @@ export default connect(mapStateToProps, {
 	clearJobs,
 	clearUsers,
 	setNavbarHeight,
+	clearJobsXReservations,
 })(Navbar);

@@ -72,7 +72,7 @@ const Schedule = ({
 		setAdminValues((prev) => ({
 			...prev,
 			date: changedDate,
-			...(changedDate.getMonth() === date.getMonth() && { tab: 1 }),
+			tab: changedDate.getMonth() === month ? 1 : 0,
 		}));
 		checkDayAvailability(
 			moment(changedDate).format('YYYY-MM-DD[T00:00:00Z]'),
@@ -240,27 +240,17 @@ const Schedule = ({
 									}));
 								} else {
 									//createReservation
-									const answer = await registerReservation(
-										{
-											...reservation,
-											...(loggedUser.type === 'customer' && {
-												user: loggedUser.id,
-											}),
-											hourFrom: moment(hourFrom).format(
-												'YYYY-MM-DD[T]HH[:00:00Z]'
-											),
-											hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
-										},
-										moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]')
-									);
-									if (answer) {
-										setToggleModal();
-										/* setAdminValues((prev) => ({
-											...prev,
-											tab: 0,
-											date: new Date(),
-										})); */
-									}
+									const answer = await registerReservation({
+										...reservation,
+										...(loggedUser.type === 'customer' && {
+											user: loggedUser.id,
+										}),
+										hourFrom: moment(hourFrom).format(
+											'YYYY-MM-DD[T]HH[:00:00Z]'
+										),
+										hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
+									});
+									if (answer) setToggleModal();
 								}
 							}}
 						>
@@ -306,17 +296,11 @@ const Schedule = ({
 					}))
 				}
 				confirm={async () => {
-					const answer = await updateReservation(
-						{
-							...reservation,
-							hourFrom: moment(hourFrom).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
-							hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
-						},
-						moment(hourFrom).format('YYYY-MM-DD[T00:00:00Z]'),
-						moment(reservation.hourFrom).format('YYYY-MM-DD[T00:00:00Z]'),
-						moment(hourFrom).format('YYYY-MM-DD') !==
-							moment(reservation.hourFrom).format('YYYY-MM-DD')
-					);
+					const answer = await updateReservation({
+						...reservation,
+						hourFrom: moment(hourFrom).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
+						hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
+					});
 					if (answer) setToggleModal();
 				}}
 				text='Are you sure you want to modify the reservation?'
@@ -329,10 +313,7 @@ const Schedule = ({
 					minDate={new Date(today.format())}
 					maxDate={new Date(today.year() + 1, today.month(), today.date())}
 					onActiveStartDateChange={(e) => {
-						if (
-							e.view === 'month' ||
-							today.year() + 1 === e.activeStartDate.getFullYear()
-						) {
+						if (e.view === 'month' || e.view === 'year') {
 							const month = e.activeStartDate.getMonth();
 							const year = e.activeStartDate.getFullYear();
 							setAdminValues((prev) => ({ ...prev, month, year }));

@@ -13,7 +13,7 @@ export const SIGNUP_FAIL = 'SIGNUP_FAIL';
 export const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
 export const EMAIL_SENT = 'EMAIL_SENT';
 export const EMAIL_ERROR = 'EMAIL_ERROR';
-export const EMAIL_SENT_CLEARED = 'EMAIL_SENT_CLEARED';
+export const EMAIL_CLEARED = 'EMAIL_CLEARED';
 export const PASSWORD_CHANGED = 'PASSWORD_CHANGED';
 
 //Alert

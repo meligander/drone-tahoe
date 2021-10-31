@@ -1,0 +1,35 @@
+@import '../../../sass/abstracts/variables.scss';
+
+.promotions {
+	&-jobs {
+		&-list {
+			margin: 0 1rem;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+		}
+
+		&-item {
+			width: 49%;
+			margin: 1rem 0;
+
+			@media screen and (max-width: 650px) {
+				width: 100%;
+			}
+
+			span {
+				&:last-child {
+					width: 85%;
+				}
+			}
+		}
+	}
+
+	&-list-jobs:not(:last-child) {
+		margin-bottom: 0.5rem;
+	}
+
+	.btn-link {
+		color: $color-dark;
+	}
+}

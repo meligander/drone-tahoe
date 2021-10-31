@@ -7,6 +7,7 @@ import ReservationForm from '../../ReservationForm';
 import PayPal from '../../PayPal';
 
 import './PopUp.scss';
+import EmailForm from '../../EmailForm';
 
 const PopUp = ({
 	toggleModal,
@@ -33,14 +34,14 @@ const PopUp = ({
 									setToggleModal();
 								}}
 							>
-								OK
+								<i className='fas fa-check'></i>
 							</button>
 							<button
 								type='button'
 								className='btn btn-danger'
 								onClick={setToggleModal}
 							>
-								Cancel
+								<i className='fas fa-times'></i>
 							</button>
 						</div>
 					</div>
@@ -75,6 +76,16 @@ const PopUp = ({
 				return (
 					<div className='popup-payment'>
 						<PayPal reservation={toUpdate} setToggleModal={setToggleModal} />
+					</div>
+				);
+			case 'email':
+				return (
+					<div className='popup-email'>
+						<EmailForm
+							toggleModal={toggleModal}
+							confirm={confirm}
+							setToggleModal={setToggleModal}
+						/>
 					</div>
 				);
 			default:

@@ -13,7 +13,15 @@ require('dotenv').config({
 const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
 
 //To Send Emails
-const { sendEmail, sendToCompany } = require('../../config/emailSender');
+const {
+	sendEmail,
+	sendToCompany,
+	sendPromotionEmail,
+} = require('../../config/emailSender');
+
+//Middlewares
+const auth = require('../../middleware/auth');
+const adminAuth = require('../../middleware/adminAuth');
 
 //Model
 const { User } = require('../../config/db');
@@ -310,6 +318,44 @@ router.post(
 			console.log(err.message);
 			res.status(500).json({
 				msg: 'Sorry! There was a problem with your message. Please try again.',
+			});
+		}
+	}
+);
+
+//@route    POST api/auth/promotion-email
+//@desc     Send a promotion email to a list of users
+//@access   Private && Auth
+router.post(
+	'/promotion-email',
+	[
+		auth,
+		adminAuth,
+		[
+			(check('subject', 'Subject is required').not().isEmpty(),
+			check('message', 'Email message is required').not().isEmpty()),
+		],
+	],
+	async (req, res) => {
+		const { subject, message, users } = req.body;
+
+		let errors = [];
+		const errorsResult = validationResult(req);
+		if (!errorsResult.isEmpty()) errors = errorsResult.array();
+
+		if (users.length === 0)
+			errors.push({ msg: 'We must select at least one user', param: 'users' });
+
+		if (errors.length > 0) return res.status(400).json({ errors });
+
+		try {
+			await sendPromotionEmail(subject, message, users);
+
+			res.json({ msg: 'The email has been sent' });
+		} catch (err) {
+			console.log(err.message);
+			res.status(500).json({
+				msg: 'There was a problem with the email. Please try again.',
 			});
 		}
 	}

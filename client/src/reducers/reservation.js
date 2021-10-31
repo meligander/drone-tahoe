@@ -55,13 +55,9 @@ const reservationReducer = (state = initialState, action) => {
 			return {
 				...state,
 				loadingReservation: false,
-				reservations: payload.id
-					? state.reservations.map((item) =>
-							item.id === payload.id ? payload : item
-					  )
-					: state.reservations.filter(
-							(reservation) => reservation.id !== payload
-					  ),
+				reservations: state.reservations.map((item) =>
+					item.id === payload.id ? payload : item
+				),
 				error: {},
 			};
 		case PAYMENT_STATUS_UPDATED:

@@ -160,7 +160,7 @@ export const updateStatus = () => async (dispatch) => {
 	}
 };
 
-export const registerReservation = (formData, date) => async (dispatch) => {
+export const registerReservation = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
 	let reservation = {};
@@ -174,8 +174,6 @@ export const registerReservation = (formData, date) => async (dispatch) => {
 			type: RESERVATION_REGISTERED,
 			payload: res.data,
 		});
-
-		if (date) dispatch(addDate(date, true));
 
 		dispatch(setAlert('Reservation Registered', 'success', '1'));
 		window.scrollTo(0, 0);
@@ -207,53 +205,49 @@ export const registerReservation = (formData, date) => async (dispatch) => {
 	}
 };
 
-export const updateReservation =
-	(formData, newDate, oldDate, remove) => async (dispatch) => {
-		dispatch(updateLoadingSpinner(true));
+export const updateReservation = (formData) => async (dispatch) => {
+	dispatch(updateLoadingSpinner(true));
 
-		let reservation = {};
-		for (const prop in formData)
-			if (formData[prop] !== '') reservation[prop] = formData[prop];
-		try {
-			let res = await api.put(`/reservation/${formData.id}`, reservation);
+	let reservation = {};
+	for (const prop in formData)
+		if (formData[prop] !== '') reservation[prop] = formData[prop];
+	try {
+		let res = await api.put(`/reservation/${formData.id}`, reservation);
 
-			dispatch({
-				type: remove ? RESERVATION_DELETED : RESERVATION_UPDATED,
-				payload: remove ? formData.id : res.data,
+		dispatch({
+			type: RESERVATION_UPDATED,
+			payload: res.data,
+		});
+
+		dispatch(setAlert('Reservation Updated', 'success', '1'));
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+		return true;
+	} catch (err) {
+		if (err.response.data.errors) {
+			const errors = err.response.data.errors;
+			errors.forEach((error) => {
+				dispatch(setAlert(error.msg, 'danger', '2'));
 			});
-
-			if (newDate) dispatch(addDate(newDate, true));
-			if (oldDate) dispatch(deleteDate(oldDate, true));
-
-			dispatch(setAlert('Reservation Updated', 'success', '1'));
-			window.scrollTo(0, 0);
-			dispatch(updateLoadingSpinner(false));
-			return true;
-		} catch (err) {
-			if (err.response.data.errors) {
-				const errors = err.response.data.errors;
-				errors.forEach((error) => {
-					dispatch(setAlert(error.msg, 'danger', '2'));
-				});
-				dispatch({
-					type: RESERVATION_ERROR,
-					payload: errors,
-				});
-			} else {
-				dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-				dispatch({
-					type: RESERVATION_ERROR,
-					payload: {
-						type: err.response.statusText,
-						status: err.response.status,
-						msg: err.response.data.msg,
-					},
-				});
-			}
-			dispatch(updateLoadingSpinner(false));
-			return false;
+			dispatch({
+				type: RESERVATION_ERROR,
+				payload: errors,
+			});
+		} else {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch({
+				type: RESERVATION_ERROR,
+				payload: {
+					type: err.response.statusText,
+					status: err.response.status,
+					msg: err.response.data.msg,
+				},
+			});
 		}
-	};
+		dispatch(updateLoadingSpinner(false));
+		return false;
+	}
+};
 
 export const disableHourRange = (formData, date) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));

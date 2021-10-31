@@ -12,6 +12,7 @@ import {
 	SIGNUP_SUCCESS,
 	PASSWORD_CHANGED,
 	EMAIL_ERROR,
+	EMAIL_CLEARED,
 } from './types';
 
 import { setAlert } from './alert';
@@ -295,33 +296,41 @@ export const activation = (token) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(false));
 };
 
-export const sendEmail = (formData) => async (dispatch) => {
+export const sendEmail = (formData, promotion) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
-
+	console.log(promotion, formData);
 	let data = {};
 	for (const prop in formData)
 		if (formData[prop] !== '') data[prop] = formData[prop];
 
 	try {
-		const res = await api.post('/auth/send-email', data);
+		const res = await api.post(
+			promotion ? '/auth/promotion-email' : '/auth/send-email',
+			data
+		);
 
 		dispatch({
 			type: EMAIL_SENT,
 		});
 
 		dispatch(setAlert(res.data.msg, 'success', '1'));
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+		return true;
 	} catch (err) {
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;
 			errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '1'));
+				dispatch(setAlert(error.msg, 'danger', promotion ? '2' : '1'));
 			});
 			dispatch({
 				type: EMAIL_ERROR,
 				payload: errors,
 			});
 		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(
+				setAlert(err.response.data.msg, 'danger', promotion ? '2' : '1')
+			);
 			dispatch({
 				type: EMAIL_ERROR,
 				payload: {
@@ -331,9 +340,16 @@ export const sendEmail = (formData) => async (dispatch) => {
 				},
 			});
 		}
+		if (!promotion) window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+		return false;
 	}
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+};
+
+export const clearEmailSent = () => (dispatch) => {
+	dispatch({
+		type: EMAIL_CLEARED,
+	});
 };
 
 export const logOut = () => (dispatch) => {

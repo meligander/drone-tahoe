@@ -19,6 +19,8 @@ import {
 } from '../../../actions/reservation';
 import { setAlert } from '../../../actions/alert';
 import { clearUsers } from '../../../actions/user';
+import { loadJobs } from '../../../actions/jobs';
+import { clearJobsXReservations } from '../../../actions/jobsXReservations';
 
 import Alert from '../../layouts/Alert';
 
@@ -30,6 +32,7 @@ const ManageSchedule = ({
 	day: { disabledDays, reservedDays, timeDisabledDays },
 	reservation: { loading, reservations },
 	auth: { loggedUser },
+	job: { loading: loadingJobs },
 	checkMonthSchedule,
 	checkDayAvailability,
 	loadReservations,
@@ -41,6 +44,8 @@ const ManageSchedule = ({
 	disableDateRange,
 	clearReservations,
 	clearUsers,
+	clearJobsXReservations,
+	loadJobs,
 }) => {
 	const today = moment();
 
@@ -51,13 +56,28 @@ const ManageSchedule = ({
 		month: today.month(),
 		year: today.year(),
 		toggleModal: false,
+		toggleReservation: false,
+		reservation: null,
 	});
 
-	const { date, tab, range, month, year, toggleModal } = adminValues;
+	const {
+		date,
+		tab,
+		range,
+		month,
+		year,
+		toggleModal,
+		toggleReservation,
+		reservation,
+	} = adminValues;
 
 	useEffect(() => {
 		checkMonthSchedule(month, year);
 	}, [checkMonthSchedule, month, year]);
+
+	useEffect(() => {
+		if (loadingJobs) loadJobs({}, true);
+	}, [loadingJobs, loadJobs]);
 
 	useEffect(() => {
 		if (range && date[1] && date[0].getDate() !== date[1].getDate()) {
@@ -237,7 +257,18 @@ const ManageSchedule = ({
 											to={`/edit-user/${item.user.id}`}
 										>{`${item.user.name} ${item.user.lastname}`}</Link>
 										{item.status !== 'hourRange' ? (
-											<p>{item.address}</p>
+											<button
+												className='btn-icon'
+												onClick={() =>
+													setAdminValues((prev) => ({
+														...prev,
+														toggleReservation: !toggleReservation,
+														reservation: item,
+													}))
+												}
+											>
+												<i className='fas fa-search'></i>
+											</button>
 										) : (
 											<button
 												className='btn-icon'
@@ -382,6 +413,21 @@ const ManageSchedule = ({
 
 	return (
 		<div className='list manage-schedule'>
+			{toggleReservation && (
+				<PopUp
+					type='schedule'
+					clearJobs={clearJobsXReservations}
+					toUpdate={reservation}
+					toggleModal={toggleReservation}
+					setToggleModal={() =>
+						setAdminValues((prev) => ({
+							...prev,
+							toggleReservation: !toggleReservation,
+							reservation: null,
+						}))
+					}
+				/>
+			)}
 			<PopUp
 				type='hour'
 				toggleModal={toggleModal}
@@ -415,6 +461,7 @@ const ManageSchedule = ({
 				}
 			/>
 			<h2 className='heading-primary'>Schedule</h2>
+
 			<div className='manage-schedule-row'>
 				<div className='manage-schedule-calendar'>
 					<Calendar
@@ -425,7 +472,7 @@ const ManageSchedule = ({
 						minDate={new Date(2021, 9, 1)}
 						maxDate={new Date(today.year() + 1, today.month(), today.date())}
 						onActiveStartDateChange={(e) => {
-							if (e.view === 'month') {
+							if (e.view === 'month' || e.view === 'year') {
 								const month = e.activeStartDate.getMonth();
 								const year = e.activeStartDate.getFullYear();
 								setAdminValues((prev) => ({ ...prev, month, year }));
@@ -463,6 +510,7 @@ const mapStateToProps = (state) => ({
 	day: state.day,
 	reservation: state.reservation,
 	auth: state.auth,
+	job: state.job,
 });
 
 export default connect(mapStateToProps, {
@@ -477,4 +525,6 @@ export default connect(mapStateToProps, {
 	clearUsers,
 	clearReservations,
 	deleteReservation,
+	loadJobs,
+	clearJobsXReservations,
 })(ManageSchedule);

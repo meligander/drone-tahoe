@@ -5,7 +5,7 @@ const Op = require('sequelize').Op;
 const auth = require('../../middleware/auth');
 
 //Models
-const { JobXReservation, Reservation, Job } = require('../../config/db');
+const { JobXReservation, Reservation, Job, User } = require('../../config/db');
 
 //@route    GET api/res/job/:job_res_id
 //@desc     Get jobs x reservation Info
@@ -29,12 +29,11 @@ router.get('/:res_job_id', [auth], async (req, res) => {
 	}
 });
 
-//@route    GET api/res/job/one/:reservation_id
+//@route    GET api/res/job/reservation/:reservation_id
 //@desc     Get all jobs for a reservation
 //@access   Private
-router.get('/one/:reservation_id', [auth], async (req, res) => {
+router.get('/reservation/:reservation_id', [auth], async (req, res) => {
 	try {
-		console.log(req.query);
 		const jobsXReservations = await JobXReservation.findAll({
 			where: {
 				reservationId: req.params.reservation_id,
@@ -93,6 +92,82 @@ router.get('/user/:user_id', [auth], async (req, res) => {
 		}
 
 		res.json(jobsXReservations);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
+//@route    GET api/res/job/jobs/:job_list
+//@desc     Get all jobs for a reservation
+//@access   Private
+router.get('/jobs/:job_list', [auth], async (req, res) => {
+	try {
+		const jobs = req.params.job_list.split(',');
+
+		let allUsers = [];
+
+		const jobsXreservations = await JobXReservation.findAll({
+			where: {
+				jobId: jobs,
+			},
+			include: [
+				{
+					model: Job,
+					as: 'job',
+				},
+				{
+					model: Reservation,
+					as: 'reservation',
+					include: [
+						{
+							model: User,
+							as: 'user',
+						},
+					],
+				},
+			],
+		});
+
+		if (jobsXreservations.length === 0) {
+			return res.status(400).json({
+				msg: 'No matches found for that type of job',
+			});
+		}
+
+		for (let x = 0; x < jobsXreservations.length; x++) {
+			const index = allUsers.findIndex(
+				(item) =>
+					item.reservation.userId === jobsXreservations[x].reservation.userId
+			);
+
+			if (index === -1) allUsers.push(jobsXreservations[x].toJSON());
+			else {
+				{
+					if (
+						(allUsers[index].jobs &&
+							!allUsers[index].jobs.some(
+								(item) => item.id === jobsXreservations[x].jobId
+							)) ||
+						allUsers[index].jobId !== jobsXreservations[x].jobId
+					) {
+						allUsers[index] = {
+							...allUsers[index],
+							jobs:
+								allUsers[index].jobs !== undefined
+									? [
+											...allUsers[index].jobs,
+											allUsers[index].job,
+											jobsXreservations[x].job.toJSON(),
+									  ]
+									: [allUsers[index].job, jobsXreservations[x].job.toJSON()],
+						};
+					}
+				}
+			}
+		}
+
+		res.json(allUsers);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });

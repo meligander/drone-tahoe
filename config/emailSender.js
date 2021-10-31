@@ -91,4 +91,39 @@ const sendToCompany = (subject, message) => {
 	});
 };
 
-module.exports = { sendEmail, sendToCompany };
+const sendPromotionEmail = (subject, message, users) => {
+	const transporter = nodemailer.createTransport({
+		service: 'gmail',
+		host: 'smtp.gmail.com',
+		port: 465,
+		secure: true,
+		auth: {
+			user: process.env.EMAIL,
+			pass: process.env.EMAIL_PASSWORD,
+		},
+		tls: { rejectUnauthorized: false },
+	});
+
+	const mailOptions = {
+		from: `Drone Tahoe <${process.env.EMAIL}>`,
+		to: users,
+		subject,
+		message,
+		html: `<div style='font-size: 20px'>${message}</div><br/>${stamp}`,
+		attachments,
+	};
+
+	return new Promise((resolve, reject) => {
+		transporter.sendMail(mailOptions, (error, info) => {
+			if (error) {
+				console.error(error.message);
+				reject('Something went wrong...');
+			} else {
+				console.log('Email sent: ' + info.response);
+				resolve(true);
+			}
+		});
+	});
+};
+
+module.exports = { sendEmail, sendToCompany, sendPromotionEmail };

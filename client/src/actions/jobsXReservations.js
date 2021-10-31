@@ -38,7 +38,7 @@ export const loadReservationJobs =
 		dispatch(updateLoadingSpinner(true));
 		try {
 			const res = await api.get(
-				`/res/job/one/${reservation_id}${type ? '?type=' + type : ''}`
+				`/res/job/reservation/${reservation_id}${type ? '?type=' + type : ''}`
 			);
 
 			dispatch({
@@ -58,6 +58,29 @@ export const loadReservationJobs =
 
 		dispatch(updateLoadingSpinner(false));
 	};
+
+export const loadJobUsers = (jobs) => async (dispatch) => {
+	dispatch(updateLoadingSpinner(true));
+	try {
+		const res = await api.get(`/res/job/jobs/${jobs.map((item) => item)}`);
+
+		dispatch({
+			type: JOBSXRESERVATIONS_LOADED,
+			payload: res.data,
+		});
+	} catch (err) {
+		dispatch({
+			type: JOBSXRESERVATIONS_ERROR,
+			payload: {
+				type: err.response.statusText,
+				status: err.response.status,
+				msg: err.response.data.msg,
+			},
+		});
+	}
+
+	dispatch(updateLoadingSpinner(false));
+};
 
 export const clearJobsXReservations = () => (dispatch) => {
 	dispatch({ type: JOBSXRESERVATIONS_CLEARED });

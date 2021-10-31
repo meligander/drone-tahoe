@@ -19,6 +19,7 @@ const ReservationForm = ({
 	reservation,
 	setToggleModal,
 	match,
+	location,
 	job: { jobs: jobsList },
 	auth: { loggedUser },
 	jobsXreservation: { jobsXreservations, loading },
@@ -84,7 +85,7 @@ const ReservationForm = ({
 						total: reservation.total ? reservation.total : '',
 						travelExpenses: reservation.travelExpenses
 							? reservation.travelExpenses
-							: '',
+							: null,
 					});
 				}
 			}
@@ -282,7 +283,9 @@ const ReservationForm = ({
 						{jobs.length > 0 &&
 							jobs.map((item, i) => (
 								<div className='jobs-list-item' key={i}>
-									<div className='jobs-list-item-group'>
+									<div
+										className={`jobs-list-item-group ${disabled ? 'full' : ''}`}
+									>
 										<p className='jobs-list-item-title'>Job {i + 1}</p>
 										<div className='form__group'>
 											<select
@@ -368,35 +371,39 @@ const ReservationForm = ({
 													</div>
 												)}
 
-												{loggedUser.type === 'admin' && (
-													<div className='form__group switch'>
-														<label
-															className='form__label-switch'
-															htmlFor='discountChk'
-														>
-															Discount
-														</label>
-														<input
-															checked={item.discount !== null}
-															type='checkbox'
-															id='discountChk'
-															name='discountChk'
-															onChange={() => {
-																jobs[i].discount =
-																	item.discount !== null ? null : '';
+												{loggedUser.type === 'admin' &&
+													((reservation &&
+														(reservation.status === 'requested' ||
+															reservation.status === 'unpaid')) ||
+														!reservation) && (
+														<div className='form__group switch'>
+															<label
+																className='form__label-switch'
+																htmlFor='discountChk'
+															>
+																Discount
+															</label>
+															<input
+																checked={item.discount !== null}
+																type='checkbox'
+																id='discountChk'
+																name='discountChk'
+																onChange={() => {
+																	jobs[i].discount =
+																		item.discount !== null ? null : '';
 
-																setFormData((prev) => ({
-																	...prev,
-																	jobs,
-																	...(jobs[i].discount === null && {
-																		total: getTotal(),
-																	}),
-																}));
-															}}
-															className='form__input-switch'
-														/>
-													</div>
-												)}
+																	setFormData((prev) => ({
+																		...prev,
+																		jobs,
+																		...(jobs[i].discount === null && {
+																			total: getTotal(),
+																		}),
+																	}));
+																}}
+																className='form__input-switch'
+															/>
+														</div>
+													)}
 											</>
 										)}
 									</div>
@@ -480,40 +487,45 @@ const ReservationForm = ({
 								disabled={disabled || loggedUser.type === 'customer'}
 								id='travelExpenses'
 								name='travelExpenses'
-								placeholder='Travel Expences'
+								placeholder='Travel Expenses'
 							/>
 							<label htmlFor='travelExpenses' className='form__label'>
-								Travel Expences
+								Travel Expenses
 							</label>
 						</div>
 					)}
 
-					{loggedUser.type === 'admin' && (
-						<div className='form__group switch'>
-							<label className='form__label-switch' htmlFor='travelExpChk'>
-								Travel Expences
-							</label>
-							<input
-								checked={travelExpenses !== null}
-								type='checkbox'
-								id='travelExpChk'
-								name='travelExpChk'
-								onChange={() =>
-									setFormData((prev) => ({
-										...prev,
-										travelExpenses: travelExpenses !== null ? null : '',
-										...(travelExpenses === null && {
-											total: getTotal(),
-										}),
-									}))
-								}
-								className='form__input-switch'
-							/>
-						</div>
-					)}
+					{loggedUser.type === 'admin' &&
+						((reservation &&
+							(reservation.status === 'requested' ||
+								reservation.status === 'unpaid')) ||
+							!reservation) && (
+							<div className='form__group switch'>
+								<label className='form__label-switch' htmlFor='travelExpChk'>
+									Travel Expenses
+								</label>
+								<input
+									checked={travelExpenses !== null}
+									type='checkbox'
+									id='travelExpChk'
+									name='travelExpChk'
+									onChange={() =>
+										setFormData((prev) => ({
+											...prev,
+											travelExpenses: travelExpenses !== null ? null : '',
+											...(travelExpenses === null && {
+												total: getTotal(),
+											}),
+										}))
+									}
+									className='form__input-switch'
+								/>
+							</div>
+						)}
 					{total !== '' && total !== 0 && (
 						<h4 className='reservation-form-total'>
-							<span className='reservation-form-title'>Total:</span> ${total}
+							<span className='reservation-form-total-title'>Total:</span> $
+							{total}
 						</h4>
 					)}
 
@@ -527,25 +539,26 @@ const ReservationForm = ({
 										<i className='far fa-save'></i>
 									</button>
 								)}
+								{location.pathname !== '/schedule' && (
+									<button
+										className='btn'
+										onClick={(e) => {
+											e.preventDefault();
+											if (!changeDate) {
+												setTimeout(() => {
+													schedule.current.scrollIntoView(true);
+												}, 30);
+											}
 
-								<button
-									className='btn'
-									onClick={(e) => {
-										e.preventDefault();
-										if (!changeDate) {
-											setTimeout(() => {
-												schedule.current.scrollIntoView(true);
-											}, 30);
-										}
-
-										setAdminValues((prev) => ({
-											...prev,
-											changeDate: !changeDate,
-										}));
-									}}
-								>
-									{changeDate ? 'Keep Date' : 'Change Date'}
-								</button>
+											setAdminValues((prev) => ({
+												...prev,
+												changeDate: !changeDate,
+											}));
+										}}
+									>
+										{changeDate ? 'Keep Date' : 'Change Date'}
+									</button>
+								)}
 							</div>
 						)}
 				</div>

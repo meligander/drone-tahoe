@@ -141,14 +141,14 @@ const HourRangeForm = ({
 
 			<div className='popup-btns'>
 				<button className='btn btn-success' type='submit'>
-					Save
+					<i className='far fa-save'></i>
 				</button>
 				<button
 					type='button'
 					className='btn btn-danger'
 					onClick={setToggleModal}
 				>
-					Cancel
+					<i className='fas fa-times'></i>
 				</button>
 			</div>
 		</form>
