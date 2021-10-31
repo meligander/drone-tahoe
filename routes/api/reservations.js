@@ -10,10 +10,11 @@ require('dotenv').config({
 
 //Paypal
 const paypal = require('@paypal/checkout-server-sdk');
-const Environment =
+/* const Environment =
 	process.env.NODE_ENV === 'production'
 		? paypal.core.LiveEnvironment
-		: paypal.core.SandboxEnvironment;
+		: paypal.core.SandboxEnvironment; */
+const Environment = paypal.core.SandboxEnvironment;
 const paypalClient = new paypal.core.PayPalHttpClient(
 	new Environment(
 		process.env.PAYPAL_CLIENT_ID,
@@ -429,12 +430,7 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 				.utc()
 				.format('h a')} has been paid.
 				<br/>
-				The amount paid is $${reservation.total}
-				${
-					reservation.paymentId
-						? ` and the PayPal ID is ${reservation.paymentId}`
-						: ''
-				}.`
+				The amount paid is $${reservation.total}.`
 		);
 
 		if (req.user.type === 'customer')
@@ -442,9 +438,9 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 				'Reservation Paid',
 				`The user ${reservation.user.name} ${
 					reservation.user.lastname
-				}, email ${reservation.user.email}, has paid $${
-					reservation.total
-				} for the reservation on the ${hourFrom
+				}, email ${reservation.user.email}, has paid $${reservation.total} ${
+					reservation.paymentId ? `(PayPal ID: ${reservation.paymentId}) ` : ''
+				}for the reservation on the ${hourFrom
 					.utc()
 					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
 					.utc()
