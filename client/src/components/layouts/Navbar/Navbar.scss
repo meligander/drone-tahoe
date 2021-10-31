@@ -135,6 +135,10 @@
 				display: table;
 				font-size: 1.8rem;
 
+				&::after {
+					height: 0;
+				}
+
 				&:hover {
 					background-color: #fff;
 					color: #242424;

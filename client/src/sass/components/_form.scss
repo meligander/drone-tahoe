@@ -9,6 +9,10 @@
 		margin: 0.5rem auto;
 		width: 100%;
 
+		@media screen and (max-width: 650px) {
+			margin: 0.2rem auto;
+		}
+
 		&-sub {
 			width: 100%;
 			display: flex;
@@ -51,6 +55,8 @@
 		@media screen and (max-width: 650px) {
 			-webkit-appearance: none;
 			-moz-appearance: none;
+			padding: 0.4rem 0.8rem;
+			font-size: 1rem;
 		}
 
 		&.space {
@@ -183,14 +189,16 @@
 		transition: all 0.25s;
 		color: #fff;
 
+		@media screen and (max-width: 650px) {
+			font-size: 1rem;
+		}
+
 		&-switch {
 			font-size: 1.4rem;
 			color: $color-dark;
 			margin-right: 2rem;
 
-			@media screen and (max-width: 650px) {
-				font-size: 1.3rem;
-			}
+			font-size: 1.2rem;
 		}
 
 		&-chk {
@@ -248,6 +256,10 @@
 					margin-left: 8px;
 					font-size: 1.2rem;
 					color: darken($color-gray-light, 20%);
+
+					@media screen and (max-width: 650px) {
+						font-size: 1rem;
+					}
 				}
 			}
 
@@ -327,6 +339,13 @@
 				width: 100%;
 				transition: all 0.4s ease-out;
 				display: block;
+
+				@media screen and (max-width: 650px) {
+					margin-top: 0;
+				}
+				@media screen and (max-width: 500px) {
+					padding: 0.7rem;
+				}
 
 				&.hide {
 					display: none;
@@ -449,8 +468,10 @@
 				column-count: 1;
 
 				&-item {
-					margin: 0.5rem auto;
 					width: 100%;
+					&:not(:last-child) {
+						margin-bottom: 0.5rem;
+					}
 				}
 			}
 		}

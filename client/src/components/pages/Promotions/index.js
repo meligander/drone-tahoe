@@ -47,7 +47,7 @@ const Promotions = ({
 	};
 
 	return (
-		<div className='promotions'>
+		<div className='promotions list'>
 			<PopUp
 				type='email'
 				confirm={async (emailData) => {
@@ -120,11 +120,9 @@ const Promotions = ({
 								</div>
 							))}
 					</div>
-					<div className='btn-center'>
-						<button type='submit' className='btn btn-tertiary'>
-							<i className='fas fa-search'></i>&nbsp; Search
-						</button>
-					</div>
+					<button type='submit' className='btn btn-tertiary'>
+						<i className='fas fa-search'></i>&nbsp; Search
+					</button>
 				</div>
 			</form>
 			{!loading && (
