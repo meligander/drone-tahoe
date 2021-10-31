@@ -720,6 +720,12 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 		} else {
 			await removeResFromDay(reservation);
 
+			const jobs = await JobXReservation.findAll({
+				where: { reservationId: reservation.id },
+			});
+
+			for (let x = 0; x < jobs.length; x++) jobs[x].destroy();
+
 			await reservation.destroy();
 
 			reservation = reservation.id;
@@ -745,6 +751,12 @@ router.delete('/:reservation_id', [auth], async (req, res) => {
 		});
 
 		await removeResFromDay(reservation);
+
+		const jobs = await JobXReservation.findAll({
+			where: { reservationId: reservation.id },
+		});
+
+		for (let x = 0; x < jobs.length; x++) jobs[x].destroy();
 
 		await reservation.destroy();
 
