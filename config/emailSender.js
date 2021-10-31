@@ -109,7 +109,10 @@ const sendPromotionEmail = (subject, message, users) => {
 		to: users,
 		subject,
 		message,
-		html: `<div style='font-size: 20px'>${message}</div><br/>${stamp}`,
+		html: `<div style='font-size: 20px'>${message}
+		<br/><br/>
+		If you have any questions or concerns, please send an email to 
+		<a href="mailto:${process.env.EMAIL}">${process.env.EMAIL}</a>.<br/></div>${stamp}`,
 		attachments,
 	};
 

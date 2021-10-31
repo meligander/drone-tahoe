@@ -158,6 +158,10 @@ const Reservation = ({
 									</div>
 									<div className='reservation-item-status'>
 										<p>
+											<span className='reservation-item-title'>Address: </span>
+											{res.address}
+										</p>
+										<p>
 											<span className='reservation-item-title'>Value: </span>
 											{res.total ? '$' + res.total : 'Pending'}
 										</p>

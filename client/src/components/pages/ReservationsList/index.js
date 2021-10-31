@@ -238,8 +238,9 @@ const ReservationsList = ({
 							<option value='unpaid'>Unpaid</option>
 							<option value='pending'>Pending</option>
 							<option value='paid'>Paid</option>
-							<option value='canceled'>Canceled</option>
 							<option value='completed'>Completed</option>
+							<option value='canceled'>Canceled</option>
+							<option value='refunded'>Refunded</option>
 						</select>
 						<label
 							htmlFor='staus'

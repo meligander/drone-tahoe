@@ -49,15 +49,19 @@ const PayPal = ({
 
 			<PayPalButton
 				createOrder={async () => {
+					const jobs =
+						reservation.travelExpenses === null
+							? jobsXreservations
+							: [
+									...jobsXreservations,
+									{
+										value: reservation.travelExpenses,
+										job: { title: 'Travel Expenses' },
+										discount: null,
+									},
+							  ];
 					const payment = await makePayment({
-						jobs: [
-							...jobsXreservations,
-							{
-								value: reservation.travelExpenses,
-								job: { title: 'Travel Expenses' },
-								discount: null,
-							},
-						],
+						jobs,
 						total: reservation.total,
 					});
 					console.log(payment);

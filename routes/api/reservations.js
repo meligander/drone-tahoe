@@ -320,6 +320,20 @@ router.post('/payment', [auth], async (req, res) => {
 
 	const discount = jobs.reduce((sum, item) => sum + item.discount, 0);
 
+	console.log(discount);
+	console.log(
+		jobs.map((item) => {
+			return {
+				name: item.job.title,
+				unit_amount: {
+					currency_code: 'USD',
+					value: item.value,
+				},
+				quantity: 1,
+			};
+		})
+	);
+
 	/* "amount": {
 		"currency_code": "USD",
 		"value": "90.00",
@@ -361,7 +375,6 @@ router.post('/payment', [auth], async (req, res) => {
 						unit_amount: {
 							currency_code: 'USD',
 							value: item.value,
-							...(item.discount !== null && { discount: item.discount }),
 						},
 						quantity: 1,
 					};
@@ -570,6 +583,7 @@ router.put(
 				if (reservation.status === 'requested') reservation.status = 'unpaid';
 			}
 			reservation.comments = comments ? comments : null;
+
 			reservation.travelExpenses = travelExpenses;
 
 			if (hourFrom && hourTo) {
@@ -592,7 +606,7 @@ router.put(
 					reservationId: req.params.reservation_id,
 					jobId: jobs[x].jobId,
 					value: jobs[x].value === '' ? 0 : jobs[x].value,
-					...(jobs[x].discount !== null && { discount: jobs[x].discount }),
+					discount: jobs[x].discount,
 				};
 
 				if (jobs[x].id === 0)

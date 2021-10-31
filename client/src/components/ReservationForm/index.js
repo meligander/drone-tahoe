@@ -513,7 +513,7 @@ const ReservationForm = ({
 										setFormData((prev) => ({
 											...prev,
 											travelExpenses: travelExpenses !== null ? null : '',
-											...(travelExpenses === null && {
+											...(travelExpenses !== null && {
 												total: getTotal(),
 											}),
 										}))
