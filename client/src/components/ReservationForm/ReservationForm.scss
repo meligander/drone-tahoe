@@ -8,6 +8,9 @@
 	@media screen and (max-width: 900px) {
 		width: 95%;
 	}
+	@media screen and (max-width: 500px) {
+		padding: 0.5rem 0.5rem 1rem;
+	}
 
 	.heading-primary-subheading {
 		margin: 0 0 0.8rem -1.5rem !important;
@@ -38,6 +41,10 @@
 	&-item {
 		font-size: 1.1rem;
 		margin: 1rem 0.2rem;
+
+		@media screen and (max-width: 650px) {
+			font-size: 1rem;
+		}
 	}
 
 	&-title {
@@ -45,6 +52,10 @@
 		margin-right: 0.5rem;
 		font-weight: 500;
 		color: $color-dark;
+
+		@media screen and (max-width: 650px) {
+			font-size: 1.1rem;
+		}
 	}
 
 	&-total {

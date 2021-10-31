@@ -12,14 +12,34 @@
 		}
 	} */
 
-	.btn-tertiary {
-		font-size: 1rem;
-		margin: 0 auto;
-		display: table;
-		padding: 1rem 1.5rem;
-
+	.btn {
 		@media screen and (max-width: 650px) {
-			margin: 0.7rem auto 0;
+			&:not(.btn-quaternary) {
+				font-size: 0.9rem;
+				padding: 0.7rem 1rem;
+			}
+
+			&-primary .fas {
+				font-size: 1rem;
+			}
+		}
+
+		&-tertiary {
+			margin: 0 auto;
+			display: table;
+			padding: 1rem 1.5rem;
+
+			@media screen and (max-width: 650px) {
+				margin: 0.7rem auto 0;
+				font-size: 0.9rem;
+				padding: 0.8rem 1.3rem;
+			}
+		}
+
+		&-quaternary {
+			@media screen and (max-width: 650px) {
+				font-size: 1rem;
+			}
 		}
 	}
 

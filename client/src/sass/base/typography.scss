@@ -78,6 +78,13 @@
 				font-size: 1.3rem;
 				color: $color-dark;
 				display: inline-block;
+
+				@media screen and (max-width: 650px) {
+					margin-top: 1rem;
+					display: block;
+					text-align: center;
+					font-size: 1.2rem;
+				}
 			}
 		}
 	}
