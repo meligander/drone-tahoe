@@ -141,26 +141,24 @@ router.get('/jobs/:job_list', [auth], async (req, res) => {
 					item.reservation.userId === jobsXreservations[x].reservation.userId
 			);
 
-			if (index === -1) allUsers.push(jobsXreservations[x].toJSON());
+			if (index === -1)
+				allUsers.push({
+					...jobsXreservations[x].toJSON(),
+					jobs: [jobsXreservations[x].job.toJSON()],
+				});
 			else {
 				{
 					if (
-						(allUsers[index].jobs &&
-							!allUsers[index].jobs.some(
-								(item) => item.id === jobsXreservations[x].jobId
-							)) ||
-						allUsers[index].jobId !== jobsXreservations[x].jobId
+						!allUsers[index].jobs.some(
+							(item) => item.id === jobsXreservations[x].jobId
+						)
 					) {
 						allUsers[index] = {
 							...allUsers[index],
-							jobs:
-								allUsers[index].jobs !== undefined
-									? [
-											...allUsers[index].jobs,
-											allUsers[index].job,
-											jobsXreservations[x].job.toJSON(),
-									  ]
-									: [allUsers[index].job, jobsXreservations[x].job.toJSON()],
+							jobs: [
+								...allUsers[index].jobs,
+								jobsXreservations[x].job.toJSON(),
+							],
 						};
 					}
 				}

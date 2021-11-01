@@ -8,7 +8,7 @@ const stamp = `<h5 style="color: #002855; margin-top: 20px; font-size: 18px">Dro
 <img style='width: 100px;' src="cid:unique@nodemailer.com" alt="logo"/>
 <p>1635 N Bayshore Dr, Tahoe City, CA, 96145</p>
 <p>+1 (305) 377-7369</p>
-<a href="${process.env.WEBPAGE_URI}">www.drone-tahoe.com</a>
+<a href="${process.env.WEBPAGE_URI}">${process.env.WEBPAGE_URI}</a>
 </div>`;
 
 const attachments = [
