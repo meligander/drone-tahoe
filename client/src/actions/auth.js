@@ -296,16 +296,16 @@ export const activation = (token) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(false));
 };
 
-export const sendEmail = (formData, promotion) => async (dispatch) => {
+export const sendEmail = (formData, outreach) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
-	console.log(promotion, formData);
+	console.log(outreach, formData);
 	let data = {};
 	for (const prop in formData)
 		if (formData[prop] !== '') data[prop] = formData[prop];
 
 	try {
 		const res = await api.post(
-			promotion ? '/auth/promotion-email' : '/auth/send-email',
+			outreach ? '/auth/outreach-email' : '/auth/send-email',
 			data
 		);
 
@@ -321,16 +321,14 @@ export const sendEmail = (formData, promotion) => async (dispatch) => {
 		if (err.response.data.errors) {
 			const errors = err.response.data.errors;
 			errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', promotion ? '2' : '1'));
+				dispatch(setAlert(error.msg, 'danger', outreach ? '2' : '1'));
 			});
 			dispatch({
 				type: EMAIL_ERROR,
 				payload: errors,
 			});
 		} else {
-			dispatch(
-				setAlert(err.response.data.msg, 'danger', promotion ? '2' : '1')
-			);
+			dispatch(setAlert(err.response.data.msg, 'danger', outreach ? '2' : '1'));
 			dispatch({
 				type: EMAIL_ERROR,
 				payload: {
@@ -340,7 +338,7 @@ export const sendEmail = (formData, promotion) => async (dispatch) => {
 				},
 			});
 		}
-		if (!promotion) window.scrollTo(0, 0);
+		if (!outreach) window.scrollTo(0, 0);
 		dispatch(updateLoadingSpinner(false));
 		return false;
 	}

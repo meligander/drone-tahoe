@@ -85,6 +85,7 @@ const PopUp = ({
 							toggleModal={toggleModal}
 							confirm={confirm}
 							setToggleModal={setToggleModal}
+							users={toUpdate}
 						/>
 					</div>
 				);

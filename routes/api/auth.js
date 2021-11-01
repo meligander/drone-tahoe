@@ -16,7 +16,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
 const {
 	sendEmail,
 	sendToCompany,
-	sendPromotionEmail,
+	sendOutreachEmail,
 } = require('../../config/emailSender');
 
 //Middlewares
@@ -323,11 +323,11 @@ router.post(
 	}
 );
 
-//@route    POST api/auth/promotion-email
-//@desc     Send a promotion email to a list of users
+//@route    POST api/auth/outreach-email
+//@desc     Send a outreach email to a list of users
 //@access   Private && Auth
 router.post(
-	'/promotion-email',
+	'/outreach-email',
 	[
 		auth,
 		adminAuth,
@@ -349,7 +349,7 @@ router.post(
 		if (errors.length > 0) return res.status(400).json({ errors });
 
 		try {
-			await sendPromotionEmail(subject, message, users);
+			await sendOutreachEmail(subject, message, users);
 
 			res.json({ msg: 'The email has been sent' });
 		} catch (err) {

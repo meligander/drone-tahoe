@@ -147,7 +147,7 @@ const Navbar = ({
 							</li>
 							<li className='nav-item'>
 								<Link
-									to='/promotions'
+									to='/outreach'
 									className='nav-links'
 									onClick={() => {
 										closeMobileMenu();
@@ -156,7 +156,7 @@ const Navbar = ({
 										window.scrollTo(0, 0);
 									}}
 								>
-									Promotions
+									Outreach
 								</Link>
 							</li>
 						</>

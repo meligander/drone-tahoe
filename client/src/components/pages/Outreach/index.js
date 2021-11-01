@@ -10,9 +10,9 @@ import { sendEmail } from '../../../actions/auth';
 import Alert from '../../layouts/Alert';
 import PopUp from '../../layouts/PopUp';
 
-import './Promotions.scss';
+import './Outreach.scss';
 
-const Promotions = ({
+const Outreach = ({
 	loadJobs,
 	loadJobUsers,
 	clearUser,
@@ -47,11 +47,11 @@ const Promotions = ({
 	};
 
 	return (
-		<div className='promotions list'>
+		<div className='outreach list'>
 			<PopUp
 				type='email'
 				confirm={async (emailData) => {
-					const answer = await sendEmail({ ...emailData, users }, true);
+					const answer = await sendEmail(emailData, true);
 					if (answer)
 						setAdminValues((prev) => ({
 							...prev,
@@ -60,6 +60,7 @@ const Promotions = ({
 							users: [],
 						}));
 				}}
+				toUpdate={users}
 				toggleModal={toggleEmail}
 				setToggleModal={() =>
 					setAdminValues((prev) => ({
@@ -68,7 +69,7 @@ const Promotions = ({
 					}))
 				}
 			/>
-			<h2 className='heading-primary'>Promotions</h2>
+			<h2 className='heading-primary'>Outreach</h2>
 			<Alert type='1' />
 			<form className='form filter' onSubmit={onSubmit}>
 				<p className='filter-title'>Filter</p>
@@ -87,10 +88,10 @@ const Promotions = ({
 				</button>
 
 				<div className={`filter-content ${!showFilter ? 'hide' : ''}`}>
-					<div className='promotions-jobs-list'>
+					<div className='outreach-jobs-list'>
 						{!loadingJobs &&
 							jobsList.map((job) => (
-								<div className='promotions-jobs-item' key={job.id}>
+								<div className='outreach-jobs-item' key={job.id}>
 									<input
 										type='checkbox'
 										value={job.id}
@@ -161,7 +162,7 @@ const Promotions = ({
 														? item.jobs.map((job) => (
 																<p
 																	key={`jb-${job.id}`}
-																	className='promotions-list-jobs'
+																	className='outreach-list-jobs'
 																>
 																	{job.title}
 																</p>
@@ -250,4 +251,4 @@ export default connect(mapStateToProps, {
 	clearUser,
 	loadJobUsers,
 	sendEmail,
-})(Promotions);
+})(Outreach);

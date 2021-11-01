@@ -13,7 +13,7 @@ import ReservationsList from '../../pages/ReservationsList';
 import JobsList from '../../pages/JobsList';
 import ManageSchedule from '../../pages/ManageSchedule';
 import UsersList from '../../pages/UsersList';
-import Promotions from '../../pages/Promotions';
+import Outreach from '../../pages/Outreach';
 
 const Routes = ({ global: { navbar, footer } }) => {
 	return (
@@ -63,8 +63,8 @@ const Routes = ({ global: { navbar, footer } }) => {
 					types={['admin']}
 				/>
 				<PrivateRoutes
-					path='/promotions'
-					component={Promotions}
+					path='/outreach'
+					component={Outreach}
 					types={['admin']}
 				/>
 			</Switch>

@@ -109,6 +109,19 @@
 				margin-left: 0;
 			}
 		}
+
+		&-item {
+			font-size: 1.2rem;
+			align-self: flex-start;
+			margin-bottom: 1rem;
+			font-weight: 300;
+		}
+
+		&-title {
+			font-size: 1.4rem;
+			font-weight: 400;
+			color: $color-dark;
+		}
 	}
 
 	&-hour {
@@ -237,10 +250,10 @@
 			align-self: center;
 			margin-right: 0.3rem;
 
-			.fas {
+			.fa-times {
 				cursor: pointer;
 				color: $color-dark;
-				font-size: 2.5rem;
+				font-size: 2.5rem !important;
 				transition: all 0.2s ease;
 
 				@media screen and (max-width: 500px) {

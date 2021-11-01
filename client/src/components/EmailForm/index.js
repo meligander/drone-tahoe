@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import Alert from '../layouts/Alert';
 
-const EmailForm = ({ setToggleModal, toggleModal, confirm }) => {
+const EmailForm = ({ setToggleModal, toggleModal, confirm, users }) => {
 	const [formData, setFormData] = useState({
 		subject: '',
 		message: '',
@@ -26,8 +26,14 @@ const EmailForm = ({ setToggleModal, toggleModal, confirm }) => {
 				confirm(formData);
 			}}
 		>
-			<h3 className='heading-primary-subheading'>Promotion Email:</h3>
+			<h3 className='heading-primary-subheading'>Outreach Email:</h3>
 			<Alert type='2' />
+			<h5 className='popup-email-item'>
+				<span className='popup-email-title'>To: </span>
+				{users.map((email, i) =>
+					i + 1 !== users.length ? email + ', ' : email + '.'
+				)}
+			</h5>
 			<div className='form__group'>
 				<input
 					className='form__input'

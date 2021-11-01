@@ -91,7 +91,7 @@ const sendToCompany = (subject, message) => {
 	});
 };
 
-const sendPromotionEmail = (subject, message, users) => {
+const sendOutreachEmail = (subject, message, users) => {
 	const transporter = nodemailer.createTransport({
 		service: 'gmail',
 		host: 'smtp.gmail.com',
@@ -129,4 +129,4 @@ const sendPromotionEmail = (subject, message, users) => {
 	});
 };
 
-module.exports = { sendEmail, sendToCompany, sendPromotionEmail };
+module.exports = { sendEmail, sendToCompany, sendOutreachEmail };
