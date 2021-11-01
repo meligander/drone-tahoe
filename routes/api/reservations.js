@@ -430,7 +430,7 @@ router.put('/payment/:reservation_id', [auth], async (req, res) => {
 				.utc()
 				.format('h a')} has been paid.
 				<br/>
-				The amount paid is $${reservation.total}.`
+				The amount paid was $${reservation.total}.`
 		);
 
 		if (req.user.type === 'customer')

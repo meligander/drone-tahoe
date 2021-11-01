@@ -22,12 +22,17 @@
 
 			@media screen and (max-width: 650px) {
 				font-size: 2rem;
+				margin: 0 0 1rem -0.5rem;
+			}
+
+			@media screen and (max-width: 500px) {
+				margin: 0 0 1rem;
 			}
 		}
 
 		@media screen and (max-width: 500px) {
 			width: 93%;
-			padding: 0.7rem 0.8rem 1.5rem;
+			padding: 0.7rem 0.8rem 1.8rem;
 		}
 
 		.form__group .form__label {
@@ -57,7 +62,7 @@
 			font-size: 1.7rem;
 
 			@media screen and (max-width: 650px) {
-				font-size: 1.4rem;
+				font-size: 1.35rem;
 			}
 		}
 	}
@@ -92,22 +97,22 @@
 
 		.form {
 			width: 80%;
+
+			@media screen and (max-width: 650px) {
+				width: 90%;
+			}
+			@media screen and (max-width: 500px) {
+				width: 100%;
+			}
 		}
 	}
 
 	&-email {
-		margin: 2.5rem auto 0;
-		width: 75%;
+		padding: 2.5rem 2rem 0;
+		margin: 0 auto;
 
 		@media screen and (max-width: 650px) {
-			width: 85%;
-		}
-		@media screen and (max-width: 500px) {
-			width: 95%;
-
-			.heading-primary-subheading {
-				margin-left: 0;
-			}
+			padding: 2rem 1.5rem 0;
 		}
 
 		&-item {

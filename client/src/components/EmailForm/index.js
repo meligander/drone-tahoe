@@ -23,7 +23,7 @@ const EmailForm = ({ setToggleModal, toggleModal, confirm, users }) => {
 			className='form'
 			onSubmit={(e) => {
 				e.preventDefault();
-				confirm(formData);
+				confirm({ ...formData, users });
 			}}
 		>
 			<h3 className='heading-primary-subheading'>Outreach Email:</h3>

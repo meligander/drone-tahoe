@@ -111,7 +111,7 @@ const EditUser = ({
 			case 'edit-user':
 				return (
 					<>
-						<i className='fas fa-user-alt'></i>
+						<i className='fas fa-user-edit'></i>
 						&nbsp;Edit User
 					</>
 				);
@@ -241,7 +241,7 @@ const EditUser = ({
 								</label>
 							</div>
 
-							<div className='u-center-text'>
+							<div className='btn-center'>
 								<button className='btn btn-primary' type='submit'>
 									{adminType === 'signup' ? (
 										'Sign Up'

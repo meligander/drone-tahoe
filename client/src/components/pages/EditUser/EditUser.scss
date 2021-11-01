@@ -111,4 +111,10 @@
 	.far {
 		font-size: 1.5rem;
 	}
+
+	.btn-center {
+		@media screen and (max-width: 500px) {
+			margin-top: 1rem;
+		}
+	}
 }
