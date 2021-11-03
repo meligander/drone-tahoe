@@ -39,14 +39,17 @@ export const loadUser = (login) => async (dispatch) => {
 			}
 		}
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setAuthError(AUTH_ERROR, err.response));
-		dispatch(updateLoadingSpinner(false));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setAuthError(AUTH_ERROR, err.response));
+			dispatch(updateLoadingSpinner(false));
+		}
 	}
 };
 
 export const loginUser = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	let user = {};
 	for (const prop in formData)
@@ -61,19 +64,22 @@ export const loginUser = (formData) => async (dispatch) => {
 
 		dispatch(loadUser(true));
 	} catch (err) {
-		dispatch(setAuthError(LOGIN_FAIL, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAuthError(LOGIN_FAIL, err.response));
 
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '1'));
-			});
-		else dispatch(setAlert(err.response.msg, 'danger', '1'));
-		dispatch(updateLoadingSpinner(false));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '1'));
+				});
+			else dispatch(setAlert(err.response.msg, 'danger', '1'));
+			dispatch(updateLoadingSpinner(false));
+		} else error = true;
 	}
-	window.scrollTo(0, 0);
+	if (!error) window.scrollTo(0, 0);
 };
 
 export const facebookLogin = (fbkData) => async (dispatch) => {
+	let error = false;
 	try {
 		const res = await api.post('/auth/facebooklogin', fbkData);
 
@@ -84,14 +90,17 @@ export const facebookLogin = (fbkData) => async (dispatch) => {
 
 		dispatch(loadUser(true));
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setAuthError(LOGIN_FAIL, err.response));
-		dispatch(updateLoadingSpinner(false));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setAuthError(LOGIN_FAIL, err.response));
+			dispatch(updateLoadingSpinner(false));
+		} else error = true;
 	}
-	window.scrollTo(0, 0);
+	if (!error) window.scrollTo(0, 0);
 };
 
 export const googleLogin = (googleData) => async (dispatch) => {
+	let error = false;
 	try {
 		const res = await api.post('/auth/googlelogin', googleData);
 
@@ -102,15 +111,18 @@ export const googleLogin = (googleData) => async (dispatch) => {
 
 		dispatch(loadUser(true));
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setAuthError(LOGIN_FAIL, err.response));
-		dispatch(updateLoadingSpinner(false));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setAuthError(LOGIN_FAIL, err.response));
+			dispatch(updateLoadingSpinner(false));
+		} else error = true;
 	}
-	window.scrollTo(0, 0);
+	if (!error) window.scrollTo(0, 0);
 };
 
 export const signup = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	let user = {};
 	for (const prop in formData)
@@ -123,22 +135,23 @@ export const signup = (formData) => async (dispatch) => {
 			type: EMAIL_SENT,
 		});
 	} catch (err) {
-		dispatch(setAuthError(SIGNUP_FAIL, err.response));
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '1'));
-			});
-		else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-
-		window.scrollTo(0, 0);
+		if (err.response.status !== 401) {
+			dispatch(setAuthError(SIGNUP_FAIL, err.response));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '1'));
+				});
+			else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			window.scrollTo(0, 0);
+		} else error = true;
 	}
 
-	dispatch(updateLoadingSpinner(false));
+	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
 export const sendPasswordLink = (email) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
-
+	let error = false;
 	try {
 		const res = await api.put('/auth/password', { email });
 
@@ -148,20 +161,25 @@ export const sendPasswordLink = (email) => async (dispatch) => {
 
 		dispatch(setAlert(res.data.msg, 'success', '1'));
 	} catch (err) {
-		dispatch(setAuthError(AUTH_ERROR, err.response));
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '1'));
-			});
-		else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+		if (err.response.status !== 401) {
+			dispatch(setAuthError(AUTH_ERROR, err.response));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '1'));
+				});
+			else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+		} else error = true;
 	}
 
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const resetPassword = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	let user = {};
 	for (const prop in formData)
@@ -180,21 +198,25 @@ export const resetPassword = (formData) => async (dispatch) => {
 
 		dispatch(setAlert('Password successfully changed', 'success', '1'));
 	} catch (err) {
-		dispatch(setAuthError(AUTH_ERROR, err.response));
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '1'));
-			});
-		else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+		if (err.response.status !== 401) {
+			dispatch(setAuthError(AUTH_ERROR, err.response));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '1'));
+				});
+			else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+		} else error = true;
 	}
 
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const activation = (token) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
-
+	let error = false;
 	try {
 		const res = await api.post('/auth/activation', { token });
 
@@ -203,16 +225,20 @@ export const activation = (token) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setAuthError(SIGNUP_FAIL, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAuthError(SIGNUP_FAIL, err.response));
+		}
+		error = true;
 	}
-
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const sendEmail = (formData, outreach) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
-	console.log(outreach, formData);
+
 	let data = {};
 	for (const prop in formData)
 		if (formData[prop] !== '') data[prop] = formData[prop];
@@ -232,14 +258,18 @@ export const sendEmail = (formData, outreach) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		dispatch(setAuthError(EMAIL_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAuthError(EMAIL_ERROR, err.response));
 
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', outreach ? '2' : '1'));
-			});
-		else
-			dispatch(setAlert(err.response.data.msg, 'danger', outreach ? '2' : '1'));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', outreach ? '2' : '1'));
+				});
+			else
+				dispatch(
+					setAlert(err.response.data.msg, 'danger', outreach ? '2' : '1')
+				);
+		}
 		dispatch(updateLoadingSpinner(false));
 		return false;
 	}
@@ -259,6 +289,7 @@ export const logOut = () => (dispatch) => {
 };
 
 export const setAuthError = (type, response) => (dispatch) => {
+	console.log(response);
 	dispatch({
 		type: type,
 		payload: response.data.errors

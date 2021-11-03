@@ -20,6 +20,8 @@ import { updateLoadingSpinner } from './global';
 export const checkDayAvailability =
 	(date, reservation_id, diff) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
+		let error = false;
+
 		try {
 			const res = await api.get(`/day/${date}/${reservation_id}/${diff}`);
 			dispatch({
@@ -27,17 +29,20 @@ export const checkDayAvailability =
 				payload: res.data,
 			});
 		} catch (err) {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
-			window.scrollTo(0, 0);
+			if (err.response.status !== 401) {
+				dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+				dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
+				window.scrollTo(0, 0);
+			} else error = true;
 		}
 
-		dispatch(updateLoadingSpinner(false));
+		if (!error) dispatch(updateLoadingSpinner(false));
 	};
 
 export const checkMonthAvailability =
 	(month, year, reservation_id, diff) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
+		let error = false;
 
 		try {
 			const res = await api.get(
@@ -49,16 +54,19 @@ export const checkMonthAvailability =
 				payload: res.data,
 			});
 		} catch (err) {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
-			window.scrollTo(0, 0);
+			if (err.response.status !== 401) {
+				dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+				dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
+				window.scrollTo(0, 0);
+			} else error = true;
 		}
 
-		dispatch(updateLoadingSpinner(false));
+		if (!error) dispatch(updateLoadingSpinner(false));
 	};
 
 export const checkMonthSchedule = (month, year) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		const res = await api.get(`/day/schedule/${month}/${year}`);
@@ -68,16 +76,20 @@ export const checkMonthSchedule = (month, year) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
-		window.scrollTo(0, 0);
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
+			window.scrollTo(0, 0);
+		}
+		error = true;
 	}
 
-	dispatch(updateLoadingSpinner(false));
+	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
 export const disableDate = (date) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		await api.post(`/day/${date}`);
@@ -92,17 +104,22 @@ export const disableDate = (date) => async (dispatch) => {
 
 		dispatch(setAlert('Date successfully disabled', 'success', '2'));
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
-		window.scrollTo(0, 0);
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
+			window.scrollTo(0, 0);
+		}
+		error = true;
 	}
-
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const disableDateRange = (dateFrom, dateTo) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		const res = await api.post(`/day/${dateFrom}/${dateTo}`);
@@ -117,17 +134,22 @@ export const disableDateRange = (dateFrom, dateTo) => async (dispatch) => {
 
 		dispatch(setAlert('Dates successfully disabled', 'success', '2'));
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
-		window.scrollTo(0, 0);
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
+			window.scrollTo(0, 0);
+		}
+		error = true;
 	}
-
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const enableDate = (date) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		await api.delete(`/day/${date}`);
@@ -142,13 +164,17 @@ export const enableDate = (date) => async (dispatch) => {
 
 		dispatch(setAlert('Date successfully enabled', 'success', '2'));
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
-		window.scrollTo(0, 0);
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
+			window.scrollTo(0, 0);
+		} else error = true;
 	}
 
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const addDate = (date, reservation) => async (dispatch) => {

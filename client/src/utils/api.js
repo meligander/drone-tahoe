@@ -2,6 +2,7 @@ import axios from 'axios';
 import store from './store';
 
 import { logOut, setAuthError } from '../actions/auth';
+import { updateLoadingSpinner } from '../actions/global';
 import { setAlert } from '../actions/alert';
 import { AUTH_ERROR } from '../actions/types';
 
@@ -19,8 +20,10 @@ api.interceptors.response.use(
 			store.dispatch(logOut());
 			store.dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 			store.dispatch(setAuthError(AUTH_ERROR, err.response));
+			store.dispatch(updateLoadingSpinner(false));
 			window.scrollTo(0, 0);
-		} else return Promise.reject(err);
+		}
+		return Promise.reject(err);
 	}
 );
 

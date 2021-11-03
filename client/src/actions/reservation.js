@@ -23,6 +23,7 @@ import { addDate, deleteDate } from './day';
 
 export const loadReservation = (reservation_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		const res = await api.get(`/reservation/${reservation_id}`);
@@ -31,18 +32,20 @@ export const loadReservation = (reservation_id) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setReservationError(RESERVATION_ERROR, err.response));
-		window.scrollTo(0, 0);
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setReservationError(RESERVATION_ERROR, err.response));
+			window.scrollTo(0, 0);
+		} else error = true;
 	}
 
-	dispatch(updateLoadingSpinner(false));
+	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
 export const loadReservations = (filterData, bulkLoad) => async (dispatch) => {
 	if (!bulkLoad) dispatch(updateLoadingSpinner(true));
-
 	if (bulkLoad) await dispatch(updateStatus());
+	let error = false;
 
 	let filter = '';
 	const filternames = Object.keys(filterData);
@@ -61,10 +64,12 @@ export const loadReservations = (filterData, bulkLoad) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setReservationError(RESERVATIONS_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setReservationError(RESERVATIONS_ERROR, err.response));
+		} else error = true;
 	}
 
-	dispatch(updateLoadingSpinner(false));
+	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
 export const makePayment = (formData) => async (dispatch) => {
@@ -79,9 +84,11 @@ export const makePayment = (formData) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return res.data;
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch(setReservationError(PAYMENT_ERROR, err.response));
-		dispatch(updateLoadingSpinner(false));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch(setReservationError(PAYMENT_ERROR, err.response));
+			dispatch(updateLoadingSpinner(false));
+		}
 	}
 };
 
@@ -99,8 +106,10 @@ export const updatePayment = (reservation_id, formData) => async (dispatch) => {
 
 		return true;
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch(setReservationError(PAYMENT_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch(setReservationError(PAYMENT_ERROR, err.response));
+		}
 		return false;
 	}
 };
@@ -113,8 +122,10 @@ export const updateStatus = () => async (dispatch) => {
 			type: PAYMENT_STATUS_UPDATED,
 		});
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch(setReservationError(PAYMENT_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch(setReservationError(PAYMENT_ERROR, err.response));
+		}
 	}
 };
 
@@ -138,15 +149,17 @@ export const registerReservation = (formData) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		dispatch(setReservationError(RESERVATION_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setReservationError(RESERVATION_ERROR, err.response));
 
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '2'));
-			});
-		else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '2'));
+				});
+			else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
 
-		dispatch(updateLoadingSpinner(false));
+			dispatch(updateLoadingSpinner(false));
+		}
 		return false;
 	}
 };
@@ -170,15 +183,17 @@ export const updateReservation = (formData) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		dispatch(setReservationError(RESERVATION_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setReservationError(RESERVATION_ERROR, err.response));
 
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '2'));
-			});
-		else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '2'));
+				});
+			else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
 
-		dispatch(updateLoadingSpinner(false));
+			dispatch(updateLoadingSpinner(false));
+		}
 		return false;
 	}
 };
@@ -205,21 +220,24 @@ export const disableHourRange = (formData, date) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		dispatch(setReservationError(RESERVATION_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setReservationError(RESERVATION_ERROR, err.response));
 
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '2'));
-			});
-		else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '2'));
+				});
+			else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
 
-		dispatch(updateLoadingSpinner(false));
+			dispatch(updateLoadingSpinner(false));
+		}
 		return false;
 	}
 };
 
 export const cancelReservation = (reservation) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		const res = await api.put(`/reservation/cancel/${reservation.id}`);
@@ -237,15 +255,20 @@ export const cancelReservation = (reservation) => async (dispatch) => {
 			)
 		);
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setReservationError(RESERVATION_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setReservationError(RESERVATION_ERROR, err.response));
+		} else error = true;
 	}
 
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 export const deleteReservation = (reservation, date) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		await api.delete(`/reservation/${reservation.id}`);
@@ -267,12 +290,16 @@ export const deleteReservation = (reservation, date) => async (dispatch) => {
 			)
 		);
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setReservationError(RESERVATION_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setReservationError(RESERVATION_ERROR, err.response));
+		} else error = true;
 	}
 
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const clearReservation = () => (dispatch) => {

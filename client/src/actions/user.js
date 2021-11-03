@@ -19,6 +19,8 @@ import { clearReservations } from './reservation';
 
 export const loadUser = (user_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
+
 	try {
 		const res = await api.get(`/user/${user_id}`);
 		dispatch({
@@ -26,14 +28,18 @@ export const loadUser = (user_id) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setUserError(USER_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setUserError(USER_ERROR, err.response));
+		} else error = true;
 	}
-	dispatch(updateLoadingSpinner(false));
+
+	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
 export const loadUsers = (filterData, search) => async (dispatch) => {
 	if (!search) dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	let filter = '';
 	const filternames = Object.keys(filterData);
@@ -53,14 +59,17 @@ export const loadUsers = (filterData, search) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setUserError(USERS_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setUserError(USERS_ERROR, err.response));
+		} else error = true;
 	}
 
-	if (!search) dispatch(updateLoadingSpinner(false));
+	if (!search && !error) dispatch(updateLoadingSpinner(false));
 };
 
 export const updateUser = (formData, self) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	let user = {};
 	for (const prop in formData)
@@ -87,21 +96,24 @@ export const updateUser = (formData, self) => async (dispatch) => {
 			dispatch(updateLoadingSpinner(false));
 		}
 	} catch (err) {
-		dispatch(setUserError(USER_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setUserError(USER_ERROR, err.response));
 
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '1'));
-			});
-		else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(updateLoadingSpinner(false));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '1'));
+				});
+			else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(updateLoadingSpinner(false));
+		} else error = true;
 	}
 
-	window.scrollTo(0, 0);
+	if (!error) window.scrollTo(0, 0);
 };
 
 export const deleteUser = (user_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		await api.delete(`/user/${user_id}`);
@@ -113,12 +125,16 @@ export const deleteUser = (user_id) => async (dispatch) => {
 
 		dispatch(setAlert('User Deleted', 'success', '1'));
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setUserError(USER_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setUserError(USER_ERROR, err.response));
+		} else error = true;
 	}
 
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const clearUser = () => (dispatch) => {

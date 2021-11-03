@@ -10,6 +10,7 @@ import { updateLoadingSpinner } from './global';
 
 export const loadUserJobs = (user_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		const res = await api.get(`/res/job/user/${user_id}`);
@@ -19,16 +20,20 @@ export const loadUserJobs = (user_id) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response));
-		window.scrollTo(0, 0);
+		if (err.response.status !== 401) {
+			dispatch(setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response));
+			window.scrollTo(0, 0);
+		} else error = true;
 	}
 
-	dispatch(updateLoadingSpinner(false));
+	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
 export const loadReservationJobs =
 	(reservation_id, type) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
+		let error = false;
+
 		try {
 			const res = await api.get(
 				`/res/job/reservation/${reservation_id}${type ? '?type=' + type : ''}`
@@ -39,14 +44,20 @@ export const loadReservationJobs =
 				payload: res.data,
 			});
 		} catch (err) {
-			dispatch(setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response));
+			if (err.response.status !== 401) {
+				dispatch(
+					setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response)
+				);
+			} else error = true;
 		}
 
-		dispatch(updateLoadingSpinner(false));
+		if (!error) dispatch(updateLoadingSpinner(false));
 	};
 
 export const loadJobUsers = (jobs) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
+
 	try {
 		const res = await api.get(`/res/job/jobs/${jobs.map((item) => item)}`);
 
@@ -55,10 +66,12 @@ export const loadJobUsers = (jobs) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response));
+		} else error = true;
 	}
 
-	dispatch(updateLoadingSpinner(false));
+	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
 export const clearJobsXReservations = () => (dispatch) => {

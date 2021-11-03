@@ -17,6 +17,7 @@ import { updateLoadingSpinner } from './global';
 
 export const loadJob = (job_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		const res = await api.get(`/job/${job_id}`);
@@ -26,15 +27,18 @@ export const loadJob = (job_id) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setJobsError(JOB_ERROR, err.response));
-		window.scrollTo(0, 0);
+		if (err.response.status !== 401) {
+			dispatch(setJobsError(JOB_ERROR, err.response));
+			window.scrollTo(0, 0);
+		} else error = true;
 	}
 
-	dispatch(updateLoadingSpinner(false));
+	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
 export const loadJobs = (filterData, bulkLoad) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	let filter = '';
 	const filternames = Object.keys(filterData);
@@ -54,10 +58,12 @@ export const loadJobs = (filterData, bulkLoad) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch(setJobsError(JOBS_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setJobsError(JOBS_ERROR, err.response));
+		} else error = true;
 	}
 
-	if (!bulkLoad) dispatch(updateLoadingSpinner(false));
+	if (!bulkLoad && !error) dispatch(updateLoadingSpinner(false));
 };
 
 export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
@@ -82,20 +88,22 @@ export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		dispatch(setJobsError(JOB_ERROR, err.response));
-		if (err.response.data.errors)
-			err.response.data.errors.forEach((error) => {
-				dispatch(setAlert(error.msg, 'danger', '2'));
-			});
-		else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-
-		dispatch(updateLoadingSpinner(false));
+		if (err.response.status !== 401) {
+			dispatch(setJobsError(JOB_ERROR, err.response));
+			if (err.response.data.errors)
+				err.response.data.errors.forEach((error) => {
+					dispatch(setAlert(error.msg, 'danger', '2'));
+				});
+			else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+			dispatch(updateLoadingSpinner(false));
+		}
 		return false;
 	}
 };
 
 export const deleteJob = (job_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
+	let error = false;
 
 	try {
 		await api.delete(`/job/${job_id}`);
@@ -107,11 +115,15 @@ export const deleteJob = (job_id) => async (dispatch) => {
 
 		dispatch(setAlert('Job Deleted', 'success', '1'));
 	} catch (err) {
-		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch(setJobsError(JOB_ERROR, err.response));
+		if (err.response.status !== 401) {
+			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			dispatch(setJobsError(JOB_ERROR, err.response));
+		} else error = true;
 	}
-	window.scrollTo(0, 0);
-	dispatch(updateLoadingSpinner(false));
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const clearJobs = () => (dispatch) => {
