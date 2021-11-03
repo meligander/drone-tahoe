@@ -1,7 +1,9 @@
 import axios from 'axios';
 import store from './store';
 
-import { logOut } from '../actions/auth';
+import { logOut, setAuthError } from '../actions/auth';
+import { setAlert } from '../actions/alert';
+import { AUTH_ERROR } from '../actions/types';
 
 const api = axios.create({
 	baseURL: '/api',
@@ -13,14 +15,12 @@ const api = axios.create({
 api.interceptors.response.use(
 	(res) => res,
 	(err) => {
-		if (
-			err.response.status === 401 &&
-			err.response.data.msg !== 'Unauthorized User'
-		) {
-			window.scrollTo(0, 0);
+		if (err.response.status === 401) {
 			store.dispatch(logOut());
-		}
-		return Promise.reject(err);
+			store.dispatch(setAlert(err.response.data.msg, 'danger', '1'));
+			store.dispatch(setAuthError(AUTH_ERROR, err.response));
+			window.scrollTo(0, 0);
+		} else return Promise.reject(err);
 	}
 );
 

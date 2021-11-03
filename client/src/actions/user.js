@@ -27,14 +27,7 @@ export const loadUser = (user_id) => async (dispatch) => {
 		});
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: USER_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setUserError(USER_ERROR, err.response));
 	}
 	dispatch(updateLoadingSpinner(false));
 };
@@ -60,21 +53,7 @@ export const loadUsers = (filterData, search) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		if (
-			err.response.status === 401 &&
-			err.response.data.msg !== 'Unauthorized User'
-		) {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			window.scrollTo(0, 0);
-		}
-		dispatch({
-			type: USERS_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setUserError(USERS_ERROR, err.response));
 	}
 
 	if (!search) dispatch(updateLoadingSpinner(false));
@@ -108,26 +87,13 @@ export const updateUser = (formData, self) => async (dispatch) => {
 			dispatch(updateLoadingSpinner(false));
 		}
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setUserError(USER_ERROR, err.response));
+
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '1'));
 			});
-			dispatch({
-				type: USER_ERROR,
-				payload: errors,
-			});
-		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch({
-				type: USER_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 		dispatch(updateLoadingSpinner(false));
 	}
 
@@ -148,14 +114,7 @@ export const deleteUser = (user_id) => async (dispatch) => {
 		dispatch(setAlert('User Deleted', 'success', '1'));
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: USER_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setUserError(USER_ERROR, err.response));
 	}
 
 	window.scrollTo(0, 0);
@@ -168,4 +127,17 @@ export const clearUser = () => (dispatch) => {
 
 export const clearUsers = () => (dispatch) => {
 	dispatch({ type: USERS_CLEARED });
+};
+
+const setUserError = (type, response) => (dispatch) => {
+	dispatch({
+		type: type,
+		payload: response.data.errors
+			? response.data.errors
+			: {
+					type: response.statusText,
+					status: response.status,
+					msg: response.data.msg,
+			  },
+	});
 };

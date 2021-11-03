@@ -19,14 +19,7 @@ export const loadUserJobs = (user_id) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch({
-			type: JOBSXRESERVATIONS_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response));
 		window.scrollTo(0, 0);
 	}
 
@@ -46,14 +39,7 @@ export const loadReservationJobs =
 				payload: res.data,
 			});
 		} catch (err) {
-			dispatch({
-				type: JOBSXRESERVATIONS_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
+			dispatch(setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response));
 		}
 
 		dispatch(updateLoadingSpinner(false));
@@ -69,14 +55,7 @@ export const loadJobUsers = (jobs) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch({
-			type: JOBSXRESERVATIONS_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setJobsXReservationError(JOBSXRESERVATIONS_ERROR, err.response));
 	}
 
 	dispatch(updateLoadingSpinner(false));
@@ -84,4 +63,15 @@ export const loadJobUsers = (jobs) => async (dispatch) => {
 
 export const clearJobsXReservations = () => (dispatch) => {
 	dispatch({ type: JOBSXRESERVATIONS_CLEARED });
+};
+
+const setJobsXReservationError = (type, response) => (dispatch) => {
+	dispatch({
+		type: type,
+		payload: {
+			type: response.statusText,
+			status: response.status,
+			msg: response.data.msg,
+		},
+	});
 };

@@ -26,14 +26,7 @@ export const loadJob = (job_id) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		dispatch({
-			type: JOB_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setJobsError(JOB_ERROR, err.response));
 		window.scrollTo(0, 0);
 	}
 
@@ -61,21 +54,7 @@ export const loadJobs = (filterData, bulkLoad) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		if (
-			err.response.status === 401 &&
-			err.response.data.msg !== 'Unauthorized User'
-		) {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			window.scrollTo(0, 0);
-		}
-		dispatch({
-			type: JOBS_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setJobsError(JOBS_ERROR, err.response));
 	}
 
 	if (!bulkLoad) dispatch(updateLoadingSpinner(false));
@@ -103,26 +82,13 @@ export const registerUpdateJob = (formData, job_id) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setJobsError(JOB_ERROR, err.response));
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '2'));
 			});
-			dispatch({
-				type: JOB_ERROR,
-				payload: errors,
-			});
-		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-			dispatch({
-				type: JOB_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+
 		dispatch(updateLoadingSpinner(false));
 		return false;
 	}
@@ -142,14 +108,7 @@ export const deleteJob = (job_id) => async (dispatch) => {
 		dispatch(setAlert('Job Deleted', 'success', '1'));
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: JOB_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setJobsError(JOB_ERROR, err.response));
 	}
 	window.scrollTo(0, 0);
 	dispatch(updateLoadingSpinner(false));
@@ -161,4 +120,17 @@ export const clearJobs = () => (dispatch) => {
 
 export const clearJob = () => (dispatch) => {
 	dispatch({ type: JOB_CLEARED });
+};
+
+const setJobsError = (type, response) => (dispatch) => {
+	dispatch({
+		type: type,
+		payload: response.data.errors
+			? response.data.errors
+			: {
+					type: response.statusText,
+					status: response.status,
+					msg: response.data.msg,
+			  },
+	});
 };

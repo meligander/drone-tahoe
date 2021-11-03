@@ -32,14 +32,7 @@ export const loadReservation = (reservation_id) => async (dispatch) => {
 		});
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: RESERVATION_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setReservationError(RESERVATION_ERROR, err.response));
 		window.scrollTo(0, 0);
 	}
 
@@ -68,21 +61,7 @@ export const loadReservations = (filterData, bulkLoad) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		if (
-			err.response.status === 401 &&
-			err.response.data.msg !== 'Unauthorized User'
-		) {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			window.scrollTo(0, 0);
-		}
-		dispatch({
-			type: RESERVATIONS_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setReservationError(RESERVATIONS_ERROR, err.response));
 	}
 
 	dispatch(updateLoadingSpinner(false));
@@ -101,14 +80,7 @@ export const makePayment = (formData) => async (dispatch) => {
 		return res.data;
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch({
-			type: PAYMENT_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setReservationError(PAYMENT_ERROR, err.response));
 		dispatch(updateLoadingSpinner(false));
 	}
 };
@@ -128,14 +100,7 @@ export const updatePayment = (reservation_id, formData) => async (dispatch) => {
 		return true;
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch({
-			type: PAYMENT_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setReservationError(PAYMENT_ERROR, err.response));
 		return false;
 	}
 };
@@ -149,14 +114,7 @@ export const updateStatus = () => async (dispatch) => {
 		});
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch({
-			type: PAYMENT_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setReservationError(PAYMENT_ERROR, err.response));
 	}
 };
 
@@ -180,26 +138,14 @@ export const registerReservation = (formData) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setReservationError(RESERVATION_ERROR, err.response));
+
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '2'));
 			});
-			dispatch({
-				type: RESERVATION_ERROR,
-				payload: errors,
-			});
-		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-			dispatch({
-				type: RESERVATION_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+
 		dispatch(updateLoadingSpinner(false));
 		return false;
 	}
@@ -224,26 +170,14 @@ export const updateReservation = (formData) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setReservationError(RESERVATION_ERROR, err.response));
+
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '2'));
 			});
-			dispatch({
-				type: RESERVATION_ERROR,
-				payload: errors,
-			});
-		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-			dispatch({
-				type: RESERVATION_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+
 		dispatch(updateLoadingSpinner(false));
 		return false;
 	}
@@ -271,26 +205,14 @@ export const disableHourRange = (formData, date) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setReservationError(RESERVATION_ERROR, err.response));
+
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '2'));
 			});
-			dispatch({
-				type: RESERVATION_ERROR,
-				payload: errors,
-			});
-		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-			dispatch({
-				type: RESERVATION_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+
 		dispatch(updateLoadingSpinner(false));
 		return false;
 	}
@@ -316,14 +238,7 @@ export const cancelReservation = (reservation) => async (dispatch) => {
 		);
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: RESERVATION_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setReservationError(RESERVATION_ERROR, err.response));
 	}
 
 	window.scrollTo(0, 0);
@@ -352,16 +267,8 @@ export const deleteReservation = (reservation, date) => async (dispatch) => {
 			)
 		);
 	} catch (err) {
-		console.log(err);
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: RESERVATION_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setReservationError(RESERVATION_ERROR, err.response));
 	}
 
 	window.scrollTo(0, 0);
@@ -374,4 +281,17 @@ export const clearReservation = () => (dispatch) => {
 
 export const clearReservations = () => (dispatch) => {
 	dispatch({ type: RESERVATIONS_CLEARED });
+};
+
+const setReservationError = (type, response) => (dispatch) => {
+	dispatch({
+		type: type,
+		payload: response.data.errors
+			? response.data.errors
+			: {
+					type: response.statusText,
+					status: response.status,
+					msg: response.data.msg,
+			  },
+	});
 };

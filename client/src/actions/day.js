@@ -28,14 +28,7 @@ export const checkDayAvailability =
 			});
 		} catch (err) {
 			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch({
-				type: DAYSAVAILABILITY_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
+			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
 			window.scrollTo(0, 0);
 		}
 
@@ -57,14 +50,7 @@ export const checkMonthAvailability =
 			});
 		} catch (err) {
 			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch({
-				type: DAYSAVAILABILITY_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
+			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
 			window.scrollTo(0, 0);
 		}
 
@@ -83,14 +69,7 @@ export const checkMonthSchedule = (month, year) => async (dispatch) => {
 		});
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: DAYSAVAILABILITY_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
 		window.scrollTo(0, 0);
 	}
 
@@ -113,16 +92,8 @@ export const disableDate = (date) => async (dispatch) => {
 
 		dispatch(setAlert('Date successfully disabled', 'success', '2'));
 	} catch (err) {
-		console.log(err);
 		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch({
-			type: DAYSAVAILABILITY_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
 		window.scrollTo(0, 0);
 	}
 
@@ -147,14 +118,7 @@ export const disableDateRange = (dateFrom, dateTo) => async (dispatch) => {
 		dispatch(setAlert('Dates successfully disabled', 'success', '2'));
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch({
-			type: DAYSAVAILABILITY_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
 		window.scrollTo(0, 0);
 	}
 
@@ -179,14 +143,7 @@ export const enableDate = (date) => async (dispatch) => {
 		dispatch(setAlert('Date successfully enabled', 'success', '2'));
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '2'));
-		dispatch({
-			type: DAYSAVAILABILITY_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
 		window.scrollTo(0, 0);
 	}
 
@@ -216,4 +173,15 @@ export const deleteDate = (date, reservation) => async (dispatch) => {
 
 export const clearDaysAvailability = () => (dispatch) => {
 	dispatch({ type: DAYSAVAILABILITY_CLEARED });
+};
+
+const setDaysError = (type, response) => (dispatch) => {
+	dispatch({
+		type: type,
+		payload: {
+			type: response.statusText,
+			status: response.status,
+			msg: response.data.msg,
+		},
+	});
 };

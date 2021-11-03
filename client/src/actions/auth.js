@@ -40,14 +40,7 @@ export const loadUser = (login) => async (dispatch) => {
 		}
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: AUTH_ERROR,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setAuthError(AUTH_ERROR, err.response));
 		dispatch(updateLoadingSpinner(false));
 	}
 };
@@ -68,26 +61,13 @@ export const loginUser = (formData) => async (dispatch) => {
 
 		dispatch(loadUser(true));
 	} catch (err) {
-		const errors = err.response.data.errors;
+		dispatch(setAuthError(LOGIN_FAIL, err.response));
 
-		if (errors) {
-			errors.forEach((error) => {
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '1'));
 			});
-			dispatch({
-				type: LOGIN_FAIL,
-				payload: errors,
-			});
-		} else {
-			dispatch({
-				type: LOGIN_FAIL,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.msg, 'danger', '1'));
 		dispatch(updateLoadingSpinner(false));
 	}
 	window.scrollTo(0, 0);
@@ -105,15 +85,7 @@ export const facebookLogin = (fbkData) => async (dispatch) => {
 		dispatch(loadUser(true));
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: LOGIN_FAIL,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
-
+		dispatch(setAuthError(LOGIN_FAIL, err.response));
 		dispatch(updateLoadingSpinner(false));
 	}
 	window.scrollTo(0, 0);
@@ -131,15 +103,7 @@ export const googleLogin = (googleData) => async (dispatch) => {
 		dispatch(loadUser(true));
 	} catch (err) {
 		dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-		dispatch({
-			type: LOGIN_FAIL,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
-
+		dispatch(setAuthError(LOGIN_FAIL, err.response));
 		dispatch(updateLoadingSpinner(false));
 	}
 	window.scrollTo(0, 0);
@@ -159,26 +123,12 @@ export const signup = (formData) => async (dispatch) => {
 			type: EMAIL_SENT,
 		});
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setAuthError(SIGNUP_FAIL, err.response));
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '1'));
 			});
-			dispatch({
-				type: SIGNUP_FAIL,
-				payload: errors,
-			});
-		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch({
-				type: SIGNUP_FAIL,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 
 		window.scrollTo(0, 0);
 	}
@@ -198,26 +148,12 @@ export const sendPasswordLink = (email) => async (dispatch) => {
 
 		dispatch(setAlert(res.data.msg, 'success', '1'));
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setAuthError(AUTH_ERROR, err.response));
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '1'));
 			});
-			dispatch({
-				type: SIGNUP_FAIL,
-				payload: errors,
-			});
-		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch({
-				type: SIGNUP_FAIL,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 	}
 
 	window.scrollTo(0, 0);
@@ -244,26 +180,12 @@ export const resetPassword = (formData) => async (dispatch) => {
 
 		dispatch(setAlert('Password successfully changed', 'success', '1'));
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setAuthError(AUTH_ERROR, err.response));
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', '1'));
 			});
-			dispatch({
-				type: SIGNUP_FAIL,
-				payload: errors,
-			});
-		} else {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch({
-				type: SIGNUP_FAIL,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
+		else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
 	}
 
 	window.scrollTo(0, 0);
@@ -281,15 +203,7 @@ export const activation = (token) => async (dispatch) => {
 			payload: res.data,
 		});
 	} catch (err) {
-		console.log(err);
-		dispatch({
-			type: SIGNUP_FAIL,
-			payload: {
-				type: err.response.statusText,
-				status: err.response.status,
-				msg: err.response.data.msg,
-			},
-		});
+		dispatch(setAuthError(SIGNUP_FAIL, err.response));
 	}
 
 	window.scrollTo(0, 0);
@@ -318,27 +232,14 @@ export const sendEmail = (formData, outreach) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {
-		if (err.response.data.errors) {
-			const errors = err.response.data.errors;
-			errors.forEach((error) => {
+		dispatch(setAuthError(EMAIL_ERROR, err.response));
+
+		if (err.response.data.errors)
+			err.response.data.errors.forEach((error) => {
 				dispatch(setAlert(error.msg, 'danger', outreach ? '2' : '1'));
 			});
-			dispatch({
-				type: EMAIL_ERROR,
-				payload: errors,
-			});
-		} else {
+		else
 			dispatch(setAlert(err.response.data.msg, 'danger', outreach ? '2' : '1'));
-			dispatch({
-				type: EMAIL_ERROR,
-				payload: {
-					type: err.response.statusText,
-					status: err.response.status,
-					msg: err.response.data.msg,
-				},
-			});
-		}
-		if (!outreach) window.scrollTo(0, 0);
 		dispatch(updateLoadingSpinner(false));
 		return false;
 	}
@@ -355,4 +256,17 @@ export const logOut = () => (dispatch) => {
 		type: LOGOUT,
 	});
 	history.push('/login');
+};
+
+export const setAuthError = (type, response) => (dispatch) => {
+	dispatch({
+		type: type,
+		payload: response.data.errors
+			? response.data.errors
+			: {
+					type: response.statusText,
+					status: response.status,
+					msg: response.data.msg,
+			  },
+	});
 };
