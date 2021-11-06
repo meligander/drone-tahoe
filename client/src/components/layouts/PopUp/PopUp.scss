@@ -242,6 +242,7 @@
 
 		&-img {
 			width: 3.5rem;
+			height: intrinsic;
 
 			@media screen and (max-width: 500px) {
 				width: 2.5rem;

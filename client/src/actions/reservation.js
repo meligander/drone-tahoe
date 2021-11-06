@@ -235,12 +235,14 @@ export const disableHourRange = (formData, date) => async (dispatch) => {
 	}
 };
 
-export const cancelReservation = (reservation) => async (dispatch) => {
+export const cancelReservation = (reservation, amount) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 	let error = false;
 
 	try {
-		const res = await api.put(`/reservation/cancel/${reservation.id}`);
+		const res = await api.put(`/reservation/cancel/${reservation.id}`, {
+			amount,
+		});
 
 		dispatch({
 			type: !reservation.paymentId ? RESERVATION_DELETED : RESERVATION_CANCELED,

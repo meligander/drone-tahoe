@@ -321,20 +321,6 @@ router.post('/payment', [auth], async (req, res) => {
 
 	const discount = jobs.reduce((sum, item) => sum + item.discount, 0);
 
-	console.log(discount);
-	console.log(
-		jobs.map((item) => {
-			return {
-				name: item.job.title,
-				unit_amount: {
-					currency_code: 'USD',
-					value: item.value,
-				},
-				quantity: 1,
-			};
-		})
-	);
-
 	/* "amount": {
 		"currency_code": "USD",
 		"value": "90.00",
@@ -657,6 +643,7 @@ router.put(
 //@desc     Cancel a reservation
 //@access   Private
 router.put('/cancel/:reservation_id', [auth], async (req, res) => {
+	let { amount } = req.body;
 	try {
 		let reservation = await Reservation.findOne({
 			where: { id: req.params.reservation_id },
@@ -665,8 +652,12 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 			],
 		});
 
+		const half = amount && amount !== reservation.value;
+		if (!amount) amount = reservation.value;
+
 		if (reservation.paymentId) {
-			reservation.status = 'canceled';
+			if (!half) reservation.status = 'canceled';
+			else reservation.value = reservation.value - amount;
 
 			const requestID = new paypal.orders.OrdersGetRequest(
 				reservation.paymentId
@@ -674,14 +665,18 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 
 			const order = await paypalClient.execute(requestID);
 
-			for (
-				let x = 0;
-				x < order.result.purchase_units[0].payments.captures.length;
-				x++
-			) {
-				const id = order.result.purchase_units[0].payments.captures[x].id;
+			const captures = order.result.purchase_units[0].payments.captures;
+
+			let index = 0;
+
+			while (amount > 0) {
+				const id = captures[index].id;
 				const value =
-					order.result.purchase_units[0].payments.captures[x].amount.value;
+					amount > captures[index].amount.value
+						? captures[index].amount.value
+						: captures[index].amount.value - amount;
+
+				if (req.user.type === 'admin') amount = amount - value;
 
 				const request = new paypal.payments.CapturesRefundRequest(id);
 
@@ -693,6 +688,7 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 				});
 
 				await paypalClient.execute(request);
+				index++;
 			}
 
 			await reservation.save();
