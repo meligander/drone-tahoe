@@ -9,6 +9,7 @@ import { sendEmail } from '../../../actions/auth';
 
 import Alert from '../../layouts/Alert';
 import PopUp from '../../layouts/PopUp';
+import DatesFiled from '../../DatesFiled';
 
 import './Outreach.scss';
 
@@ -20,14 +21,24 @@ const Outreach = ({
 	job: { loading: loadingJobs, jobs: jobsList },
 	jobsXreservation: { loading, error, jobsXreservations },
 }) => {
+	const initialValues = {
+		hourFrom: '',
+		hourTo: '',
+		total: '',
+		jobs: [],
+	};
+
 	const [adminValues, setAdminValues] = useState({
 		showFilter: true,
-		jobs: [],
 		users: [],
 		toggleEmail: false,
 	});
 
-	const { showFilter, jobs, users, toggleEmail } = adminValues;
+	const [formData, setFormData] = useState(initialValues);
+
+	const { showFilter, users, toggleEmail } = adminValues;
+
+	const { hourFrom, hourTo, total, jobs } = formData;
 
 	useEffect(() => {
 		if (loadingJobs) loadJobs({});
@@ -43,7 +54,25 @@ const Outreach = ({
 
 	const onSubmit = (e) => {
 		e.preventDefault();
-		loadJobUsers(jobs);
+		loadJobUsers(formData);
+	};
+
+	const onChange = (e, job) => {
+		if (
+			e.target.id !== 'total' ||
+			(e.target.id === 'total' &&
+				(Number(e.target.value) || e.target.value === ''))
+		)
+			setFormData((prev) => ({
+				...prev,
+				...(job
+					? {
+							jobs: e.target.checked
+								? [...jobs, Number(e.target.value)]
+								: jobs.filter((item) => item !== job.id),
+					  }
+					: { [e.target.id]: e.target.value }),
+			}));
 	};
 
 	return (
@@ -52,13 +81,14 @@ const Outreach = ({
 				type='email'
 				confirm={async (emailData) => {
 					const answer = await sendEmail(emailData, true);
-					if (answer)
+					if (answer) {
 						setAdminValues((prev) => ({
 							...prev,
 							toggleEmail: false,
-							jobs: [],
 							users: [],
 						}));
+						setFormData(initialValues);
+					}
 				}}
 				toUpdate={users}
 				toggleModal={toggleEmail}
@@ -88,6 +118,20 @@ const Outreach = ({
 				</button>
 
 				<div className={`filter-content ${!showFilter ? 'hide' : ''}`}>
+					<DatesFiled hourFrom={hourFrom} onChange={onChange} hourTo={hourTo} />
+					<div className='form__group'>
+						<input
+							className='form__input'
+							type='text'
+							value={total}
+							id='total'
+							onChange={onChange}
+							placeholder='Minimal Total'
+						/>
+						<label htmlFor='total' className='form__label'>
+							Minimal Total
+						</label>
+					</div>
 					<div className='outreach-jobs-list'>
 						{!loadingJobs &&
 							jobsList.map((job) => (
@@ -97,18 +141,8 @@ const Outreach = ({
 										value={job.id}
 										className='form__input-chk'
 										id={`chk-${job.id}`}
-										onChange={(e) => {
-											if (e.target.checked)
-												setAdminValues((prev) => ({
-													...prev,
-													jobs: [...jobs, Number(e.target.value)],
-												}));
-											else
-												setAdminValues((prev) => ({
-													...prev,
-													jobs: jobs.filter((item) => item !== job.id),
-												}));
-										}}
+										name='jobs'
+										onChange={(e) => onChange(e, job)}
 									/>
 									<label className='form__label-chk' htmlFor={`chk-${job.id}`}>
 										<span>

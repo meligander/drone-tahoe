@@ -36,18 +36,14 @@ export const loadJob = (job_id) => async (dispatch) => {
 	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
-export const loadJobs = (filterData, bulkLoad) => async (dispatch) => {
+export const loadJobs = (formData, bulkLoad) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 	let error = false;
 
 	let filter = '';
-	const filternames = Object.keys(filterData);
-	for (let x = 0; x < filternames.length; x++) {
-		const name = filternames[x];
-		if (filterData[name] !== '') {
-			if (filter !== '') filter = filter + '&';
-			filter = filter + filternames[x] + '=' + filterData[name];
-		}
+	for (const x in formData) {
+		if (formData[x] !== '')
+			filter = `${filter !== '' ? `${filter}&` : ''}${x}=${formData[x]}`;
 	}
 
 	try {

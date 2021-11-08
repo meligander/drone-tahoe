@@ -5,9 +5,10 @@ import HourRangeForm from '../../HourRangeForm';
 import JobForm from '../../JobForm';
 import ReservationForm from '../../ReservationForm';
 import PayPal from '../../PayPal';
+import EmailForm from '../../EmailForm';
+import RefundForm from '../../RefundForm';
 
 import './PopUp.scss';
-import EmailForm from '../../EmailForm';
 
 const PopUp = ({
 	toggleModal,
@@ -34,14 +35,14 @@ const PopUp = ({
 									setToggleModal();
 								}}
 							>
-								<i className='fas fa-check'></i>
+								OK
 							</button>
 							<button
 								type='button'
 								className='btn btn-danger'
 								onClick={setToggleModal}
 							>
-								<i className='fas fa-times'></i>
+								Cancel
 							</button>
 						</div>
 					</div>
@@ -86,6 +87,16 @@ const PopUp = ({
 							confirm={confirm}
 							setToggleModal={setToggleModal}
 							users={toUpdate}
+						/>
+					</div>
+				);
+			case 'refund':
+				return (
+					<div className='popup-refund'>
+						<RefundForm
+							confirm={confirm}
+							setToggleModal={setToggleModal}
+							reservation={toUpdate}
 						/>
 					</div>
 				);

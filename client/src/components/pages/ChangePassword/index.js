@@ -84,9 +84,7 @@ const ChangePassword = ({
 						</label>
 					</div>
 					<div className='u-center-text'>
-						<button className='btn btn-primary'>
-							<i className='far fa-save'></i>
-						</button>
+						<button className='btn btn-primary'>Save</button>
 					</div>
 				</form>
 			</div>

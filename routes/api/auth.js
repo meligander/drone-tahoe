@@ -3,14 +3,20 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
-const { OAuth2Client } = require('google-auth-library');
+const { google } = require('googleapis');
+const OAuth2 = google.auth.OAuth2;
+//const { OAuth2Client } = require('google-auth-library');
 const { check, validationResult } = require('express-validator');
 
 require('dotenv').config({
 	path: path.resolve(__dirname, '../../config/.env'),
 });
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
+const client = new OAuth2(
+	process.env.GOOGLE_CLIENTID,
+	process.env.GOOGLE_SECRET,
+	'https://developers.google.com/oauthplayground'
+);
 
 //To Send Emails
 const {
@@ -71,10 +77,10 @@ router.post(
 router.post(
 	'/signup',
 	[
-		check('name', 'Name is required').not().isEmpty(),
-		check('lastname', 'Lastame is required').not().isEmpty(),
+		check('name', 'First Name is required').not().isEmpty(),
+		check('lastname', 'Last Name is required').not().isEmpty(),
 		check('email', 'Email is required').isEmail(),
-		check('cel', 'Celphone is required').not().isEmpty(),
+		check('cel', 'Cellphone is required').not().isEmpty(),
 		check(
 			'password',
 			'Please enter a password with 8 or more characters'
@@ -144,7 +150,7 @@ router.post(
 				`Welcome ${name} ${lastname}!
 				<br/> <br/>
              Thanks for signing up with Drone Tahoe!
-             You must follow this <a href='${process.env.WEBPAGE_URI}activation/${token}/'>Link</a> 
+             Please follow this <a href='${process.env.WEBPAGE_URI}activation/${token}/'>Link</a> 
 			 to activate your account.`
 			);
 
@@ -396,7 +402,7 @@ router.put(
 				`Hello ${user.name} ${user.lastname}!
 				<br/> <br/>
              We've received a request to change your password!
-             Follow this <a href='${process.env.WEBPAGE_URI}resetpassword/${token}/'>Link</a> 
+             Please follow this <a href='${process.env.WEBPAGE_URI}resetpassword/${token}/'>Link</a> 
 			 to complete your password update.`
 			);
 

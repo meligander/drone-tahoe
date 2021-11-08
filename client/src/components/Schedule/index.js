@@ -273,7 +273,7 @@ const Schedule = ({
 
 							<div className='btn-center'>
 								<button className='btn' type='submit'>
-									<i className='far fa-save'></i>
+									Save
 								</button>
 							</div>
 						</form>

@@ -37,18 +37,14 @@ export const loadUser = (user_id) => async (dispatch) => {
 	if (!error) dispatch(updateLoadingSpinner(false));
 };
 
-export const loadUsers = (filterData, search) => async (dispatch) => {
+export const loadUsers = (formData, search) => async (dispatch) => {
 	if (!search) dispatch(updateLoadingSpinner(true));
 	let error = false;
 
 	let filter = '';
-	const filternames = Object.keys(filterData);
-	for (let x = 0; x < filternames.length; x++) {
-		const name = filternames[x];
-		if (filterData[name] !== '') {
-			if (filter !== '') filter = filter + '&';
-			filter = filter + filternames[x] + '=' + filterData[name];
-		}
+	for (const x in formData) {
+		if (formData[x] !== '')
+			filter = `${filter !== '' ? `${filter}&` : ''}${x}=${formData[x]}`;
 	}
 
 	try {
@@ -93,7 +89,6 @@ export const updateUser = (formData, self) => async (dispatch) => {
 		if (!self) {
 			dispatch(clearReservations());
 			history.goBack();
-			dispatch(updateLoadingSpinner(false));
 		}
 	} catch (err) {
 		if (err.response.status !== 401) {
@@ -104,11 +99,13 @@ export const updateUser = (formData, self) => async (dispatch) => {
 					dispatch(setAlert(error.msg, 'danger', '1'));
 				});
 			else dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch(updateLoadingSpinner(false));
 		} else error = true;
 	}
 
-	if (!error) window.scrollTo(0, 0);
+	if (!error) {
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+	}
 };
 
 export const deleteUser = (user_id) => async (dispatch) => {

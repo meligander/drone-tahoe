@@ -228,7 +228,11 @@
 
 		div {
 			margin: 0.15rem 0.2rem 0 !important;
+			padding: 10px 6px 10px 10px !important;
 			border-radius: 2rem !important;
+		}
+		span {
+			padding: 10px 12px 10px 0 !important;
 		}
 
 		&:hover {
@@ -250,7 +254,7 @@
 			backface-visibility: hidden;
 			margin-left: 2rem;
 			font-size: 1.2rem;
-			padding: 0.8rem 4rem 0.8rem 1rem;
+			padding: 0.75rem 3.9rem 0.75rem 0.9rem;
 			position: relative;
 			border: 1px solid transparent;
 			border-radius: 2rem !important;

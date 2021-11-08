@@ -48,13 +48,6 @@ const HourRangeForm = ({
 		}
 	}, [loadingAvailableHours, availableHours, reservations]);
 
-	useEffect(() => {
-		setFormData({
-			hourFrom: '',
-			hourTo: '',
-		});
-	}, [confirm]);
-
 	const onChange = (e) => {
 		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
 
@@ -141,14 +134,14 @@ const HourRangeForm = ({
 
 			<div className='popup-btns'>
 				<button className='btn btn-success' type='submit'>
-					<i className='far fa-save'></i>
+					Save
 				</button>
 				<button
 					type='button'
 					className='btn btn-danger'
 					onClick={setToggleModal}
 				>
-					<i className='fas fa-times'></i>
+					Cancel
 				</button>
 			</div>
 		</form>

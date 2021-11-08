@@ -117,4 +117,35 @@
 			}
 		}
 	}
+
+	&-color {
+		&-guide {
+			margin: 2rem auto 0;
+			width: max-content;
+			font-size: 1.1rem;
+
+			@media screen and (max-width: 650px) {
+				display: none;
+			}
+		}
+		&-item {
+			margin-left: -1rem;
+			padding: 0.3rem 0;
+
+			.fas {
+				margin-right: 0.5rem;
+				font-size: 1.5rem;
+			}
+
+			.reserved {
+				color: $color-success;
+			}
+			.disabled {
+				color: $color-danger;
+			}
+			.partially-disabled {
+				color: $color-quinary;
+			}
+		}
+	}
 }

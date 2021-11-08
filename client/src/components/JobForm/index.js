@@ -91,14 +91,14 @@ const JobForm = ({ job, setToggleModal, toggleModal, confirm }) => {
 
 			<div className='popup-btns'>
 				<button type='submit' className='btn btn-success'>
-					<i className='far fa-save'></i>
+					Save
 				</button>
 				<button
 					type='button'
 					className='btn btn-danger'
 					onClick={setToggleModal}
 				>
-					<i className='fas fa-times'></i>
+					Cancel
 				</button>
 			</div>
 		</form>

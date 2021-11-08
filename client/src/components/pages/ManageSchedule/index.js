@@ -497,6 +497,18 @@ const ManageSchedule = ({
 							className='form__input-switch'
 						/>
 					</div>
+					<div className='manage-schedule-color-guide'>
+						<p className='manage-schedule-color-item '>
+							<i className='fas fa-square reserved'></i> Reserved Days
+						</p>
+						<p className='manage-schedule-color-item'>
+							<i className='fas fa-square disabled'></i> Disabled Days
+						</p>
+						<p className='manage-schedule-color-item'>
+							<i className='fas fa-square partially-disabled'></i> Partially
+							Disabled Days
+						</p>
+					</div>
 				</div>
 				<div className='manage-schedule-details'>
 					<Alert type='2' />

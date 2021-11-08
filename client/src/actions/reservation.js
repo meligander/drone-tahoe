@@ -235,39 +235,48 @@ export const disableHourRange = (formData, date) => async (dispatch) => {
 	}
 };
 
-export const cancelReservation = (reservation, amount) => async (dispatch) => {
-	dispatch(updateLoadingSpinner(true));
-	let error = false;
+export const cancelReservation =
+	(reservation, formData) => async (dispatch) => {
+		dispatch(updateLoadingSpinner(true));
 
-	try {
-		const res = await api.put(`/reservation/cancel/${reservation.id}`, {
-			amount,
-		});
+		try {
+			const res = await api.put(
+				`/reservation/cancel/${reservation.id}`,
+				formData
+			);
 
-		dispatch({
-			type: !reservation.paymentId ? RESERVATION_DELETED : RESERVATION_CANCELED,
-			payload: res.data,
-		});
+			dispatch({
+				type:
+					formData.amount && reservation.total !== formData.amount
+						? RESERVATION_UPDATED
+						: RESERVATION_CANCELED,
+				payload: res.data,
+			});
 
-		dispatch(
-			setAlert(
-				`Reservation ${!reservation.paymentId ? 'Deleted' : 'Canceled'}`,
-				'success',
-				'1'
-			)
-		);
-	} catch (err) {
-		if (err.response.status !== 401) {
-			dispatch(setAlert(err.response.data.msg, 'danger', '1'));
-			dispatch(setReservationError(RESERVATION_ERROR, err.response));
-		} else error = true;
-	}
-
-	if (!error) {
-		window.scrollTo(0, 0);
-		dispatch(updateLoadingSpinner(false));
-	}
-};
+			dispatch(
+				setAlert(
+					`Reservation ${
+						formData.amount && reservation.total !== formData.amount
+							? 'Updated'
+							: 'Canceled'
+					}`,
+					'success',
+					'1'
+				)
+			);
+			window.scrollTo(0, 0);
+			dispatch(updateLoadingSpinner(false));
+			return true;
+		} catch (err) {
+			if (err.response.status !== 401) {
+				dispatch(setAlert(err.response.data.msg, 'danger', '2'));
+				dispatch(setReservationError(RESERVATION_ERROR, err.response));
+				window.scrollTo(0, 0);
+				dispatch(updateLoadingSpinner(false));
+			}
+			return false;
+		}
+	};
 export const deleteReservation = (reservation, date) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 	let error = false;

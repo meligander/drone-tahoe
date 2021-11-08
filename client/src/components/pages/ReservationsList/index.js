@@ -16,6 +16,7 @@ import PopUp from '../../layouts/PopUp';
 import Alert from '../../layouts/Alert';
 
 import UserField from '../../UserField';
+import DatesFiled from '../../DatesFiled';
 
 const ReservationsList = ({
 	deleteReservation,
@@ -83,66 +84,57 @@ const ReservationsList = ({
 		setAdminValues((prev) => ({ ...prev, clear: false }));
 	};
 
+	const setToggle = (type) => {
+		setAdminValues((prev) => ({ ...prev, [type]: ![type], reservation: null }));
+	};
+
 	return (
 		<div className='list'>
 			<PopUp
-				type='confirmation'
-				confirm={() => cancelReservation(reservation)}
-				setToggleModal={() =>
-					setAdminValues((prev) => ({
-						...prev,
-						toggleRefund: !toggleRefund,
-						reservation: null,
-					}))
-				}
+				type='refund'
+				toUpdate={reservation}
+				confirm={async (formData) => {
+					const answer = await cancelReservation(reservation, formData);
+
+					if (answer)
+						setAdminValues((prev) => ({
+							...prev,
+							toggleRefund: !toggleRefund,
+						}));
+				}}
+				setToggleModal={() => setToggle('toggleRefund')}
 				toggleModal={toggleRefund}
-				text='Are you sure you want to refund the payment for this reservation?'
 			/>
 			<PopUp
 				type='confirmation'
 				confirm={() => deleteReservation(reservation)}
-				setToggleModal={() =>
-					setAdminValues((prev) => ({
-						...prev,
-						toggleDeleteConf: !toggleDeleteConf,
-						reservation: null,
-					}))
-				}
+				setToggleModal={() => setToggle('toggleDeleteConf')}
 				toggleModal={toggleDeleteConf}
 				text='Are you sure you want to delete the reservation?'
 				subtext={
 					reservation &&
 					reservation.paymentId !== '' &&
 					reservation.status === 'paid' &&
-					'A paypal refund should be made before deleting it.'
+					'A refund should be made before deleting it.'
 				}
 			/>
-			<PopUp
-				type='payment'
-				clearJobs={clearJobsXReservations}
-				toUpdate={reservation && reservation}
-				setToggleModal={() =>
-					setAdminValues((prev) => ({
-						...prev,
-						checkout: false,
-						reservation: null,
-					}))
-				}
-				toggleModal={checkout}
-			/>
+			{checkout && (
+				<PopUp
+					type='payment'
+					clearJobs={clearJobsXReservations}
+					toUpdate={reservation && reservation}
+					setToggleModal={() => setToggle('checkout')}
+					toggleModal={checkout}
+				/>
+			)}
+
 			{toggleReservation && (
 				<PopUp
 					type='schedule'
 					clearJobs={clearJobsXReservations}
 					toUpdate={reservation}
 					toggleModal={toggleReservation}
-					setToggleModal={() =>
-						setAdminValues((prev) => ({
-							...prev,
-							toggleReservation: !toggleReservation,
-							reservation: null,
-						}))
-					}
+					setToggleModal={() => setToggle('toggleReservation')}
 				/>
 			)}
 
@@ -166,7 +158,18 @@ const ReservationsList = ({
 					)}
 				</button>
 				<div className={`filter-content ${!showFilter ? 'hide' : ''}`}>
-					<div className='form__group'>
+					<DatesFiled
+						onFocus={() =>
+							setAdminValues((prev) => ({
+								...prev,
+								searchDisplay: false,
+							}))
+						}
+						hourFrom={hourFrom}
+						hourTo={hourTo}
+						onChange={onChange}
+					/>
+					{/* <div className='form__group'>
 						<div className='form__group-sub'>
 							<div className='form__group-sub-item'>
 								<input
@@ -205,7 +208,7 @@ const ReservationsList = ({
 								</label>
 							</div>
 						</div>
-					</div>
+					</div> */}
 
 					<UserField
 						selectFinalUser={(user) => {

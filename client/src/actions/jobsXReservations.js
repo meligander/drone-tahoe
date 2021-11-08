@@ -36,7 +36,7 @@ export const loadReservationJobs =
 
 		try {
 			const res = await api.get(
-				`/res/job/reservation/${reservation_id}${type ? '?type=' + type : ''}`
+				`/res/job/reservation/${reservation_id}&${type ? '?type=' + type : ''}`
 			);
 
 			dispatch({
@@ -54,12 +54,23 @@ export const loadReservationJobs =
 		if (!error) dispatch(updateLoadingSpinner(false));
 	};
 
-export const loadJobUsers = (jobs) => async (dispatch) => {
+export const loadJobUsers = (formData) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 	let error = false;
 
+	let filter = '';
+	for (const x in formData) {
+		if (
+			(x === 'jobs' && formData[x].length > 0) ||
+			(formData[x] !== '' && x !== 'jobs')
+		)
+			filter = `${filter !== '' ? `${filter}&` : ''}${x}=${
+				x === 'jobs' ? formData[x].map((item) => item) : formData[x]
+			}`;
+	}
+
 	try {
-		const res = await api.get(`/res/job/jobs/${jobs.map((item) => item)}`);
+		const res = await api.get(`/res/job/jobs?${filter}`);
 
 		dispatch({
 			type: JOBSXRESERVATIONS_LOADED,

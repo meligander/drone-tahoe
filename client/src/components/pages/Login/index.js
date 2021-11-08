@@ -208,11 +208,7 @@ const Login = ({
 							</>
 						)}
 					</form>
-					<div className='login-img img'>
-						<h3 className='login-img-text'>
-							Welcome <br /> Back!
-						</h3>
-					</div>
+					<div className='login-img img'></div>
 				</div>
 			</div>
 		</div>

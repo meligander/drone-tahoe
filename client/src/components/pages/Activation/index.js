@@ -31,7 +31,6 @@ const Activation = ({
 
 	useEffect(() => {
 		if (container.current) {
-			console.log('hola');
 			const item = container.current.getBoundingClientRect();
 
 			if (item.height + footer + navbar + 60 >= window.innerHeight)
@@ -61,17 +60,19 @@ const Activation = ({
 							<p className='activation-text'>
 								Welcome to Drone Tahoe! You can start using our services now.
 							</p>
-							<Link
-								to='/reservation/0'
-								onClick={() => {
-									clearJobs();
-									clearReservations();
-									window.scrollTo(0, 0);
-								}}
-								className='btn btn-primary'
-							>
-								Book now
-							</Link>
+							<div className='btn-center'>
+								<Link
+									to='/reservation/0'
+									onClick={() => {
+										clearJobs();
+										clearReservations();
+										window.scrollTo(0, 0);
+									}}
+									className='btn btn-primary'
+								>
+									Book now
+								</Link>
+							</div>
 						</>
 					)
 				)}

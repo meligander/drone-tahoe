@@ -220,13 +220,13 @@ router.post(
 						.utc()
 						.format('h a')} to ${hourTo
 						.utc()
-						.format('h a')} and its payment is pending for it to be completed.
+						.format('h a')} and its payment is pending.
 					<br/>
-					After login into your account <a href='${
+					Login into your account <a href='${
 						process.env.WEBPAGE_URI
 					}login/'>Login</a>.<br/>
-					Follow this <a href='${process.env.WEBPAGE_URI}reservation/0/'>Link</a> 
-					and click on the money symbol on the reservation to pay for it.`
+					Please follow this <a href='${process.env.WEBPAGE_URI}reservation/0/'>Link</a> 
+					and click on the money symbol on the reservation to complete payment.`
 				);
 			} else {
 				await sendToCompany(
@@ -241,7 +241,7 @@ router.post(
 						.utc()
 						.format('h a')} to ${hourTo.utc().format('h a')}. 
 						<br/>
-						Determine the price and correct time for the job 
+						Set the price and correct time for the job 
 						so the user can proceed with the payment.`
 				);
 			}
@@ -612,7 +612,7 @@ router.put(
 
 				await sendEmail(
 					reservation.user.email,
-					'Reservation Ready for Payment',
+					'Reservation ready for payment',
 					`Hello ${reservation.user.name} ${reservation.user.lastname}!
 					<br/><br/>
 					The reservation registered on the ${hourFrom
@@ -623,11 +623,11 @@ router.put(
 						.utc()
 						.format('h a')} is ready to be paid.
 					<br/>
-					After login into your account <a href='${
+					Login into your account <a href='${
 						process.env.WEBPAGE_URI
 					}login/'>Login</a>.<br/>
 					Follow this <a href='${process.env.WEBPAGE_URI}reservation/0/'>Link</a> 
-					and click on the money symbol to pay for it.`
+					and click on the money symbol to complete the payment.`
 				);
 			}
 
@@ -644,6 +644,10 @@ router.put(
 //@access   Private
 router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 	let { amount } = req.body;
+
+	if (req.user.type === 'admin' && !amount)
+		return res.status(400).json({ msg: 'A refund amount is required' });
+
 	try {
 		let reservation = await Reservation.findOne({
 			where: { id: req.params.reservation_id },
@@ -652,13 +656,15 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 			],
 		});
 
-		const half = amount && amount !== reservation.value;
-		if (!amount) amount = reservation.value;
+		if (req.user.type === 'customer') amount = reservation.total;
+		else {
+			amount = Number(amount);
+			if (amount === reservation.total)
+				reservation.status = reservation.paymentId ? 'canceled' : 'refunded';
+			else reservation.total = reservation.total - amount;
+		}
 
 		if (reservation.paymentId) {
-			if (!half) reservation.status = 'canceled';
-			else reservation.value = reservation.value - amount;
-
 			const requestID = new paypal.orders.OrdersGetRequest(
 				reservation.paymentId
 			);
@@ -670,62 +676,51 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 			let index = 0;
 
 			while (amount > 0) {
-				const id = captures[index].id;
+				const request = new paypal.payments.CapturesRefundRequest(
+					captures[index].id
+				);
+
 				const value =
-					amount > captures[index].amount.value
-						? captures[index].amount.value
-						: captures[index].amount.value - amount;
-
-				if (req.user.type === 'admin') amount = amount - value;
-
-				const request = new paypal.payments.CapturesRefundRequest(id);
+					amount < Number(captures[index].amount.value)
+						? amount
+						: Number(captures[index].amount.value);
 
 				request.requestBody({
-					amoutn: {
+					amount: {
 						currency_code: 'USD',
 						value,
 					},
 				});
 
+				amount = amount - captures[index].amount.value;
+
 				await paypalClient.execute(request);
 				index++;
 			}
-
-			await reservation.save();
-
-			const hourFrom = moment(reservation.hourFrom);
-			const hourTo = moment(reservation.hourTo);
-
-			await removeResFromDay(reservation);
-
-			if (req.user.type === 'customer')
-				await sendToCompany(
-					'Refund',
-					`The user ${reservation.user.name} ${
-						reservation.user.lastname
-					}, email ${
-						reservation.user.email
-					}, has requested a refund for the Paypal payment, ID ${
-						reservation.paymentId
-					}, for the reservation on the ${hourFrom
-						.utc()
-						.format('MM/DD/YY')} from ${hourFrom
-						.utc()
-						.format('h a')} to ${hourTo.utc().format('h a')}.`
-				);
-		} else {
-			await removeResFromDay(reservation);
-
-			const jobs = await JobXReservation.findAll({
-				where: { reservationId: reservation.id },
-			});
-
-			for (let x = 0; x < jobs.length; x++) jobs[x].destroy();
-
-			await reservation.destroy();
-
-			reservation = reservation.id;
 		}
+
+		await reservation.save();
+
+		if (amount === reservation.total) await removeResFromDay(reservation);
+
+		const hourFrom = moment(reservation.hourFrom);
+		const hourTo = moment(reservation.hourTo);
+
+		if (req.user.type === 'customer')
+			await sendToCompany(
+				'Refund',
+				`The user ${reservation.user.name} ${
+					reservation.user.lastname
+				}, email ${
+					reservation.user.email
+				}, has requested a refund for the Paypal payment, ID ${
+					reservation.paymentId
+				}, for the reservation on the ${hourFrom
+					.utc()
+					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
+					.utc()
+					.format('h a')}.`
+			);
 
 		return res.json(reservation);
 	} catch (err) {

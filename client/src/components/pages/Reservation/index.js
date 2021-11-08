@@ -89,15 +89,11 @@ const Reservation = ({
 					setAdminValues((prev) => ({ ...prev, reservation: null }));
 				}}
 				text={`Are you sure you want to ${
-					reservation &&
-					(reservation.status === 'unpaid' ||
-						reservation.status === 'requested')
-						? 'delete'
-						: 'cancel'
+					reservation && reservation.status !== 'paid' ? 'delete' : 'cancel'
 				} the reservation?`}
 				subtext={
 					reservation && reservation.status === 'paid'
-						? 'We will place a refund through paypal.'
+						? 'A refund will be placed through paypal.'
 						: ''
 				}
 			/>
@@ -206,7 +202,9 @@ const Reservation = ({
 												<i className='fas fa-search'></i>
 											)}
 										</button>
-										{res.status !== 'refunded' && res.status !== 'canceled' && (
+										{(res.status === 'requested' ||
+											res.status === 'unpaid' ||
+											res.status === 'paid') && (
 											<button
 												onClick={() =>
 													setAdminValues((prev) => ({

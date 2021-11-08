@@ -67,25 +67,20 @@ const ReservationForm = ({
 
 	useEffect(() => {
 		if (reservation) {
-			if (!reservation.jobs && loading) {
-				loadReservationJobs(reservation.id);
-			} else {
+			if (!reservation.jobs && loading) loadReservationJobs(reservation.id);
+			else {
 				if (id !== reservation.id) {
-					setFormData({
-						id: reservation.id,
-						hourFrom: reservation.hourFrom,
-						hourTo: reservation.hourTo,
-						jobs: jobsXreservations.map((item) => {
-							return { ...item, value: item.value === 0 ? '' : item.value };
-						}),
-						user: reservation.user,
-						address: reservation.address,
-						status: reservation.status,
-						comments: reservation.comments ? reservation.comments : '',
-						total: reservation.total ? reservation.total : '',
-						travelExpenses: reservation.travelExpenses
-							? reservation.travelExpenses
-							: null,
+					setFormData((prev) => {
+						let oldReservation = {};
+						for (const x in prev) {
+							oldReservation[x] = !reservation[x] ? prev[x] : reservation[x];
+						}
+						return {
+							...oldReservation,
+							jobs: jobsXreservations.map((item) => {
+								return { ...item, value: item.value === 0 ? '' : item.value };
+							}),
+						};
 					});
 				}
 			}
@@ -536,7 +531,7 @@ const ReservationForm = ({
 							<div className='btn-center'>
 								{!changeDate && reservation.status !== 'paid' && (
 									<button className='btn' type='submit'>
-										<i className='far fa-save'></i>
+										Save
 									</button>
 								)}
 								{location.pathname !== '/schedule' && (

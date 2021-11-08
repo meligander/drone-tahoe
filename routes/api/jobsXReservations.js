@@ -7,6 +7,106 @@ const auth = require('../../middleware/auth');
 //Models
 const { JobXReservation, Reservation, Job, User } = require('../../config/db');
 
+//@route    GET api/res/job/jobs
+//@desc     Get all jobs for a reservation
+//@access   Private
+router.get('/jobs', [auth], async (req, res) => {
+	try {
+		let allUsers = [];
+
+		const { total, hourFrom, hourTo } = req.query;
+
+		const jobs = req.query.jobs ? req.query.jobs.split(',') : [];
+
+		const jobsXreservations = await JobXReservation.findAll({
+			where: {
+				jobId: { [Op.in]: jobs },
+			},
+			include: [
+				{
+					model: Job,
+					as: 'job',
+				},
+				{
+					model: Reservation,
+					as: 'reservation',
+					where: {
+						status: { [Op.in]: ['pending', 'paid', 'completed'] },
+						...((hourFrom || hourTo) && {
+							hourFrom: {
+								...(hourFrom && hourTo
+									? {
+											[Op.between]: [
+												new Date(hourFrom).setUTCHours(00, 00, 00),
+												new Date(hourTo).setUTCHours(23, 59, 59),
+											],
+									  }
+									: hourFrom
+									? {
+											[Op.gte]: new Date(hourFrom).setUTCHours(00, 00, 00),
+									  }
+									: {
+											[Op.lte]: new Date(hourTo).setUTCHours(23, 59, 59),
+									  }),
+							},
+						}),
+						...(total && {
+							total: { [Op.gte]: total },
+						}),
+					},
+					include: [
+						{
+							model: User,
+							as: 'user',
+						},
+					],
+				},
+			],
+		});
+
+		if (jobsXreservations.length === 0) {
+			return res.status(400).json({
+				msg: 'No matches found for that type of job',
+			});
+		}
+
+		for (let x = 0; x < jobsXreservations.length; x++) {
+			const index = allUsers.findIndex(
+				(item) =>
+					item.reservation.userId === jobsXreservations[x].reservation.userId
+			);
+
+			if (index === -1)
+				allUsers.push({
+					...jobsXreservations[x].toJSON(),
+					jobs: [jobsXreservations[x].job.toJSON()],
+				});
+			else {
+				{
+					if (
+						!allUsers[index].jobs.some(
+							(item) => item.id === jobsXreservations[x].jobId
+						)
+					) {
+						allUsers[index] = {
+							...allUsers[index],
+							jobs: [
+								...allUsers[index].jobs,
+								jobsXreservations[x].job.toJSON(),
+							],
+						};
+					}
+				}
+			}
+		}
+
+		res.json(allUsers);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
 //@route    GET api/res/job/:job_res_id
 //@desc     Get jobs x reservation Info
 //@access   Private
@@ -92,80 +192,6 @@ router.get('/user/:user_id', [auth], async (req, res) => {
 		}
 
 		res.json(jobsXReservations);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ msg: 'Server Error' });
-	}
-});
-
-//@route    GET api/res/job/jobs/:job_list
-//@desc     Get all jobs for a reservation
-//@access   Private
-router.get('/jobs/:job_list', [auth], async (req, res) => {
-	try {
-		const jobs = req.params.job_list.split(',');
-
-		let allUsers = [];
-
-		const jobsXreservations = await JobXReservation.findAll({
-			where: {
-				jobId: jobs,
-			},
-			include: [
-				{
-					model: Job,
-					as: 'job',
-				},
-				{
-					model: Reservation,
-					as: 'reservation',
-					include: [
-						{
-							model: User,
-							as: 'user',
-						},
-					],
-				},
-			],
-		});
-
-		if (jobsXreservations.length === 0) {
-			return res.status(400).json({
-				msg: 'No matches found for that type of job',
-			});
-		}
-
-		for (let x = 0; x < jobsXreservations.length; x++) {
-			const index = allUsers.findIndex(
-				(item) =>
-					item.reservation.userId === jobsXreservations[x].reservation.userId
-			);
-
-			if (index === -1)
-				allUsers.push({
-					...jobsXreservations[x].toJSON(),
-					jobs: [jobsXreservations[x].job.toJSON()],
-				});
-			else {
-				{
-					if (
-						!allUsers[index].jobs.some(
-							(item) => item.id === jobsXreservations[x].jobId
-						)
-					) {
-						allUsers[index] = {
-							...allUsers[index],
-							jobs: [
-								...allUsers[index].jobs,
-								jobsXreservations[x].job.toJSON(),
-							],
-						};
-					}
-				}
-			}
-		}
-
-		res.json(allUsers);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });

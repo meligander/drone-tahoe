@@ -137,13 +137,13 @@ const EditUser = ({
 										<input
 											type='text'
 											className='form__input'
-											placeholder='Name'
+											placeholder='First Name'
 											id='name'
 											onChange={onChange}
 											value={name}
 										/>
 										<label htmlFor='name' className='form__label'>
-											Name
+											First Name
 										</label>
 									</div>
 									<div className='form__group-sub-item'>
@@ -243,25 +243,21 @@ const EditUser = ({
 
 							<div className='btn-center'>
 								<button className='btn btn-primary' type='submit'>
-									{adminType === 'signup' ? (
-										'Sign Up'
-									) : (
-										<i className='far fa-save'></i>
-									)}
+									{adminType === 'signup' ? 'Sign Up' : 'Save'}
 								</button>
-								{adminType === 'signup' && (
-									<p className='user-login'>
-										Do you already have an account? &nbsp;
-										<Link
-											onClick={() => window.scrollTo(0, 0)}
-											className='btn-link'
-											to='/login'
-										>
-											Login
-										</Link>
-									</p>
-								)}
 							</div>
+							{adminType === 'signup' && (
+								<p className='user-login'>
+									Do you already have an account? &nbsp;
+									<Link
+										onClick={() => window.scrollTo(0, 0)}
+										className='btn-link'
+										to='/login'
+									>
+										Login
+									</Link>
+								</p>
+							)}
 						</form>
 					</>
 				) : (
