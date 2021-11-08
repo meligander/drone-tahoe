@@ -61,11 +61,13 @@ function Footer({ setFooterHeight }) {
 							</Link>
 							<Link
 								className='social-icon-link youtube'
-								to={{ pathname: 'https://www.youtube.com/user/laketahoeG' }}
+								to={{ pathname: 'https://vimeo.com/user153997361' }}
+								//to={{ pathname: 'https://www.youtube.com/user/laketahoeG' }}
 								target='_blank'
-								aria-label='Youtube'
+								//aria-label='Youtube'
+								aria-label='Vimeo'
 							>
-								<i className='fab fa-youtube' />
+								<i className='fab fa-vimeo-v'></i>
 							</Link>
 							<Link
 								className='social-icon-link twitter'
