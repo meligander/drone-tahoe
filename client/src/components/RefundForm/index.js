@@ -3,24 +3,39 @@ import React, { useState, useEffect } from 'react';
 import Alert from '../layouts/Alert';
 
 const RefundForm = ({ confirm, setToggleModal, reservation }) => {
+	const regex = /^[0-9]+(\.([0-9]{1,2})?)?$/;
+
 	const [formData, setFormData] = useState({
 		amount: '',
+		refundReason: '',
 	});
 
-	const { amount } = formData;
+	const { amount, refundReason } = formData;
 
 	useEffect(() => {
-		setFormData({
+		setFormData((prev) => ({
+			...prev,
 			amount: '',
-		});
+			refundReason: '',
+		}));
 	}, [confirm]);
+
+	useEffect(() => {
+		if (reservation && reservation.refundReason !== null)
+			setFormData((prev) => ({
+				...prev,
+				refundReason: reservation.refundReason,
+			}));
+	}, [reservation]);
 
 	const onChange = (e) => {
 		if (
-			e.target.name !== 'amount' ||
-			reservation.total >= Number(e.target.value)
+			e.target.id !== 'amount' ||
+			e.target.value === '' ||
+			(regex.test(e.target.value) &&
+				reservation.total >= Number(e.target.value))
 		)
-			setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+			setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
 	};
 
 	return (
@@ -31,8 +46,9 @@ const RefundForm = ({ confirm, setToggleModal, reservation }) => {
 				confirm(formData);
 			}}
 		>
+			{console.log(reservation && reservation.refundReason !== null)}
 			<h3 className='heading-primary-subheading'>
-				Reservation Value: &nbsp; ${reservation && reservation.total}
+				Reservation Total: &nbsp; ${reservation && reservation.total}
 			</h3>
 			<Alert type='2' />
 			<div className='form__group'>
@@ -42,11 +58,24 @@ const RefundForm = ({ confirm, setToggleModal, reservation }) => {
 					value={amount}
 					onChange={onChange}
 					id='amount'
-					name='amount'
 					placeholder='Refund'
 				/>
 				<label htmlFor='amount' className='form__label'>
 					Refund
+				</label>
+			</div>
+			<div className='form__group'>
+				<textarea
+					type='text'
+					className='form__input textarea'
+					value={refundReason}
+					id='refundReason'
+					rows='3'
+					onChange={onChange}
+					placeholder='Refund Reason'
+				/>
+				<label htmlFor='refundReason' className='form__label'>
+					Refund Reason
 				</label>
 			</div>
 

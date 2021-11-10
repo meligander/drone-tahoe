@@ -140,33 +140,39 @@ const JobsList = ({
 												<td>{job.title}</td>
 												{/* <td>{job.subtitle}</td> */}
 												<td>
-													<button
-														className='btn-icon'
-														onClick={() =>
-															setAdminValues((prev) => ({
-																...prev,
-																toggleJob: !toggleJob,
-																job,
-																update: true,
-															}))
-														}
-													>
-														<i className='far fa-edit'></i>
-													</button>
+													<div className='tooltip'>
+														<button
+															className='btn-icon'
+															onClick={() =>
+																setAdminValues((prev) => ({
+																	...prev,
+																	toggleJob: !toggleJob,
+																	job,
+																	update: true,
+																}))
+															}
+														>
+															<i className='far fa-edit'></i>
+														</button>
+														<span className='tooltiptext'>Edit</span>
+													</div>
 												</td>
 												<td>
-													<button
-														className='btn-icon'
-														onClick={() =>
-															setAdminValues((prev) => ({
-																...prev,
-																toggleDeleteConf: !toggleDeleteConf,
-																job,
-															}))
-														}
-													>
-														<i className='far fa-trash-alt'></i>
-													</button>
+													<div className='tooltip'>
+														<button
+															className='btn-icon'
+															onClick={() =>
+																setAdminValues((prev) => ({
+																	...prev,
+																	toggleDeleteConf: !toggleDeleteConf,
+																	job,
+																}))
+															}
+														>
+															<i className='far fa-trash-alt'></i>
+														</button>
+														<span className='tooltiptext'>Delete</span>
+													</div>
 												</td>
 											</tr>
 										))}

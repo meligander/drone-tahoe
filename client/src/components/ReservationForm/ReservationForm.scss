@@ -89,7 +89,6 @@
 			border-radius: 6px;
 			display: flex;
 			justify-content: space-between;
-			align-items: flex-start;
 
 			@media screen and (max-width: 650px) {
 				margin: 1rem 0;
@@ -127,15 +126,39 @@
 				margin-bottom: 1rem;
 			}
 
-			.btn-icon {
-				margin-top: 2.8rem;
+			&-price {
+				display: flex;
+				justify-content: flex-end;
 
-				@media screen and (max-width: 900px) {
-					margin-top: 3.5rem;
-				}
+				table {
+					width: 40%;
+					margin-top: -1rem;
 
-				@media screen and (max-width: 650px) {
-					margin-top: 0.5rem;
+					@media screen and (max-width: 1300px) {
+						width: 50%;
+					}
+					@media screen and (max-width: 1100px) {
+						width: 60%;
+						margin-top: 0;
+					}
+					@media screen and (max-width: 500px) {
+						width: 95%;
+						margin-top: 1rem;
+					}
+
+					td {
+						padding: 0.3rem 0.1rem;
+						text-align: start;
+
+						&:last-child {
+							min-width: 50%;
+						}
+					}
+
+					.text-dark {
+						font-size: 1.3rem;
+						font-weight: 400;
+					}
 				}
 			}
 		}
@@ -197,7 +220,7 @@
 
 	.switch {
 		margin-top: -0.8rem;
-		justify-content: end;
+		justify-content: flex-end;
 
 		@media screen and (max-width: 500px) {
 			margin-top: 0;

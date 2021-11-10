@@ -169,47 +169,6 @@ const ReservationsList = ({
 						hourTo={hourTo}
 						onChange={onChange}
 					/>
-					{/* <div className='form__group'>
-						<div className='form__group-sub'>
-							<div className='form__group-sub-item'>
-								<input
-									type='date'
-									className='form__input'
-									id='hourFrom'
-									value={hourFrom}
-									onChange={onChange}
-									onFocus={() =>
-										setAdminValues((prev) => ({
-											...prev,
-											searchDisplay: false,
-										}))
-									}
-								/>
-								<label htmlFor='hourFrom' className='form__label'>
-									From
-								</label>
-							</div>
-							<div className='form__group-sub-item'>
-								<input
-									type='date'
-									className='form__input'
-									id='hourTo'
-									onChange={onChange}
-									value={hourTo}
-									onFocus={() =>
-										setAdminValues((prev) => ({
-											...prev,
-											searchDisplay: false,
-										}))
-									}
-								/>
-								<label htmlFor='hourTo' className='form__label'>
-									To
-								</label>
-							</div>
-						</div>
-					</div> */}
-
 					<UserField
 						selectFinalUser={(user) => {
 							setFormData((prev) => ({ ...prev, user: user ? user.id : '' }));
@@ -304,68 +263,86 @@ const ReservationsList = ({
 												</td>
 												<td>
 													{res.status === 'unpaid' && (
-														<button
-															className='btn-icon'
-															onClick={() =>
-																setAdminValues((prev) => ({
-																	...prev,
-																	checkout: true,
-																	reservation: res,
-																}))
-															}
-														>
-															<i className='fas fa-dollar-sign'></i>
-														</button>
+														<div className='tooltip'>
+															<button
+																className='btn-icon'
+																onClick={() =>
+																	setAdminValues((prev) => ({
+																		...prev,
+																		checkout: true,
+																		reservation: res,
+																	}))
+																}
+															>
+																<i className='fas fa-dollar-sign'></i>
+															</button>
+															<span className='tooltiptext'>Pay</span>
+														</div>
 													)}
-													{res.status === 'paid' && res.paymentId && (
-														<button
-															className='btn-icon'
-															onClick={() =>
-																setAdminValues((prev) => ({
-																	...prev,
-																	toggleRefund: true,
-																	reservation: res,
-																}))
-															}
-														>
-															<i className='fas fa-redo-alt'></i>
-														</button>
+													{res.status === 'paid' && (
+														<div className='tooltip'>
+															<button
+																className='btn-icon'
+																onClick={() =>
+																	setAdminValues((prev) => ({
+																		...prev,
+																		toggleRefund: true,
+																		reservation: res,
+																	}))
+																}
+															>
+																<i className='fas fa-redo-alt'></i>
+															</button>
+															<span className='tooltiptext'>Refund</span>
+														</div>
 													)}
 												</td>
 												<td>
-													<button
-														className='btn-icon'
-														onClick={() =>
-															setAdminValues((prev) => ({
-																...prev,
+													<div className='tooltip'>
+														<button
+															className='btn-icon'
+															onClick={() =>
+																setAdminValues((prev) => ({
+																	...prev,
 
-																toggleReservation: !toggleReservation,
-																reservation: res,
-															}))
-														}
-													>
-														{res.status !== 'refunded' &&
-														res.status !== 'completed' &&
-														res.status !== 'canceled' ? (
-															<i className='far fa-edit'></i>
-														) : (
-															<i className='fas fa-search'></i>
-														)}
-													</button>
+																	toggleReservation: !toggleReservation,
+																	reservation: res,
+																}))
+															}
+														>
+															{res.status !== 'refunded' &&
+															res.status !== 'completed' &&
+															res.status !== 'canceled' ? (
+																<i className='far fa-edit'></i>
+															) : (
+																<i className='fas fa-search'></i>
+															)}
+														</button>
+														<span className='tooltiptext'>
+															{res.status !== 'refunded' &&
+															res.status !== 'completed' &&
+															res.status !== 'canceled'
+																? 'Edit'
+																: 'See details'}
+														</span>
+													</div>
 												</td>
 												<td>
-													<button
-														className='btn-icon'
-														onClick={() =>
-															setAdminValues((prev) => ({
-																...prev,
-																toggleDeleteConf: !toggleDeleteConf,
-																reservation: res,
-															}))
-														}
-													>
-														<i className='far fa-trash-alt'></i>
-													</button>
+													<div className='tooltip'>
+														<button
+															className='btn-icon'
+															onClick={() =>
+																setAdminValues((prev) => ({
+																	...prev,
+																	toggleDeleteConf: !toggleDeleteConf,
+																	reservation: res,
+																}))
+															}
+														>
+															<i className='far fa-trash-alt'></i>
+														</button>
+														<span className='tooltiptext'>Delete</span>
+													</div>
 												</td>
 											</tr>
 										))}

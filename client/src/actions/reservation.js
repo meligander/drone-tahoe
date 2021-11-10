@@ -20,6 +20,7 @@ import {
 import { setAlert } from './alert';
 import { updateLoadingSpinner } from './global';
 import { addDate, deleteDate } from './day';
+import store from '../utils/store';
 
 export const loadReservation = (reservation_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
@@ -239,11 +240,12 @@ export const cancelReservation =
 	(reservation, formData) => async (dispatch) => {
 		dispatch(updateLoadingSpinner(true));
 
+		let data = {};
+		for (const prop in formData)
+			if (formData[prop] !== '') data[prop] = formData[prop];
+
 		try {
-			const res = await api.put(
-				`/reservation/cancel/${reservation.id}`,
-				formData
-			);
+			const res = await api.put(`/reservation/cancel/${reservation.id}`, data);
 
 			dispatch({
 				type:
@@ -282,11 +284,18 @@ export const deleteReservation = (reservation, date) => async (dispatch) => {
 	let error = false;
 
 	try {
-		await api.delete(`/reservation/${reservation.id}`);
+		let res;
+		const refund =
+			reservation.status === 'paid' &&
+			reservation.paymentId &&
+			store.getState().auth.loggedUser.id === reservation.userId;
+
+		if (refund) res = await api.put(`/reservation/cancel/${reservation.id}`);
+		else await api.delete(`/reservation/${reservation.id}`);
 
 		dispatch({
-			type: RESERVATION_DELETED,
-			payload: reservation.id,
+			type: refund ? RESERVATION_UPDATED : RESERVATION_DELETED,
+			payload: refund ? res.data : reservation.id,
 		});
 
 		const isReservation = reservation.status !== 'hourRange';

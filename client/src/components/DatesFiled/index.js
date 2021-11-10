@@ -8,9 +8,11 @@ const DatesFiled = ({ onChange, onFocus, hourFrom, hourTo }) => {
 					<input
 						type='date'
 						className='form__input'
+						placeholder='YYYY/MM/DD'
 						id='hourFrom'
 						value={hourFrom}
 						onChange={onChange}
+						onFocus={onFocus}
 					/>
 					<label htmlFor='hourFrom' className='form__label'>
 						From
@@ -21,7 +23,9 @@ const DatesFiled = ({ onChange, onFocus, hourFrom, hourTo }) => {
 						type='date'
 						className='form__input'
 						id='hourTo'
+						placeholder='YYYY/MM/DD'
 						min={hourFrom !== '' ? hourFrom : null}
+						onFocus={onFocus}
 						onChange={onChange}
 						value={hourTo}
 					/>

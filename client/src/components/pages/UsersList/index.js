@@ -165,20 +165,23 @@ const ReservationsList = ({
 												</td>
 												<td>{user.cel}</td>
 												<td>
-													<Link
-														to={
-															loggedUser.id === user.id
-																? '/profile'
-																: `/edit-user/${user.id}`
-														}
-														className='btn-icon'
-														onClick={() => {
-															window.scrollTo(0, 0);
-															clearUser();
-														}}
-													>
-														<i className='far fa-edit'></i>
-													</Link>
+													<div className='tooltip'>
+														<Link
+															to={
+																loggedUser.id === user.id
+																	? '/profile'
+																	: `/edit-user/${user.id}`
+															}
+															className='btn-icon'
+															onClick={() => {
+																window.scrollTo(0, 0);
+																clearUser();
+															}}
+														>
+															<i className='far fa-edit'></i>
+														</Link>
+														<span className='tooltiptext'>Edit</span>
+													</div>
 												</td>
 											</tr>
 										))}

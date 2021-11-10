@@ -289,7 +289,6 @@ export const logOut = () => (dispatch) => {
 };
 
 export const setAuthError = (type, response) => (dispatch) => {
-	console.log(response);
 	dispatch({
 		type: type,
 		payload: response.data.errors

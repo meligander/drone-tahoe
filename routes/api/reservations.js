@@ -561,7 +561,7 @@ router.put(
 			reservation.address = address;
 
 			if (total) {
-				reservation.total = total;
+				reservation.total = Number(total);
 				if (reservation.status === 'requested') reservation.status = 'unpaid';
 			}
 			reservation.comments = comments ? comments : null;
@@ -587,7 +587,7 @@ router.put(
 				const jobsXReservationFields = {
 					reservationId: req.params.reservation_id,
 					jobId: jobs[x].jobId,
-					value: jobs[x].value === '' ? 0 : jobs[x].value,
+					value: jobs[x].value === '' ? 0 : Number(jobs[x].value),
 					discount: jobs[x].discount,
 				};
 
@@ -643,7 +643,7 @@ router.put(
 //@desc     Cancel a reservation
 //@access   Private
 router.put('/cancel/:reservation_id', [auth], async (req, res) => {
-	let { amount } = req.body;
+	let { amount, refundReason } = req.body;
 
 	if (req.user.type === 'admin' && !amount)
 		return res.status(400).json({ msg: 'A refund amount is required' });
@@ -656,15 +656,26 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 			],
 		});
 
-		if (req.user.type === 'customer') amount = reservation.total;
-		else {
+		if (req.user.type === 'customer') {
+			amount = reservation.total;
+			reservation.status = 'canceled';
+		} else {
 			amount = Number(amount);
-			if (amount === reservation.total)
+			if (amount === reservation.total) {
 				reservation.status = reservation.paymentId ? 'canceled' : 'refunded';
-			else reservation.total = reservation.total - amount;
+			} else {
+				reservation.total = reservation.total - amount;
+				reservation.refundReason = refundReason
+					? `: ${refundReason}`
+					: refundReason;
+			}
+
+			reservation.refundReason = refundReason;
 		}
 
-		if (reservation.paymentId) {
+		const originalAmount = amount;
+
+		/* if (reservation.paymentId) {
 			const requestID = new paypal.orders.OrdersGetRequest(
 				reservation.paymentId
 			);
@@ -697,11 +708,12 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 				await paypalClient.execute(request);
 				index++;
 			}
-		}
+		} */
 
 		await reservation.save();
 
-		if (amount === reservation.total) await removeResFromDay(reservation);
+		if (originalAmount === reservation.total)
+			await removeResFromDay(reservation);
 
 		const hourFrom = moment(reservation.hourFrom);
 		const hourTo = moment(reservation.hourTo);
@@ -740,14 +752,14 @@ router.delete('/:reservation_id', [auth], async (req, res) => {
 				id: req.params.reservation_id,
 			},
 		});
-
-		await removeResFromDay(reservation);
+		if (reservation.status !== 'canceled' && reservation.status !== 'refunded')
+			await removeResFromDay(reservation);
 
 		const jobs = await JobXReservation.findAll({
 			where: { reservationId: reservation.id },
 		});
 
-		for (let x = 0; x < jobs.length; x++) jobs[x].destroy();
+		jobs.forEach((job) => job.destroy());
 
 		await reservation.destroy();
 

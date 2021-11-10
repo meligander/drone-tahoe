@@ -6,7 +6,7 @@ import Moment from 'react-moment';
 import { loadJobs } from '../../../actions/jobs';
 import {
 	loadReservations,
-	cancelReservation,
+	deleteReservation,
 } from '../../../actions/reservation';
 import { clearJobsXReservations } from '../../../actions/jobsXReservations';
 
@@ -23,7 +23,7 @@ const Reservation = ({
 	job: { loading },
 	loadJobs,
 	loadReservations,
-	cancelReservation,
+	deleteReservation,
 	clearJobsXReservations,
 	match,
 }) => {
@@ -85,7 +85,7 @@ const Reservation = ({
 					}))
 				}
 				confirm={() => {
-					cancelReservation(reservation);
+					deleteReservation(reservation);
 					setAdminValues((prev) => ({ ...prev, reservation: null }));
 				}}
 				text={`Are you sure you want to ${
@@ -97,19 +97,22 @@ const Reservation = ({
 						: ''
 				}
 			/>
-			<PopUp
-				type='payment'
-				toUpdate={reservation}
-				setToggleModal={() =>
-					setAdminValues((prev) => ({
-						...prev,
-						checkout: false,
-						reservation: null,
-					}))
-				}
-				clearJobs={clearJobsXReservations}
-				toggleModal={checkout}
-			/>
+			{checkout && (
+				<PopUp
+					type='payment'
+					toUpdate={reservation}
+					setToggleModal={() =>
+						setAdminValues((prev) => ({
+							...prev,
+							checkout: false,
+							reservation: null,
+						}))
+					}
+					clearJobs={clearJobsXReservations}
+					toggleModal={checkout}
+				/>
+			)}
+
 			<Alert type='1' />
 			{!loggedUser ? (
 				<h5 className='heading-primary-subheading error'>
@@ -168,55 +171,82 @@ const Reservation = ({
 									</div>
 									<div className='reservation-item-icons'>
 										{res.status === 'unpaid' && (
+											<div className='tooltip'>
+												<button
+													onClick={() => {
+														setAdminValues((prev) => ({
+															...prev,
+															reservation: res,
+															checkout: true,
+														}));
+													}}
+													className='btn-icon'
+												>
+													<i className='fas fa-dollar-sign'></i>
+												</button>
+												<span className='tooltiptext'>Pay</span>
+											</div>
+										)}
+										<div
+											className={`tooltip${
+												res.status === 'paid' ? ' second' : ''
+											}`}
+										>
 											<button
 												onClick={() => {
 													setAdminValues((prev) => ({
 														...prev,
 														reservation: res,
-														checkout: true,
+														editReservation: true,
 													}));
+
+													setTimeout(() => {
+														window.scrollTo(0, position);
+													}, 30);
 												}}
 												className='btn-icon'
 											>
-												<i className='fas fa-dollar-sign'></i>
+												{res.status !== 'refunded' &&
+												res.status !== 'canceled' ? (
+													<i className='far fa-edit'></i>
+												) : (
+													<i className='fas fa-search'></i>
+												)}
 											</button>
-										)}
-										<button
-											onClick={() => {
-												setAdminValues((prev) => ({
-													...prev,
-													reservation: res,
-													editReservation: true,
-												}));
-
-												setTimeout(() => {
-													window.scrollTo(0, position);
-												}, 30);
-											}}
-											className='btn-icon'
-										>
-											{res.status !== 'refunded' &&
-											res.status !== 'canceled' ? (
-												<i className='far fa-edit'></i>
-											) : (
-												<i className='fas fa-search'></i>
-											)}
-										</button>
+											<span className='tooltiptext'>
+												{res.status !== 'refunded' && res.status !== 'canceled'
+													? 'Edit'
+													: 'See details'}
+											</span>
+										</div>
 										{(res.status === 'requested' ||
 											res.status === 'unpaid' ||
 											res.status === 'paid') && (
-											<button
-												onClick={() =>
-													setAdminValues((prev) => ({
-														...prev,
-														toggleModal: !toggleModal,
-														reservation: res,
-													}))
-												}
-												className='btn-icon'
+											<div
+												className={`tooltip${
+													res.status === 'paid' ? ' first' : ''
+												}`}
 											>
-												<i className='far fa-trash-alt'></i>
-											</button>
+												<button
+													onClick={() =>
+														setAdminValues((prev) => ({
+															...prev,
+															toggleModal: !toggleModal,
+															reservation: res,
+														}))
+													}
+													className='btn-icon'
+												>
+													{res.status === 'paid' ? (
+														<i className='fas fa-redo-alt'></i>
+													) : (
+														<i className='far fa-trash-alt'></i>
+													)}
+												</button>
+												<span className='tooltiptext'>
+													{res.status === 'paid' ? 'Refund' : 'Delete'}
+												</span>
+											</div>
 										)}
 									</div>
 								</div>
@@ -275,6 +305,6 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
 	loadJobs,
 	loadReservations,
-	cancelReservation,
+	deleteReservation,
 	clearJobsXReservations,
 })(Reservation);

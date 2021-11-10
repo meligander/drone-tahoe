@@ -29,6 +29,7 @@ const ReservationForm = ({
 }) => {
 	const form = useRef();
 	const schedule = useRef();
+	const regex = /^[0-9]+(\.([0-9]{1,2})?)?$/;
 
 	const disabled =
 		reservation &&
@@ -53,6 +54,7 @@ const ReservationForm = ({
 		address: '',
 		comments: '',
 		travelExpenses: null,
+		refundReason: null,
 		total: '',
 	});
 
@@ -60,10 +62,20 @@ const ReservationForm = ({
 		searchDisplay: false,
 		clear: false,
 		changeDate: false,
+		percentage: [null],
 	});
 
-	const { searchDisplay, clear, changeDate } = adminValues;
-	const { id, jobs, user, address, comments, total, travelExpenses } = formData;
+	const { searchDisplay, clear, changeDate, percentage } = adminValues;
+	const {
+		id,
+		jobs,
+		user,
+		address,
+		comments,
+		total,
+		travelExpenses,
+		refundReason,
+	} = formData;
 
 	useEffect(() => {
 		if (reservation) {
@@ -82,55 +94,102 @@ const ReservationForm = ({
 							}),
 						};
 					});
+					setAdminValues((prev) => ({
+						...prev,
+						percentage: jobsXreservations.map((item) => {
+							if (item.discount !== null) {
+								const value = (item.discount * 100) / item.value;
+								return Math.round((value + Number.EPSILON) * 100) / 100;
+							} else return null;
+						}),
+					}));
 				}
 			}
 		}
 	}, [reservation, id, loading, loadReservationJobs, jobsXreservations]);
 
 	const getTotal = (expence) => {
-		const total = Number(
-			jobs.reduce((sum, item) => {
-				let itemValue = item.value;
-				if (item.discount !== null) itemValue = itemValue - item.discount;
-				return sum + itemValue;
-			}, 0)
-		);
-		return expence ? total + expence : total;
+		const total = jobs.reduce((sum, item) => {
+			let itemValue = Number(item.value);
+			if (item.discount !== null) itemValue = itemValue - Number(item.discount);
+			return sum + itemValue;
+		}, 0);
+		return expence !== null ? total + Number(expence) : total;
 	};
 
 	const onChange = (e) => {
-		setFormData((prev) => ({
-			...prev,
-			[e.target.name]:
-				e.target.name !== 'travelExpenses'
-					? e.target.value
-					: !isNaN(Number(e.target.value))
-					? Number(e.target.value)
-					: travelExpenses,
-			...(e.target.name === 'travelExpenses' &&
-				!isNaN(Number(e.target.value)) && {
-					total: getTotal(Number(e.target.value)),
-				}),
-		}));
+		if (e.target.name === 'travelExpenses') {
+			if (regex.test(e.target.value) || e.target.value === '') {
+				setFormData((prev) => ({
+					...prev,
+					travelExpenses: e.target.value,
+					total: getTotal(e.target.value),
+				}));
+			}
+		} else {
+			setFormData((prev) => ({
+				...prev,
+				[e.target.name]: e.target.value,
+			}));
+		}
 	};
 
 	const onChangeJobs = (e) => {
 		if (
 			e.target.name === 'jobId' ||
-			(e.target.name === 'value' &&
-				Number(jobs[e.target.id].discount) <= Number(e.target.value)) ||
-			(e.target.name === 'discount' &&
-				Number(jobs[e.target.id].value >= Number(e.target.value)))
-		) {
-			jobs[e.target.id][e.target.name] =
-				e.target.name !== 'jobId' ? Number(e.target.value) : e.target.value;
-
-			setFormData((prev) => ({
-				...prev,
-				jobs,
-				...(e.target.name !== 'jobId' && { total: getTotal() }),
-			}));
+			e.target.value === '' ||
+			(regex.test(e.target.value) &&
+				(jobs[e.target.id].discount === null ||
+					Number(jobs[e.target.id].discount) <= Number(e.target.value)))
+		)
+			jobs[e.target.id][e.target.name] = e.target.value;
+		else {
+			if (regex.test(e.target.value)) jobs[e.target.id].value = e.target.value;
+			jobs[e.target.id].discount = '';
+			percentage[e.target.id] = '';
+			setAdminValues((prev) => ({ ...prev, percentage }));
 		}
+
+		setFormData((prev) => ({
+			...prev,
+			jobs,
+			...(e.target.name !== 'jobId' && { total: getTotal(travelExpenses) }),
+		}));
+	};
+
+	const onChangeJobsDiscount = (e) => {
+		if (regex.test(e.target.value)) {
+			if (
+				e.target.name === 'discount' &&
+				Number(jobs[e.target.id].value) >= Number(e.target.value)
+			) {
+				const value =
+					(Number(e.target.value) * 100) / Number(jobs[e.target.id].value);
+
+				percentage[e.target.id] =
+					Math.round((value + Number.EPSILON) * 100) / 100;
+				jobs[e.target.id].discount = e.target.value;
+			} else {
+				if (Number(e.target.value) <= 100) {
+					const value =
+						(Number(e.target.value) * Number(jobs[e.target.id].value)) / 100;
+
+					percentage[e.target.id] = e.target.value;
+					jobs[e.target.id].discount =
+						Math.round((value + Number.EPSILON) * 100) / 100;
+				}
+			}
+		} else if (e.target.value === '') {
+			jobs[e.target.id].discount = '';
+			percentage[e.target.id] = '';
+		}
+
+		setFormData((prev) => ({
+			...prev,
+			jobs,
+			total: getTotal(travelExpenses),
+		}));
+		setAdminValues((prev) => ({ ...prev, percentage }));
 	};
 
 	const jobListItem = (job, i) => {
@@ -164,18 +223,7 @@ const ReservationForm = ({
 							onClick={(e) => {
 								e.preventDefault();
 								setToggleModal();
-								clearJobsXReservations(); /* 
-								setFormData({
-									id: 0,
-									jobs: [''],
-									user: null,
-									comments: '',
-									address: '',
-									value: '',
-								});
-								setAdminValues({
-									clear: true,
-								}); */
+								clearJobsXReservations();
 							}}
 						>
 							<i className='fas fa-times'></i>
@@ -316,10 +364,7 @@ const ReservationForm = ({
 												Type of Job
 											</label>
 										</div>
-										{(loggedUser.type === 'admin' ||
-											(loggedUser.type === 'customer' &&
-												reservation &&
-												reservation.type !== 'requested')) && (
+										{loggedUser.type === 'admin' ? (
 											<>
 												<div className='form__group'>
 													<input
@@ -327,79 +372,134 @@ const ReservationForm = ({
 														type='text'
 														value={item.value}
 														onChange={onChangeJobs}
-														disabled={
-															disabled || loggedUser.type === 'customer'
-														}
+														disabled={disabled}
 														id={i}
 														name='value'
-														placeholder='Value'
+														placeholder='Job Value'
 													/>
 													<label htmlFor={i} className='form__label'>
-														Value
+														Job Value
 													</label>
 												</div>
-												{(loggedUser.type === 'admin' ||
-													(loggedUser.type === 'customer' &&
-														item.discount !== null)) && (
-													<div
-														className={`form__group ${
-															item.discount === null ? 'hide' : ''
-														}`}
-													>
-														<input
-															className='form__input'
-															type='text'
-															value={
-																item.discount !== null ? item.discount : ''
-															}
-															onChange={onChangeJobs}
-															disabled={
-																disabled || loggedUser.type === 'customer'
-															}
-															id={i}
-															name='discount'
-															placeholder='Discount'
-														/>
-														<label htmlFor={i} className='form__label'>
-															Discount
-														</label>
-													</div>
-												)}
-
-												{loggedUser.type === 'admin' &&
-													((reservation &&
-														(reservation.status === 'requested' ||
-															reservation.status === 'unpaid')) ||
-														!reservation) && (
-														<div className='form__group switch'>
-															<label
-																className='form__label-switch'
-																htmlFor='discountChk'
-															>
+												<div
+													className={`form__group ${
+														item.discount === null ? 'hide' : ''
+													}`}
+												>
+													<div className='form__group-sub'>
+														<div className='form__group-sub-item'>
+															<input
+																type='text'
+																className='form__input'
+																placeholder='Discount'
+																name='discount'
+																disabled={disabled}
+																id={i}
+																onChange={onChangeJobsDiscount}
+																value={
+																	item.discount !== null ? item.discount : ''
+																}
+															/>
+															<label htmlFor='discount' className='form__label'>
 																Discount
 															</label>
-															<input
-																checked={item.discount !== null}
-																type='checkbox'
-																id='discountChk'
-																name='discountChk'
-																onChange={() => {
-																	jobs[i].discount =
-																		item.discount !== null ? null : '';
-
-																	setFormData((prev) => ({
-																		...prev,
-																		jobs,
-																		...(jobs[i].discount === null && {
-																			total: getTotal(),
-																		}),
-																	}));
-																}}
-																className='form__input-switch'
-															/>
 														</div>
-													)}
+														<div className='form__group-sub-item'>
+															<input
+																type='text'
+																className='form__input'
+																placeholder='Percentage'
+																name='percentage'
+																disabled={disabled}
+																id={i}
+																onChange={onChangeJobsDiscount}
+																value={
+																	item.discount !== null ? percentage[i] : ''
+																}
+															/>
+															<label
+																htmlFor='percentage'
+																className='form__label'
+															>
+																Percentage
+															</label>
+														</div>
+													</div>
+												</div>
+
+												{((reservation &&
+													(reservation.status === 'requested' ||
+														reservation.status === 'unpaid')) ||
+													!reservation) && (
+													<div className='form__group switch'>
+														<label
+															className='form__label-switch'
+															htmlFor='discountChk'
+														>
+															Discount
+														</label>
+														<input
+															type='checkbox'
+															id='discountChk'
+															checked={item.discount !== null}
+															onChange={(e) => {
+																if (!e.target.checked) {
+																	jobs[i].discount = null;
+																	percentage[i] = null;
+																} else {
+																	jobs[i].discount = '';
+																	percentage[i] = '';
+																}
+
+																setFormData((prev) => ({
+																	...prev,
+																	jobs,
+																	...(jobs[i].discount == null && {
+																		total: getTotal(travelExpenses),
+																	}),
+																}));
+
+																setAdminValues((prev) => ({
+																	...prev,
+																	percentage,
+																}));
+															}}
+															className='form__input-switch'
+														/>
+													</div>
+												)}
 											</>
+										) : (
+											<div className='jobs-list-item-price'>
+												<table>
+													<tbody>
+														<tr>
+															<td className='text-dark'>Value:</td>
+															<td>&nbsp;${item.value}&nbsp;</td>
+														</tr>
+														{item.discount !== null && (
+															<tr>
+																<td className='text-dark'>Discount:</td>
+																<td>
+																	${item.discount} ({percentage[i]}% off)
+																</td>
+															</tr>
+														)}
+													</tbody>
+													{/* <div className='jobs-list-item-price'>
+												<p className='jobs-list-item-subtitle'>
+													<span className='text-dark'>Value:</span> $
+													{item.value}
+												</p>
+												{item.discount !== null && (
+													<p className='jobs-list-item-subtitle'>
+														<span className='text-dark'>Discount:</span> $
+														{item.value} ({percentage[i]}% off)
+													</p>
+												)}
+											</div> */}
+												</table>
+											</div>
 										)}
 									</div>
 									{!disabled && (
@@ -408,11 +508,13 @@ const ReservationForm = ({
 											onClick={(e) => {
 												e.preventDefault();
 												jobs.splice(i, 1);
+												percentage.splice(i, 1);
 												setFormData((prev) => ({
 													...prev,
 													jobs,
-													total: getTotal(),
+													total: getTotal(travelExpenses),
 												}));
+												setAdminValues((prev) => ({ ...prev, percentage }));
 											}}
 										>
 											<i className='far fa-trash-alt'></i>
@@ -442,6 +544,8 @@ const ReservationForm = ({
 												},
 											],
 										}));
+										percentage.push(null);
+										setAdminValues((prev) => ({ ...prev, percentage }));
 									}}
 								>
 									<i className='fas fa-plus'></i> &nbsp; Job
@@ -504,19 +608,35 @@ const ReservationForm = ({
 									type='checkbox'
 									id='travelExpChk'
 									name='travelExpChk'
-									onChange={() =>
+									onChange={(e) =>
 										setFormData((prev) => ({
 											...prev,
-											travelExpenses: travelExpenses !== null ? null : '',
-											...(travelExpenses !== null && {
-												total: getTotal(),
-											}),
+											travelExpenses: e.target.checked ? '' : null,
+											...(!e.target.checked && { total: getTotal(null) }),
 										}))
 									}
 									className='form__input-switch'
 								/>
 							</div>
 						)}
+					{refundReason !== null && (
+						<div className='form__group'>
+							<textarea
+								type='text'
+								className='form__input textarea'
+								value={refundReason}
+								id='refundReason'
+								rows='3'
+								disabled={loggedUser.type === 'customer'}
+								onChange={onChange}
+								placeholder='Refund Reason'
+							/>
+							<label htmlFor='refundReason' className='form__label'>
+								Refund Reason
+							</label>
+						</div>
+					)}
+
 					{total !== '' && total !== 0 && (
 						<h4 className='reservation-form-total'>
 							<span className='reservation-form-total-title'>Total:</span> $
@@ -526,14 +646,15 @@ const ReservationForm = ({
 
 					{reservation &&
 						reservation.status !== 'canceled' &&
-						reservation.status !== 'refunded' &&
 						reservation.status !== 'completed' && (
 							<div className='btn-center'>
-								{!changeDate && reservation.status !== 'paid' && (
-									<button className='btn' type='submit'>
-										Save
-									</button>
-								)}
+								{!changeDate &&
+									(reservation.status !== 'paid' ||
+										(refundReason !== null && loggedUser.type === 'admin')) && (
+										<button className='btn' type='submit'>
+											Save
+										</button>
+									)}
 								{location.pathname !== '/schedule' && (
 									<button
 										className='btn'

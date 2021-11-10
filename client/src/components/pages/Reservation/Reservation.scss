@@ -95,7 +95,8 @@
 
 		&-icons {
 			width: 15%;
-			min-width: fit-content;
+			display: flex;
+			justify-content: space-around;
 
 			@media screen and (max-width: 900px) {
 				width: 20%;
@@ -103,6 +104,13 @@
 
 			@media screen and (max-width: 650px) {
 				width: 100%;
+			}
+
+			.first {
+				order: 1;
+			}
+			.second {
+				order: 2;
 			}
 		}
 

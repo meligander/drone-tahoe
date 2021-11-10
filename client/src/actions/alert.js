@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ALERT_REMOVED, ALERT_SETTED } from './types';
 
 export const setAlert =
-	(msg, alertType, type = '1', time = 5000) =>
+	(msg, alertType, type = '1', code = 500) =>
 	(dispatch) => {
 		const id = uuidv4();
 		dispatch({
@@ -13,6 +13,7 @@ export const setAlert =
 				alertType,
 				msg,
 				type,
+				code,
 			},
 		});
 
@@ -22,6 +23,6 @@ export const setAlert =
 					type: ALERT_REMOVED,
 					payload: id,
 				}),
-			time
+			5000
 		);
 	};
