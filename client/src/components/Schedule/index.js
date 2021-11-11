@@ -65,6 +65,7 @@ const Schedule = ({
 				...prev,
 				diff: hourTo.utc().hour() - hourFrom.utc().hour(),
 			}));
+			console.log(reservation);
 		}
 	}, [reservation, disabled]);
 
@@ -264,10 +265,11 @@ const Schedule = ({
 								<Moment format='h a' date={hourFrom} /> -{' '}
 								<Moment format='h a' date={hourTo} />
 							</p>
-							{loggedUser.type !== 'admin' && (
+							{loggedUser.type !== 'admin' && reservation.id === 0 && (
 								<p className='text-warning'>
-									After creating the reservation, the admin will set a price for
-									the job, so you can proceed with its payment.
+									After saving the reservation, we will set the price for the
+									job and send you an email confirming your appointment, so you
+									can proceed with its payment.
 								</p>
 							)}
 

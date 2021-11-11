@@ -216,10 +216,14 @@
 			transform: translateY(-10px);
 			opacity: 0;
 		}
+
+		&.show {
+			margin: 1rem 0 -1rem;
+		}
 	}
 
 	.switch {
-		margin-top: -0.8rem;
+		margin-top: 0;
 		justify-content: flex-end;
 
 		@media screen and (max-width: 500px) {

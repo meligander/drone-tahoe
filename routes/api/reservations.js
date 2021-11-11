@@ -564,6 +564,15 @@ router.put(
 				reservation.total = Number(total);
 				if (reservation.status === 'requested') reservation.status = 'unpaid';
 			}
+			if (req.user.type === 'customer' && reservation.status === 'unpaid') {
+				reservation.status = 'requested';
+				await sendToCompany(
+					'Reservation Changed',
+					`The user ${reservation.user.name} ${reservation.user.lastname},
+					 email ${reservation.user.email}, has made changes to their reservation.<br/>
+					Please check if the time and price are correct so they can proceed with its payment.`
+				);
+			}
 			reservation.comments = comments ? comments : null;
 
 			reservation.travelExpenses = travelExpenses;
@@ -675,7 +684,7 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 
 		const originalAmount = amount;
 
-		/* if (reservation.paymentId) {
+		if (reservation.paymentId) {
 			const requestID = new paypal.orders.OrdersGetRequest(
 				reservation.paymentId
 			);
@@ -708,31 +717,12 @@ router.put('/cancel/:reservation_id', [auth], async (req, res) => {
 				await paypalClient.execute(request);
 				index++;
 			}
-		} */
+		}
 
 		await reservation.save();
 
 		if (originalAmount === reservation.total)
 			await removeResFromDay(reservation);
-
-		const hourFrom = moment(reservation.hourFrom);
-		const hourTo = moment(reservation.hourTo);
-
-		if (req.user.type === 'customer')
-			await sendToCompany(
-				'Refund',
-				`The user ${reservation.user.name} ${
-					reservation.user.lastname
-				}, email ${
-					reservation.user.email
-				}, has requested a refund for the Paypal payment, ID ${
-					reservation.paymentId
-				}, for the reservation on the ${hourFrom
-					.utc()
-					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
-					.utc()
-					.format('h a')}.`
-			);
 
 		return res.json(reservation);
 	} catch (err) {

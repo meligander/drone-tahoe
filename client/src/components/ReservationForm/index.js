@@ -34,8 +34,7 @@ const ReservationForm = ({
 	const disabled =
 		reservation &&
 		reservation.status !== 'requested' &&
-		((loggedUser.type === 'customer' && reservation.status === 'unpaid') ||
-			reservation.status !== 'unpaid');
+		reservation.status !== 'unpaid';
 
 	const [formData, setFormData] = useState({
 		id: 0,
@@ -52,10 +51,12 @@ const ReservationForm = ({
 		],
 		user: null,
 		address: '',
-		comments: '',
+		comments: null,
 		travelExpenses: null,
 		refundReason: null,
 		total: '',
+		hourFrom: '',
+		hourTo: '',
 	});
 
 	const [adminValues, setAdminValues] = useState({
@@ -249,8 +250,9 @@ const ReservationForm = ({
 
 					{loggedUser.type !== 'admin' && !reservation && (
 						<p className='text-warning'>
-							Please select the types of jobs you want to be done and the time
-							you are available.
+							Enter job site address and job type. Add additional jobs, if any,
+							by clicking the ‘+ Job’ button. Once all jobs are entered, select
+							your desired date/time below.
 						</p>
 					)}
 
@@ -326,10 +328,10 @@ const ReservationForm = ({
 							disabled={disabled}
 							id='address'
 							name='address'
-							placeholder='Address for the Job'
+							placeholder='Address'
 						/>
 						<label htmlFor='address' className='form__label'>
-							Address for the Job
+							Address
 						</label>
 					</div>
 					<div className='jobs-list'>
@@ -498,18 +500,6 @@ const ReservationForm = ({
 																</tr>
 															)}
 														</tbody>
-														{/* <div className='jobs-list-item-price'>
-												<p className='jobs-list-item-subtitle'>
-													<span className='text-dark'>Value:</span> $
-													{item.value}
-												</p>
-												{item.discount !== null && (
-													<p className='jobs-list-item-subtitle'>
-														<span className='text-dark'>Discount:</span> $
-														{item.value} ({percentage[i]}% off)
-													</p>
-												)}
-											</div> */}
 													</table>
 												</div>
 											)
@@ -535,11 +525,7 @@ const ReservationForm = ({
 									)}
 								</div>
 							))}
-						{(!reservation ||
-							(reservation &&
-								(reservation.status === 'requested' ||
-									(loggedUser.type === 'admin' &&
-										reservation.status === 'unpaid')))) && (
+						{!disabled && (
 							<div className='btn-right'>
 								<button
 									className='btn btn-quaternary'
@@ -566,17 +552,14 @@ const ReservationForm = ({
 							</div>
 						)}
 					</div>
-					<div className='form__group'>
+
+					<div className={`form__group ${comments === null ? 'hide' : 'show'}`}>
 						<textarea
 							type='text'
 							className='form__input textarea'
 							value={comments}
 							id='comments'
-							disabled={
-								reservation &&
-								reservation.status !== 'unpaid' &&
-								reservation.status !== 'requested'
-							}
+							disabled={disabled}
 							rows='3'
 							onChange={onChange}
 							placeholder='Special Request'
@@ -586,10 +569,36 @@ const ReservationForm = ({
 							Special Request
 						</label>
 					</div>
+					{(!reservation ||
+						(reservation &&
+							(reservation.status === 'requested' ||
+								reservation.status === 'unpaid'))) && (
+						<div className='form__group switch'>
+							<label className='form__label-switch' htmlFor='commentsChk'>
+								Special Request
+							</label>
+							<input
+								checked={comments !== null}
+								type='checkbox'
+								id='commentsChk'
+								name='commentsChk'
+								onChange={(e) =>
+									setFormData((prev) => ({
+										...prev,
+										comments: e.target.checked ? '' : null,
+									}))
+								}
+								className='form__input-switch'
+							/>
+						</div>
+					)}
+
 					{(loggedUser.type === 'admin' ||
 						(loggedUser.type === 'customer' && travelExpenses !== null)) && (
 						<div
-							className={`form__group ${travelExpenses === null ? 'hide' : ''}`}
+							className={`form__group ${
+								travelExpenses === null ? 'hide' : 'show'
+							}`}
 						>
 							<input
 								className='form__input'
