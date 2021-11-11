@@ -265,7 +265,7 @@ const Schedule = ({
 								<Moment format='h a' date={hourTo} />
 							</p>
 							{loggedUser.type !== 'admin' && (
-								<p className='schedule-details-warning'>
+								<p className='text-warning'>
 									After creating the reservation, the admin will set a price for
 									the job, so you can proceed with its payment.
 								</p>

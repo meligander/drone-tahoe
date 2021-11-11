@@ -114,7 +114,11 @@ const ReservationForm = ({
 			if (item.discount !== null) itemValue = itemValue - Number(item.discount);
 			return sum + itemValue;
 		}, 0);
-		return expence !== null ? total + Number(expence) : total;
+		let value = expence !== null ? total + Number(expence) : total;
+
+		value = Math.round((value + Number.EPSILON) * 100) / 100;
+
+		return value;
 	};
 
 	const onChange = (e) => {
@@ -242,6 +246,13 @@ const ReservationForm = ({
 							: ''}{' '}
 						Reservation:
 					</h4>
+
+					{loggedUser.type !== 'admin' && !reservation && (
+						<p className='text-warning'>
+							Please select the types of jobs you want to be done and the time
+							you are available.
+						</p>
+					)}
 
 					{reservation && (
 						<p className='heading-primary-subheading-update'>
@@ -470,23 +481,24 @@ const ReservationForm = ({
 												)}
 											</>
 										) : (
-											<div className='jobs-list-item-price'>
-												<table>
-													<tbody>
-														<tr>
-															<td className='text-dark'>Value:</td>
-															<td>&nbsp;${item.value}&nbsp;</td>
-														</tr>
-														{item.discount !== null && (
+											item.value && (
+												<div className='jobs-list-item-price'>
+													<table>
+														<tbody>
 															<tr>
-																<td className='text-dark'>Discount:</td>
-																<td>
-																	${item.discount} ({percentage[i]}% off)
-																</td>
+																<td className='text-dark'>Value:</td>
+																<td>&nbsp;${item.value}&nbsp;</td>
 															</tr>
-														)}
-													</tbody>
-													{/* <div className='jobs-list-item-price'>
+															{item.discount !== null && (
+																<tr>
+																	<td className='text-dark'>Discount:</td>
+																	<td>
+																		${item.discount} ({percentage[i]}% off)
+																	</td>
+																</tr>
+															)}
+														</tbody>
+														{/* <div className='jobs-list-item-price'>
 												<p className='jobs-list-item-subtitle'>
 													<span className='text-dark'>Value:</span> $
 													{item.value}
@@ -498,8 +510,9 @@ const ReservationForm = ({
 													</p>
 												)}
 											</div> */}
-												</table>
-											</div>
+													</table>
+												</div>
+											)
 										)}
 									</div>
 									{!disabled && (

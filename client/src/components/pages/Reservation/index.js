@@ -187,11 +187,7 @@ const Reservation = ({
 												<span className='tooltiptext'>Pay</span>
 											</div>
 										)}
-										<div
-											className={`tooltip${
-												res.status === 'paid' ? ' second' : ''
-											}`}
-										>
+										<div className='tooltip'>
 											<button
 												onClick={() => {
 													setAdminValues((prev) => ({
@@ -220,13 +216,8 @@ const Reservation = ({
 											</span>
 										</div>
 										{(res.status === 'requested' ||
-											res.status === 'unpaid' ||
-											res.status === 'paid') && (
-											<div
-												className={`tooltip${
-													res.status === 'paid' ? ' first' : ''
-												}`}
-											>
+											res.status === 'unpaid') && (
+											<div className='tooltip'>
 												<button
 													onClick={() =>
 														setAdminValues((prev) => ({
@@ -237,15 +228,9 @@ const Reservation = ({
 													}
 													className='btn-icon'
 												>
-													{res.status === 'paid' ? (
-														<i className='fas fa-redo-alt'></i>
-													) : (
-														<i className='far fa-trash-alt'></i>
-													)}
+													<i className='far fa-trash-alt'></i>
 												</button>
-												<span className='tooltiptext'>
-													{res.status === 'paid' ? 'Refund' : 'Delete'}
-												</span>
+												<span className='tooltiptext'>Delete</span>
 											</div>
 										)}
 									</div>

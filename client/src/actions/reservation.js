@@ -1,5 +1,4 @@
 import api from '../utils/api';
-//import history from '../utils/history';
 
 import {
 	RESERVATIONS_CLEARED,
@@ -20,7 +19,6 @@ import {
 import { setAlert } from './alert';
 import { updateLoadingSpinner } from './global';
 import { addDate, deleteDate } from './day';
-import store from '../utils/store';
 
 export const loadReservation = (reservation_id) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
@@ -284,31 +282,18 @@ export const deleteReservation = (reservation, date) => async (dispatch) => {
 	let error = false;
 
 	try {
-		let res;
-		const refund =
-			reservation.status === 'paid' &&
-			reservation.paymentId &&
-			store.getState().auth.loggedUser.id === reservation.userId;
-
-		if (refund) res = await api.put(`/reservation/cancel/${reservation.id}`);
-		else await api.delete(`/reservation/${reservation.id}`);
+		await api.delete(`/reservation/${reservation.id}`);
 
 		dispatch({
-			type: refund ? RESERVATION_UPDATED : RESERVATION_DELETED,
-			payload: refund ? res.data : reservation.id,
+			type: RESERVATION_DELETED,
+			payload: reservation.id,
 		});
 
 		const isReservation = reservation.status !== 'hourRange';
 
 		if (date) dispatch(deleteDate(date, isReservation));
 
-		dispatch(
-			setAlert(
-				isReservation ? 'Reservation Deleted' : 'Time Range Enabled',
-				'success',
-				'1'
-			)
-		);
+		dispatch(setAlert('Reservation Deleted', 'success', '1'));
 	} catch (err) {
 		if (err.response.status !== 401) {
 			dispatch(setAlert(err.response.data.msg, 'danger', '1'));

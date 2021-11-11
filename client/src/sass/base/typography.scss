@@ -161,4 +161,11 @@
 	&-danger {
 		color: $color-danger !important;
 	}
+
+	&-warning {
+		font-size: 1.3rem;
+		text-align: center;
+		color: $color-danger;
+		font-weight: 300;
+	}
 }

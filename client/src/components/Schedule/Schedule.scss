@@ -41,8 +41,7 @@
 		&-main,
 		&-title,
 		&-subtitle,
-		&-info,
-		&-warning {
+		&-info {
 			font-weight: 300;
 		}
 
@@ -76,13 +75,6 @@
 			}
 		}
 
-		&-warning {
-			font-size: 1.3rem;
-			margin-top: 1rem;
-			text-align: center;
-			color: $color-danger;
-		}
-
 		.btn.btn-primary {
 			margin-top: 1.5rem;
 		}
@@ -107,6 +99,10 @@
 				background-color: lighten($color-dark, 15%);
 				transform: scale(1.05);
 			}
+		}
+
+		.text-warning {
+			margin-top: 1rem;
 		}
 	}
 }

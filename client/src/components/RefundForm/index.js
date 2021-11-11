@@ -46,7 +46,6 @@ const RefundForm = ({ confirm, setToggleModal, reservation }) => {
 				confirm(formData);
 			}}
 		>
-			{console.log(reservation && reservation.refundReason !== null)}
 			<h3 className='heading-primary-subheading'>
 				Reservation Total: &nbsp; ${reservation && reservation.total}
 			</h3>

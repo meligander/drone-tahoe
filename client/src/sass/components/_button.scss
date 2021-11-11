@@ -211,6 +211,12 @@
 				top: 4px;
 				right: 10px;
 
+				@media not all and (min-resolution: 0.001dpcm) {
+					@supports (-webkit-appearance: none) {
+						right: 9px;
+					}
+				}
+
 				@media screen and (max-width: 500px) {
 					font-size: 15px;
 					top: 4px;
