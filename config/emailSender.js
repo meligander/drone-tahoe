@@ -115,7 +115,7 @@ const createTransporter = async () => {
 	const accessToken = await new Promise((resolve, reject) => {
 		client.getAccessToken((err, token) => {
 			if (err) {
-				reject('Failed to create access token :(');
+				reject({ message: 'Failed to create access token :(' });
 			}
 			resolve(token);
 		});
