@@ -236,7 +236,7 @@ export const activation = (token) => async (dispatch) => {
 	}
 };
 
-export const sendEmail = (formData, outreach) => async (dispatch) => {
+export const sendEmail = (formData, outreach, stayDown) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 
 	let data = {};
@@ -254,7 +254,7 @@ export const sendEmail = (formData, outreach) => async (dispatch) => {
 		});
 
 		dispatch(setAlert(res.data.msg, 'success', '1'));
-		window.scrollTo(0, 0);
+		if (!stayDown) window.scrollTo(0, 0);
 		dispatch(updateLoadingSpinner(false));
 		return true;
 	} catch (err) {

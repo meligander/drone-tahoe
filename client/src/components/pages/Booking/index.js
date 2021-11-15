@@ -66,15 +66,18 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 
 	const onSubmit = (e) => {
 		e.preventDefault();
-		sendEmail({
-			...formData,
-			...(loggedUser && {
-				name: loggedUser.name,
-				lastname: loggedUser.lastname,
-				phone: loggedUser.cel,
-				email: loggedUser.email,
-			}),
-		});
+		sendEmail(
+			{
+				...formData,
+				...(loggedUser && {
+					name: loggedUser.name,
+					lastname: loggedUser.lastname,
+					phone: loggedUser.cel,
+					email: loggedUser.email,
+				}),
+			},
+			true
+		);
 	};
 
 	return (

@@ -40,7 +40,7 @@ const sendEmail = async (user_email, subject, text) => {
 		emailTransporter.sendMail(mailOptions, (error, info) => {
 			if (error) {
 				console.error(error.message);
-				reject('Something went wrong...');
+				reject({ message: 'Something went wrong...' });
 			} else {
 				console.log('Email sent: ' + info.response);
 				resolve(true);
@@ -64,7 +64,7 @@ const sendToCompany = async (subject, message) => {
 		emailTransporter.sendMail(mailOptions, (error, info) => {
 			if (error) {
 				console.error(error.message);
-				reject('Something went wrong...');
+				reject({ message: 'Something went wrong...' });
 			} else {
 				console.log('Email sent: ' + info.response);
 				resolve(true);
@@ -92,7 +92,7 @@ const sendOutreachEmail = async (subject, message, users) => {
 		emailTransporter.sendMail(mailOptions, (error, info) => {
 			if (error) {
 				console.error(error.message);
-				reject('Something went wrong...');
+				reject({ message: 'Something went wrong...' });
 			} else {
 				console.log('Email sent: ' + info.response);
 				resolve(true);
