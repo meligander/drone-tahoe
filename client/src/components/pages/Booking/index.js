@@ -9,7 +9,7 @@ import Loading from '../../layouts/Loading';
 import './Booking.scss';
 
 const Booking = ({ sendEmail, auth: { loggedUser } }) => {
-	const [formData, setFormData] = useState({
+	const initialValues = {
 		name: '',
 		lastname: '',
 		phone: '',
@@ -17,7 +17,9 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 		company: '',
 		experience: '',
 		message: '',
-	});
+	};
+
+	const [formData, setFormData] = useState(initialValues);
 
 	const { name, lastname, phone, email, company, experience, message } =
 		formData;
@@ -26,47 +28,9 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
 	};
 
-	/* useEffect(() => {
-		var form = document.getElementById('form');
-
-		async function handleSubmit(event) {
-			event.preventDefault();
-			var status = document.getElementById('status');
-			var confirmation = document.getElementById('confirmation');
-			var error1 = document.getElementById('error');
-
-			var data = new FormData(formData);
-			fetch(event.target.action, {
-				method: form.method,
-				body: data,
-				headers: {
-					Accept: 'application/json',
-				},
-			})
-				.then(() => {
-					form.reset();
-					status.style.display = 'block';
-					confirmation.style.display = 'block';
-					setTimeout(function () {
-						status.style.display = 'none';
-						confirmation.style.display = 'none';
-					}, 3000);
-				})
-				.catch(() => {
-					error1.style.display = 'block';
-					confirmation.style.display = 'block';
-					setTimeout(function () {
-						error1.style.display = 'none';
-						confirmation.style.display = 'none';
-					}, 3000);
-				});
-		}
-		form.addEventListener('submit', handleSubmit);
-	}, []); */
-
-	const onSubmit = (e) => {
+	const onSubmit = async (e) => {
 		e.preventDefault();
-		sendEmail(
+		const answer = await sendEmail(
 			{
 				...formData,
 				...(loggedUser && {
@@ -76,8 +40,11 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 					email: loggedUser.email,
 				}),
 			},
+			false,
 			true
 		);
+
+		if (answer) setFormData(initialValues);
 	};
 
 	return (
