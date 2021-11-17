@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -21,10 +21,10 @@ const PublicRoutes = ({
 		);
 	} else
 		return (
-			<>
+			<Fragment>
 				<Loading />
 				<Route exact path={path} component={Component} />
-			</>
+			</ Fragment>
 		);
 };
 

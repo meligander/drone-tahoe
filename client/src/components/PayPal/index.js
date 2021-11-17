@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
@@ -10,8 +10,6 @@ import {
 
 import Alert from '../layouts/Alert';
 
-const PayPalButton = window.paypal.Buttons.driver('react', { React, ReactDOM });
-
 const PayPal = ({
 	reservation,
 	loadReservationJobs,
@@ -22,6 +20,8 @@ const PayPal = ({
 	auth: { loggedUser },
 	jobsXreservation: { jobsXreservations, loading },
 }) => {
+	const PayPalButton = window.paypal ? window.paypal.Buttons.driver('react', { React, ReactDOM }): undefined;
+
 	useEffect(() => {
 		if (loading && reservation) loadReservationJobs(reservation.id, 'full');
 	}, [loading, reservation, loadReservationJobs]);
@@ -33,7 +33,7 @@ const PayPal = ({
 			</h3>
 			<Alert type='2' />
 			{loggedUser && loggedUser.type === 'admin' && (
-				<>
+				<Fragment>
 					<button
 						className='btn btn-tertiary'
 						onClick={async () => {
@@ -44,10 +44,10 @@ const PayPal = ({
 						Pay Cash
 					</button>
 					<p className='payment-text'>OR</p>
-				</>
+				</ Fragment>
 			)}
 
-			<PayPalButton
+			{ PayPalButton  && (<PayPalButton
 				createOrder={async () => {
 					const jobs =
 						reservation.travelExpenses === null
@@ -78,7 +78,7 @@ const PayPal = ({
 					}
 				}}
 				onError={(err) => console.log(err)}
-			/>
+			/>)}
 		</div>
 	);
 };

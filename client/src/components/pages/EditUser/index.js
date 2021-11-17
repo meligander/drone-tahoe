@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom';
 
@@ -96,24 +96,24 @@ const EditUser = ({
 		switch (adminType) {
 			case 'profile':
 				return (
-					<>
+					<Fragment>
 						<i className='fas fa-user-alt'></i>
 						&nbsp;My Profile
-					</>
+					</Fragment>
 				);
 			case 'signup':
 				return (
-					<>
+					<Fragment>
 						<i className='fas fa-user-plus'></i>
 						&nbsp;New account
-					</>
+					</Fragment>
 				);
 			case 'edit-user':
 				return (
-					<>
+					<Fragment>
 						<i className='fas fa-user-edit'></i>
 						&nbsp;Edit User
-					</>
+					</Fragment>
 				);
 			default:
 				break;
@@ -128,7 +128,7 @@ const EditUser = ({
 					{title()}
 				</h2>
 				{!emailSent ? (
-					<>
+					<Fragment>
 						<Alert type='1' />
 						<form className='form' onSubmit={saveUser}>
 							<div className='form__group'>
@@ -197,7 +197,7 @@ const EditUser = ({
 								</div>
 							)}
 							{adminType === 'signup' && (
-								<>
+								<Fragment>
 									<div className='form__group'>
 										<input
 											className='form__input'
@@ -225,7 +225,7 @@ const EditUser = ({
 											Confirm Password
 										</label>
 									</div>
-								</>
+								</ Fragment>
 							)}
 							<div className='form__group'>
 								<input
@@ -259,7 +259,7 @@ const EditUser = ({
 								</p>
 							)}
 						</form>
-					</>
+					</ Fragment>
 				) : (
 					<div className='user-email u-center-text'>
 						<div>

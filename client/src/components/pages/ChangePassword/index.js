@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 
 import { resetPassword } from '../../../actions/auth';
@@ -52,7 +52,7 @@ const ChangePassword = ({
 	};
 
 	return (
-		<>
+		<Fragment>
 			<div className={`changepassword ${float ? 'float' : ''}`} ref={container}>
 				<h2 className='heading-primary'>Reset Password</h2>
 				<form onSubmit={onSubmit} className='form'>
@@ -88,7 +88,7 @@ const ChangePassword = ({
 					</div>
 				</form>
 			</div>
-		</>
+		</Fragment>
 	);
 };
 

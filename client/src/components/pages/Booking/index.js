@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { connect } from 'react-redux';
 
 import { sendEmail } from '../../../actions/auth';
@@ -44,7 +44,7 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 			true
 		);
 
-		if (answer) setFormData(initialValues);
+		if(answer) setFormData(initialValues)
 	};
 
 	return (
@@ -70,7 +70,7 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 								</div>
 								<Alert type='1' />
 								{!loggedUser && (
-									<>
+									<Fragment>
 										<div className='form__group'>
 											<div className='form__group-sub'>
 												<div className='form__group-sub-item'>
@@ -139,7 +139,7 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 												</div>
 											</div>
 										</div>
-									</>
+									</Fragment>
 								)}
 
 								<div className='form__group'>

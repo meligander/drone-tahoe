@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Fragment } from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
@@ -213,14 +213,14 @@ const ManageSchedule = ({
 		switch (tab) {
 			case 0:
 				return (
-					<>
+					<Fragment>
 						<h5 className='manage-schedule-details-title'>Select a Date</h5>
-					</>
+					</ Fragment>
 				);
 			case 1:
 				return (
 					!loading && (
-						<>
+						<Fragment>
 							<Alert type='1' />
 							<h5 className='manage-schedule-details-title'>
 								{reservations.every((item) => item.status === 'hourRange')
@@ -310,7 +310,7 @@ const ManageSchedule = ({
 									</button>
 								</div>
 							)}
-						</>
+						</ Fragment>
 					)
 				);
 			case 2:
@@ -319,7 +319,7 @@ const ManageSchedule = ({
 					return pastDate.getUTCDate() === date.getDate();
 				});
 				return (
-					<>
+					<Fragment>
 						<h5
 							className={`manage-schedule-details-title ${
 								disable && 'text-danger'
@@ -329,7 +329,7 @@ const ManageSchedule = ({
 						</h5>
 						<div className='btn-center'>
 							{today.isBefore(moment(date)) && (
-								<>
+								<Fragment>
 									{disable ? (
 										<button
 											className='btn'
@@ -342,7 +342,7 @@ const ManageSchedule = ({
 											<i className='far fa-check-circle'></i> &nbsp; Date
 										</button>
 									) : (
-										<>
+										<Fragment>
 											<button
 												className='btn'
 												onClick={() =>
@@ -370,16 +370,16 @@ const ManageSchedule = ({
 											>
 												<i className='fas fa-ban'></i> &nbsp; Hour Range
 											</button>
-										</>
+										</Fragment>
 									)}
-								</>
+								</Fragment>
 							)}
 						</div>
-					</>
+					</Fragment>
 				);
 			case 3:
 				return (
-					<>
+					<Fragment>
 						<h5 className='manage-schedule-details-title'>
 							<Moment date={date[0]} format='MM/DD/YYYY' /> -{' '}
 							<Moment date={date[1]} format='MM/DD/YYYY' />
@@ -405,7 +405,7 @@ const ManageSchedule = ({
 								<i className='fas fa-ban'></i> &nbsp; Date Range
 							</button>
 						</div>
-					</>
+					</ Fragment>
 				);
 			default:
 				break;

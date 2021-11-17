@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -161,7 +161,7 @@ const Outreach = ({
 				</div>
 			</form>
 			{!loading && (
-				<>
+				<Fragment>
 					{jobsXreservations.length > 0 ? (
 						<div>
 							<div className='wrapper'>
@@ -269,7 +269,7 @@ const Outreach = ({
 							</button>
 						</div>
 					)}
-				</>
+				</Fragment>
 			)}
 		</div>
 	);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
@@ -138,7 +138,7 @@ const ReservationsList = ({
 				</div>
 			</form>
 			{!loading && (
-				<>
+				<Fragment>
 					{users.length > 0 ? (
 						<div>
 							<div className='wrapper'>
@@ -199,7 +199,7 @@ const ReservationsList = ({
 							{error.msg}
 						</h3>
 					)}
-				</>
+				</ Fragment>
 			)}
 		</div>
 	);

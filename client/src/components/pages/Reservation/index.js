@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Moment from 'react-moment';
@@ -141,7 +141,7 @@ const Reservation = ({
 				)
 			)}
 			{loggedUser && (
-				<>
+				<Fragment>
 					<div className='reservation-list' ref={list}>
 						{!loadingReservations && reservations.length > 0 ? (
 							reservations.map((res, i) => (
@@ -243,7 +243,7 @@ const Reservation = ({
 						)}
 					</div>
 					{!loading && loggedUser.cel !== '0' && (
-						<>
+						<Fragment>
 							{!editReservation ? (
 								<div className='btn-right'>
 									<button
@@ -273,9 +273,9 @@ const Reservation = ({
 									}
 								/>
 							)}
-						</>
+						</ Fragment>
 					)}
-				</>
+				</ Fragment>
 			)}
 		</div>
 	);

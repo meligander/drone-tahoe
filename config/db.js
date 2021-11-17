@@ -17,16 +17,6 @@ const sequelize = new Sequelize(
 	}
 );
 
-/* const sequelize = new Sequelize(
-	process.env.SQL_TEST_DATABASE,
-	process.env.SQL_TEST_USERNAME,
-	process.env.SQL_TEST_PASSWORD,
-	{
-		host: 's29oj5odr85rij2o.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
-		dialect: 'mysql',
-	}
-); */
-
 const User = UserModel(sequelize, Sequelize);
 const Reservation = ReservationModel(sequelize, Sequelize);
 const Day = DayModel(sequelize, Sequelize);

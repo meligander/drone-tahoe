@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Fragment } from 'react';
 import Moment from 'react-moment';
 import moment from 'moment';
 import Calendar from 'react-calendar';
@@ -146,7 +146,7 @@ const Schedule = ({
 		}
 
 		return posibleHours.length > 0 ? (
-			<>
+			<Fragment>
 				<p className='schedule-details-title'>
 					{disabled ? 'Hour Range' : 'Start Time'}:
 				</p>{' '}
@@ -164,7 +164,7 @@ const Schedule = ({
 								}`}
 					</div>
 				))}
-			</>
+			</ Fragment>
 		) : (
 			<h2 className='schedule-details-main error'>
 				No availability on this day
@@ -191,7 +191,7 @@ const Schedule = ({
 			posibleHours.push(time);
 
 		return posibleHours.length > 0 ? (
-			<>
+			< Fragment>
 				<p className='schedule-details-title'>End Time:</p>{' '}
 				{posibleHours.map((hour, i) => (
 					<div
@@ -202,7 +202,7 @@ const Schedule = ({
 						{`${hour % 12 !== 0 ? hour % 12 : 12} ${hour >= 12 ? 'pm' : 'am'}`}
 					</div>
 				))}
-			</>
+			</ Fragment>
 		) : (
 			<h2 className='schedule-details-main error'>
 				No availability on this day
@@ -214,12 +214,12 @@ const Schedule = ({
 		switch (tab) {
 			case 0:
 				return (
-					<>
+					<Fragment>
 						<h5 className='schedule-details-main'>
 							Pick up a Date and Time{' '}
 							{loggedUser.type !== 'admin' && 'you are Available'}
 						</h5>
-					</>
+					</ Fragment>
 				);
 			case 1:
 				return !loadingAvailableHours && startTime();
@@ -227,7 +227,7 @@ const Schedule = ({
 				return hourFrom !== '' && endTime();
 			case 3:
 				return (
-					<>
+					<Fragment>
 						<p className='schedule-details-title'>Reservation Schedule:</p>
 						<form
 							className='form'
@@ -279,7 +279,7 @@ const Schedule = ({
 								</button>
 							</div>
 						</form>
-					</>
+					</ Fragment>
 				);
 			default:
 				break;

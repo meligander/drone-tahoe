@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GoogleLogin } from 'react-google-login';
@@ -82,7 +82,7 @@ const Login = ({
 							{forgotPassword ? 'Change Password' : 'Login'}
 						</h2>
 						{forgotPassword ? (
-							<>
+							<Fragment>
 								<div className='form-section'>
 									<div className='form-group'>
 										<input
@@ -124,9 +124,9 @@ const Login = ({
 								>
 									Go Back
 								</button>
-							</>
+							</Fragment>
 						) : (
-							<>
+							<Fragment>
 								<div className='form-section'>
 									<Alert type='1' />
 									<div className='form__group'>
@@ -205,7 +205,7 @@ const Login = ({
 										</span>
 									</div>
 								</div>
-							</>
+							</ Fragment>
 						)}
 					</form>
 					<div className='login-img img'></div>

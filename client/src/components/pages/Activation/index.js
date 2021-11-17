@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -45,15 +45,15 @@ const Activation = ({
 		!loading && (
 			<div ref={container} className={`activation ${float ? 'float' : ''}`}>
 				{error !== '' ? (
-					<>
+					<Fragment>
 						<h2 className='activation-error-header'>
 							Ups... something went wrong!
 						</h2>
 						<p className='activation-error-text'>{error.msg}</p>
-					</>
+					</Fragment>
 				) : (
 					loggedUser !== null && (
-						<>
+						<Fragment>
 							<h2 className='heading-secondary-gradient'>
 								Welcome {loggedUser.name + ' ' + loggedUser.lastname}!
 							</h2>
@@ -73,7 +73,7 @@ const Activation = ({
 									Book now
 								</Link>
 							</div>
-						</>
+						</Fragment>
 					)
 				)}
 			</div>

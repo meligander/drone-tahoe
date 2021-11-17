@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 
 import { loadUsers, clearUsers } from '../../actions/user';
@@ -95,7 +95,7 @@ const UserField = ({
 					}`}
 				>
 					{!loading && (
-						<>
+						<Fragment>
 							{users.length > 0 ? (
 								users.map((user) => (
 									<li
@@ -111,7 +111,7 @@ const UserField = ({
 									No matching results
 								</li>
 							)}
-						</>
+						</ Fragment>
 					)}
 				</ul>
 			)}

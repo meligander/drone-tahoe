@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -90,7 +90,7 @@ const Navbar = ({
 					</li>
 
 					{!loading && loggedUser && loggedUser.type === 'admin' ? (
-						<>
+						<Fragment>
 							<li className='nav-item'>
 								<Link
 									to='/reservations-list'
@@ -159,9 +159,9 @@ const Navbar = ({
 									Outreach
 								</Link>
 							</li>
-						</>
+						</Fragment>
 					) : (
-						<>
+						<Fragment>
 							<li className='nav-item'>
 								<Link
 									to='/servicesfull'
@@ -209,7 +209,7 @@ const Navbar = ({
 									{!loading && loggedUser ? 'Reservations' : 'Contact'}
 								</Link>
 							</li>
-						</>
+						</Fragment>
 					)}
 
 					<li

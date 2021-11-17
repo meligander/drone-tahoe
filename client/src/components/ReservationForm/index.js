@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Moment from 'react-moment';
@@ -271,7 +271,7 @@ const ReservationForm = ({
 					)}
 					{!changeDate && reservation && <Alert type='2' />}
 					{reservation && loggedUser && loggedUser.type === 'admin' && (
-						<>
+						<Fragment>
 							<p className='reservation-form-item'>
 								<span className='reservation-form-title'>Status:</span>{' '}
 								{reservation.status.charAt(0).toUpperCase() +
@@ -279,7 +279,7 @@ const ReservationForm = ({
 							</p>
 							{reservation.status !== 'unpaid' &&
 								reservation.status !== 'requested' && (
-									<>
+									<Fragment>
 										<p className='reservation-form-item'>
 											<span className='reservation-form-title'>
 												Payment method:
@@ -294,9 +294,9 @@ const ReservationForm = ({
 												{reservation.paymentId}
 											</p>
 										)}
-									</>
+									</ Fragment>
 								)}
-						</>
+						</ Fragment>
 					)}
 
 					{loggedUser && loggedUser.type === 'admin' && (
@@ -378,7 +378,7 @@ const ReservationForm = ({
 											</label>
 										</div>
 										{loggedUser.type === 'admin' ? (
-											<>
+											<Fragment>
 												<div className='form__group'>
 													<input
 														className='form__input'
@@ -481,7 +481,7 @@ const ReservationForm = ({
 														/>
 													</div>
 												)}
-											</>
+											</ Fragment>
 										) : (
 											item.value && (
 												<div className='jobs-list-item-price'>

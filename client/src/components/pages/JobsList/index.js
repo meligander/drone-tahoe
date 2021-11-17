@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { connect } from 'react-redux';
 
 import { loadJobs, deleteJob, registerUpdateJob } from '../../../actions/jobs';
@@ -121,7 +121,7 @@ const JobsList = ({
 				</div>
 			</form>
 			{!loading && (
-				<>
+				<Fragment>
 					{jobs.length > 0 ? (
 						<div>
 							<div className='wrapper'>
@@ -199,7 +199,7 @@ const JobsList = ({
 							<i className='fas fa-plus'></i> &nbsp; Job
 						</button>
 					</div>
-				</>
+				</ Fragment>
 			)}
 		</div>
 	);

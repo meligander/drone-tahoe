@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Moment from 'react-moment';
@@ -218,9 +218,9 @@ const ReservationsList = ({
 				</div>
 			</form>
 			{!loading && (
-				<>
+				<Fragment>
 					{reservations.length > 0 ? (
-						<>
+						<Fragment>
 							<div className='wrapper'>
 								<table className='icon-6'>
 									<thead>
@@ -354,7 +354,7 @@ const ReservationsList = ({
 								&nbsp;
 								{reservations.length}
 							</div>
-						</>
+						</ Fragment>
 					) : (
 						<h3 className='heading-primary-subheading u-center-text text-danger'>
 							{error.msg}
@@ -373,7 +373,7 @@ const ReservationsList = ({
 							<i className='fas fa-plus'></i> &nbsp; Reservation
 						</button>
 					</div>
-				</>
+				</Fragment>
 			)}
 		</div>
 	);
