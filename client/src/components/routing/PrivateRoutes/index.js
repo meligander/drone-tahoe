@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -11,8 +11,7 @@ const PrivateRoutes = ({
 	path,
 }) => {
 	if (!loading && token) {
-
-		if (types.length === 0 || types.some(item=> item === loggedUser.type)) {
+		if (types.length === 0 || types.some((item) => item === loggedUser.type)) {
 			return (
 				<Fragment>
 					<Loading />
