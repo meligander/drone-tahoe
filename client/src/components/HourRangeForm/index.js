@@ -49,6 +49,7 @@ const HourRangeForm = ({
 	}, [loadingAvailableHours, availableHours, reservations]);
 
 	const onChange = (e) => {
+		e.persist();
 		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
 
 		if (e.target.id === 'hourFrom' && e.target.value !== '') {

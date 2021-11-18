@@ -215,7 +215,7 @@ const ManageSchedule = ({
 				return (
 					<Fragment>
 						<h5 className='manage-schedule-details-title'>Select a Date</h5>
-					</ Fragment>
+					</Fragment>
 				);
 			case 1:
 				return (
@@ -310,7 +310,7 @@ const ManageSchedule = ({
 									</button>
 								</div>
 							)}
-						</ Fragment>
+						</Fragment>
 					)
 				);
 			case 2:
@@ -405,7 +405,7 @@ const ManageSchedule = ({
 								<i className='fas fa-ban'></i> &nbsp; Date Range
 							</button>
 						</div>
-					</ Fragment>
+					</Fragment>
 				);
 			default:
 				break;

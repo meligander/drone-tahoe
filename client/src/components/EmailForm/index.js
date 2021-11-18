@@ -15,6 +15,7 @@ const EmailForm = ({ setToggleModal, toggleModal, confirm, users }) => {
 	}, [toggleModal]);
 
 	const onChange = (e) => {
+		e.persist();
 		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
 	};
 

@@ -29,6 +29,7 @@ const RefundForm = ({ confirm, setToggleModal, reservation }) => {
 	}, [reservation]);
 
 	const onChange = (e) => {
+		e.persist();
 		if (
 			e.target.id !== 'amount' ||
 			e.target.value === '' ||

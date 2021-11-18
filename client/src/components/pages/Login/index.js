@@ -40,9 +40,10 @@ const Login = ({
 	const { forgotPassword } = adminValues;
 
 	const onChange = (e) => {
+		e.persist();
 		setFormData({
 			...formData,
-			[e.target.name]: e.target.value,
+			[e.target.id]: e.target.value,
 		});
 	};
 
@@ -88,9 +89,9 @@ const Login = ({
 										<input
 											className='form__input'
 											type='email'
-											name='email'
+											id='email'
 											value={email}
-											onChange={(e) => onChange(e)}
+											onChange={onChange}
 											placeholder='Email'
 										/>
 										<label htmlFor='email' className='form__label'>
@@ -133,9 +134,9 @@ const Login = ({
 										<input
 											className='form__input'
 											type='email'
-											name='email'
+											id='email'
 											value={email}
-											onChange={(e) => onChange(e)}
+											onChange={onChange}
 											placeholder='Email'
 										/>
 										<label htmlFor='email' className='form__label'>
@@ -147,11 +148,11 @@ const Login = ({
 											className='form__input'
 											type='password'
 											value={password}
-											name='password'
-											onChange={(e) => onChange(e)}
+											id='password'
+											onChange={onChange}
 											placeholder='Password'
 										/>
-										<label htmlFor='name' className='form__label'>
+										<label htmlFor='password' className='form__label'>
 											Password
 										</label>
 									</div>
@@ -205,7 +206,7 @@ const Login = ({
 										</span>
 									</div>
 								</div>
-							</ Fragment>
+							</Fragment>
 						)}
 					</form>
 					<div className='login-img img'></div>

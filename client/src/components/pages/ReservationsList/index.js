@@ -67,6 +67,7 @@ const ReservationsList = ({
 	}, [loading, loadReservations, loadJobs]);
 
 	const onChange = (e) => {
+		e.persist();
 		setFormData((prev) => ({
 			...prev,
 			[e.target.id]: e.target.value,
@@ -354,7 +355,7 @@ const ReservationsList = ({
 								&nbsp;
 								{reservations.length}
 							</div>
-						</ Fragment>
+						</Fragment>
 					) : (
 						<h3 className='heading-primary-subheading u-center-text text-danger'>
 							{error.msg}

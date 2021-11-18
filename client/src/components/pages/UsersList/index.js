@@ -32,6 +32,7 @@ const ReservationsList = ({
 	}, [loading, loadUsers]);
 
 	const onChange = (e) => {
+		e.persist();
 		setFormData((prev) => ({
 			...prev,
 			[e.target.id]: e.target.value,
@@ -199,7 +200,7 @@ const ReservationsList = ({
 							{error.msg}
 						</h3>
 					)}
-				</ Fragment>
+				</Fragment>
 			)}
 		</div>
 	);

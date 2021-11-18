@@ -33,6 +33,7 @@ const JobsList = ({
 	}, [loading, loadJobs]);
 
 	const onChange = (e) => {
+		e.persist();
 		setFormData((prev) => ({
 			...prev,
 			[e.target.id]: e.target.value,
@@ -199,7 +200,7 @@ const JobsList = ({
 							<i className='fas fa-plus'></i> &nbsp; Job
 						</button>
 					</div>
-				</ Fragment>
+				</Fragment>
 			)}
 		</div>
 	);

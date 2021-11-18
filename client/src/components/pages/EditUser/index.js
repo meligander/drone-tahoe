@@ -79,6 +79,7 @@ const EditUser = ({
 	}, [emailSent]);
 
 	const onChange = (e) => {
+		e.persist();
 		setFormData((prev) => ({
 			...prev,
 			[e.target.id]: e.target.value,
@@ -225,7 +226,7 @@ const EditUser = ({
 											Confirm Password
 										</label>
 									</div>
-								</ Fragment>
+								</Fragment>
 							)}
 							<div className='form__group'>
 								<input
@@ -259,7 +260,7 @@ const EditUser = ({
 								</p>
 							)}
 						</form>
-					</ Fragment>
+					</Fragment>
 				) : (
 					<div className='user-email u-center-text'>
 						<div>

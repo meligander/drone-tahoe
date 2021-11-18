@@ -123,6 +123,7 @@ const ReservationForm = ({
 	};
 
 	const onChange = (e) => {
+		e.persist();
 		if (e.target.name === 'travelExpenses') {
 			if (regex.test(e.target.value) || e.target.value === '') {
 				setFormData((prev) => ({
@@ -134,12 +135,13 @@ const ReservationForm = ({
 		} else {
 			setFormData((prev) => ({
 				...prev,
-				[e.target.name]: e.target.value,
+				[e.target.id]: e.target.value,
 			}));
 		}
 	};
 
 	const onChangeJobs = (e) => {
+		e.persist();
 		if (
 			e.target.name === 'jobId' ||
 			e.target.value === '' ||
@@ -163,6 +165,7 @@ const ReservationForm = ({
 	};
 
 	const onChangeJobsDiscount = (e) => {
+		e.persist();
 		if (regex.test(e.target.value)) {
 			if (
 				e.target.name === 'discount' &&
@@ -294,9 +297,9 @@ const ReservationForm = ({
 												{reservation.paymentId}
 											</p>
 										)}
-									</ Fragment>
+									</Fragment>
 								)}
-						</ Fragment>
+						</Fragment>
 					)}
 
 					{loggedUser && loggedUser.type === 'admin' && (
@@ -327,7 +330,6 @@ const ReservationForm = ({
 							onChange={onChange}
 							disabled={disabled}
 							id='address'
-							name='address'
 							placeholder='Address'
 						/>
 						<label htmlFor='address' className='form__label'>
@@ -481,7 +483,7 @@ const ReservationForm = ({
 														/>
 													</div>
 												)}
-											</ Fragment>
+											</Fragment>
 										) : (
 											item.value && (
 												<div className='jobs-list-item-price'>
@@ -563,7 +565,6 @@ const ReservationForm = ({
 							rows='3'
 							onChange={onChange}
 							placeholder='Special Request'
-							name='comments'
 						/>
 						<label htmlFor='comments' className='form__label'>
 							Special Request
@@ -607,7 +608,6 @@ const ReservationForm = ({
 								onChange={onChange}
 								disabled={disabled || loggedUser.type === 'customer'}
 								id='travelExpenses'
-								name='travelExpenses'
 								placeholder='Travel Expenses'
 							/>
 							<label htmlFor='travelExpenses' className='form__label'>

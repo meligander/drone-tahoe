@@ -58,6 +58,7 @@ const Outreach = ({
 	};
 
 	const onChange = (e, job) => {
+		e.persist();
 		if (
 			e.target.id !== 'total' ||
 			(e.target.id === 'total' &&

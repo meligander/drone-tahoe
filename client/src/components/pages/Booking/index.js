@@ -25,7 +25,9 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 		formData;
 
 	const onChange = (e) => {
-		setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+		e.persist();
+		if (e.target)
+			setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
 	};
 
 	const onSubmit = async (e) => {
@@ -44,7 +46,7 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 			true
 		);
 
-		if(answer) setFormData(initialValues)
+		if (answer) setFormData(initialValues);
 	};
 
 	return (
@@ -79,12 +81,11 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 														className='form__input'
 														value={name}
 														onChange={onChange}
-														name='name'
 														placeholder='First Name'
 														id='name'
 														required
 													/>
-													<label htmlFor='nafme' className='form__label'>
+													<label htmlFor='name' className='form__label'>
 														First Name
 													</label>
 												</div>
@@ -92,7 +93,6 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 													<input
 														type='text'
 														className='form__input'
-														name='lastname'
 														value={lastname}
 														onChange={onChange}
 														placeholder='Last Name'
@@ -111,7 +111,6 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 													<input
 														type='text'
 														className='form__input'
-														name='phone'
 														value={phone}
 														onChange={onChange}
 														placeholder='Phone'
@@ -126,7 +125,6 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 													<input
 														type='email'
 														className='form__input'
-														name='email'
 														placeholder='Email Address'
 														value={email}
 														onChange={onChange}
@@ -146,7 +144,6 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 									<input
 										type='text'
 										className='form__input'
-										name='company'
 										value={company}
 										onChange={onChange}
 										placeholder='Company Name'
@@ -167,7 +164,6 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 										}`}
 										value={experience}
 										onChange={onChange}
-										name='experience'
 									>
 										<option value=''>* Select your Experience</option>
 										<option value='Own Drones'>Own Drones</option>
@@ -188,7 +184,6 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 										value={message}
 										onChange={onChange}
 										className='form__input'
-										name='message'
 										placeholder='Tell us About Your Project'
 										id='message'
 									/>
