@@ -104,6 +104,8 @@ const sendOutreachEmail = async (subject, message, users) => {
 };
 
 const createTransporter = async () => {
+	let accessToken;
+
 	if (process.env.NODE_ENV !== 'production') {
 		const client = new OAuth2(
 			process.env.GOOGLE_CLIENTID,
@@ -115,7 +117,7 @@ const createTransporter = async () => {
 			refresh_token: process.env.REFRESH_TOKEN,
 		});
 
-		const accessToken = await new Promise((resolve, reject) => {
+		accessToken = await new Promise((resolve, reject) => {
 			client.getAccessToken((err, token) => {
 				if (err) {
 					reject('Failed to create access token :(');
