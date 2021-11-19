@@ -7,25 +7,29 @@ const DayModel = require('../models/days');
 const JobModel = require('../models/jobs');
 const JobXReservationModel = require('../models/jobsXReservations');
 
-const sequelize = new Sequelize(
-	process.env.SQL_DATABASE,
-	process.env.SQL_USERNAME,
-	process.env.SQL_PASSWORD,
-	{
-		host: 'localhost',
-		dialect: 'mysql',
-	}
-);
+let sequelize;
 
-/*const sequelize = new Sequelize(
-	process.env.SQL_TEST_DATABASE,
-	process.env.SQL_TEST_USERNAME,
-	process.env.SQL_TEST_PASSWORD,
-	{
-		host: 's29oj5odr85rij2o.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
-		dialect: 'mysql',
-	}
-);*/
+if (process.env.NODE_ENV === 'production') {
+	sequelize = new Sequelize(
+		process.env.SQL_DATABASE,
+		process.env.SQL_USERNAME,
+		process.env.SQL_PASSWORD,
+		{
+			host: 'localhost',
+			dialect: 'mysql',
+		}
+	);
+} else {
+	sequelize = new Sequelize(
+		process.env.SQL_TEST_DATABASE,
+		process.env.SQL_TEST_USERNAME,
+		process.env.SQL_TEST_PASSWORD,
+		{
+			host: 's29oj5odr85rij2o.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
+			dialect: 'mysql',
+		}
+	);
+}
 
 const User = UserModel(sequelize, Sequelize);
 const Reservation = ReservationModel(sequelize, Sequelize);
