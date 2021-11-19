@@ -53,6 +53,7 @@ const sendToCompany = async (subject, message) => {
 	const emailTransporter = await createTransporter();
 
 	const mailOptions = {
+		from: `Drone Tahoe <${process.env.EMAIL}>`,
 		to: process.env.EMAIL,
 		subject,
 		message,
@@ -142,7 +143,7 @@ const createTransporter = async () => {
 		},
 		auth: {
 			user: process.env.EMAIL,
-			pass: process.env.EMAIL_PASSWORD,
+			pass: process.env.EMAIL,
 		},
 	});
 
