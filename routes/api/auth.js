@@ -367,10 +367,10 @@ router.post(
 	}
 );
 
-//@route    PUT /api/auth/password
+//@route    POST /api/auth/password
 //@desc     Send password update link
 //@access   Public
-router.put(
+router.post(
 	'/password',
 	[check('email', 'Email is required').not().isEmpty()],
 	async (req, res) => {
@@ -414,10 +414,10 @@ router.put(
 	}
 );
 
-//@route    PUT /api/auth/reset-password
+//@route    POST /api/auth/reset-password
 //@desc     Reset password
 //@access   Public
-router.put(
+router.post(
 	'/reset-password',
 	[
 		check(

@@ -153,7 +153,7 @@ export const sendPasswordLink = (email) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
 	let error = false;
 	try {
-		const res = await api.put('/auth/password', { email });
+		const res = await api.post('/auth/password', { email });
 
 		dispatch({
 			type: EMAIL_SENT,
@@ -186,7 +186,7 @@ export const resetPassword = (formData) => async (dispatch) => {
 		if (formData[prop] !== '') user[prop] = formData[prop];
 
 	try {
-		const res = await api.put('/auth/reset-password', user);
+		const res = await api.post('/auth/reset-password', user);
 
 		dispatch({
 			type: PASSWORD_CHANGED,

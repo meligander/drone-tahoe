@@ -383,10 +383,10 @@ router.post('/payment', [auth], async (req, res) => {
 	}
 });
 
-//@route    PUT api/reservation/payment/:reservation_id
+//@route    POST api/reservation/payment/:reservation_id
 //@desc     Update payment status
 //@access   Private
-router.put('/payment/:reservation_id', [auth], async (req, res) => {
+router.post('/payment/:reservation_id', [auth], async (req, res) => {
 	try {
 		const { paymentId } = req.body;
 
@@ -462,10 +462,10 @@ router.get('/payment/:reservation_id', [auth], async (req, res) => {
 	}
 });
 
-//@route    PUT api/reservation/status/update
+//@route    POST api/reservation/status/update
 //@desc     Update pending and paid status
 //@access   Private
-router.put('/status/update', [auth], async (req, res) => {
+router.post('/status/update', [auth], async (req, res) => {
 	try {
 		let pendingReservations = await Reservation.findAll({
 			where: { status: 'pending' },
@@ -530,10 +530,10 @@ router.put('/status/update', [auth], async (req, res) => {
 	}
 });
 
-//@route    PUT api/reservation/:reservation_id
+//@route    POST api/reservation/:reservation_id
 //@desc     Update a reservation
 //@access   Private
-router.put(
+router.post(
 	'/:reservation_id',
 	[auth, [check('address', 'Address is required').not().isEmpty()]],
 	async (req, res) => {
@@ -648,10 +648,10 @@ router.put(
 	}
 );
 
-//@route    PUT api/reservation/cancel/:reservation_id
+//@route    POST api/reservation/cancel/:reservation_id
 //@desc     Cancel a reservation
 //@access   Private
-router.put('/cancel/:reservation_id', [auth], async (req, res) => {
+router.post('/cancel/:reservation_id', [auth], async (req, res) => {
 	let { amount, refundReason } = req.body;
 
 	if (req.user.type === 'admin' && !amount)

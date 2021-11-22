@@ -72,9 +72,7 @@ export const updateUser = (formData, self) => async (dispatch) => {
 		if (formData[prop] !== '') user[prop] = formData[prop];
 
 	try {
-		console.log(formData);
 		const res = await api.post(`/user/${formData.id}`, user);
-		console.log(res);
 
 		dispatch({
 			type: self ? USERAUTH_LOADED : USER_UPDATED,

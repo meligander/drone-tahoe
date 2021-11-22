@@ -93,7 +93,7 @@ export const makePayment = (formData) => async (dispatch) => {
 
 export const updatePayment = (reservation_id, formData) => async (dispatch) => {
 	try {
-		const res = await api.put(
+		const res = await api.post(
 			`/reservation/payment/${reservation_id}`,
 			formData
 		);
@@ -115,7 +115,7 @@ export const updatePayment = (reservation_id, formData) => async (dispatch) => {
 
 export const updateStatus = () => async (dispatch) => {
 	try {
-		await api.put('/reservation/status/update');
+		await api.post('/reservation/status/update');
 
 		dispatch({
 			type: PAYMENT_STATUS_UPDATED,
@@ -170,7 +170,7 @@ export const updateReservation = (formData) => async (dispatch) => {
 	for (const prop in formData)
 		if (formData[prop] !== '') reservation[prop] = formData[prop];
 	try {
-		let res = await api.put(`/reservation/${formData.id}`, reservation);
+		let res = await api.post(`/reservation/${formData.id}`, reservation);
 
 		dispatch({
 			type: RESERVATION_UPDATED,
@@ -243,7 +243,7 @@ export const cancelReservation =
 			if (formData[prop] !== '') data[prop] = formData[prop];
 
 		try {
-			const res = await api.put(`/reservation/cancel/${reservation.id}`, data);
+			const res = await api.post(`/reservation/cancel/${reservation.id}`, data);
 
 			dispatch({
 				type:
