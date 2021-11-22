@@ -101,10 +101,10 @@ router.get('/:id', [auth], async (req, res) => {
 	}
 });
 
-//@route    PUT /api/user/:id
+//@route    POST /api/user/:id
 //@desc     Register or Update a user
 //@access   Private
-router.put(
+router.post(
 	'/:id',
 	[
 		auth,
@@ -161,7 +161,7 @@ router.put(
 
 			if (req.params.id === '0') {
 				user = await User.create(data);
-				user.password = undefined;
+				user.password = null;
 			} else {
 				await User.update(data, {
 					where: { id: req.params.id },

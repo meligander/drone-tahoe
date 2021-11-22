@@ -73,7 +73,7 @@ export const updateUser = (formData, self) => async (dispatch) => {
 
 	try {
 		console.log(formData);
-		const res = await api.put(`/user/${formData.id}`, user);
+		const res = await api.post(`/user/${formData.id}`, user);
 		console.log(res);
 
 		dispatch({
