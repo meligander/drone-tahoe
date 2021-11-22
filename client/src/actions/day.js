@@ -152,7 +152,7 @@ export const enableDate = (date) => async (dispatch) => {
 	let error = false;
 
 	try {
-		await api.delete(`/day/${date}`);
+		await api.post(`/day/delete/${date}`);
 
 		dispatch({
 			type: DAY_ENABLED,

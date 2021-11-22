@@ -282,7 +282,7 @@ export const deleteReservation = (reservation, date) => async (dispatch) => {
 	let error = false;
 
 	try {
-		await api.delete(`/reservation/${reservation.id}`);
+		await api.post(`/reservation/delete/${reservation.id}`);
 
 		dispatch({
 			type: RESERVATION_DELETED,

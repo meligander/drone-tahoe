@@ -731,10 +731,10 @@ router.post('/cancel/:reservation_id', [auth], async (req, res) => {
 	}
 });
 
-//@route    DELETE api/reservation/:reservation_id
+//@route    POST api/reservation/delete/:reservation_id
 //@desc     Delete a reservation
 //@access   Private
-router.delete('/:reservation_id', [auth], async (req, res) => {
+router.post('/delete/:reservation_id', [auth], async (req, res) => {
 	try {
 		//Remove reservation
 		const reservation = await Reservation.findOne({

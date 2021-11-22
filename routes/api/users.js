@@ -101,6 +101,21 @@ router.get('/:id', [auth], async (req, res) => {
 	}
 });
 
+//@route    POST /api/user/delete/:id
+//@desc     Delete a user
+//@access   Private && Admin
+router.post('/delete/:user_id', [auth, adminAuth], async (req, res) => {
+	try {
+		//Remove user
+		await User.destroy({ where: { id: req.params.user_id } });
+
+		res.json({ msg: 'User deleted' });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
 //@route    POST /api/user/:id
 //@desc     Register or Update a user
 //@access   Private
@@ -180,20 +195,5 @@ router.post(
 		}
 	}
 );
-
-//@route    DELETE /api/user/:id
-//@desc     Delete a user
-//@access   Private && Admin
-router.delete('/:user_id', [auth, adminAuth], async (req, res) => {
-	try {
-		//Remove user
-		await User.destroy({ where: { id: req.params.user_id } });
-
-		res.json({ msg: 'User deleted' });
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ msg: 'Server Error' });
-	}
-});
 
 module.exports = router;

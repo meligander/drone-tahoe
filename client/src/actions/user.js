@@ -113,7 +113,7 @@ export const deleteUser = (user_id) => async (dispatch) => {
 	let error = false;
 
 	try {
-		await api.delete(`/user/${user_id}`);
+		await api.post(`/user/delete/${user_id}`);
 
 		dispatch({
 			type: USER_DELETED,

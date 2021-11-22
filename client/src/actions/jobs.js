@@ -102,7 +102,7 @@ export const deleteJob = (job_id) => async (dispatch) => {
 	let error = false;
 
 	try {
-		await api.delete(`/job/${job_id}`);
+		await api.post(`/job/delete/${job_id}`);
 
 		dispatch({
 			type: JOB_DELETED,

@@ -229,6 +229,29 @@ router.get('/:month/:year/:reservation_id/:diff', [auth], async (req, res) => {
 	}
 });
 
+//@route    POST api/day/delete/:date
+//@desc     Enable a date after it being disabled
+//@access   Private && Admin
+router.post('/delete/:date', [auth, adminAuth], async (req, res) => {
+	try {
+		await Day.destroy({
+			where: {
+				date: {
+					[Op.between]: [
+						new Date(req.params.date).setUTCHours(00, 00, 00),
+						new Date(req.params.date).setUTCHours(23, 59, 59),
+					],
+				},
+			},
+		});
+
+		res.json({ msg: 'Date Enabled' });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
 //@route    POST api/day/:date
 //@desc     Disable a date
 //@access   Private && Admin
@@ -309,29 +332,6 @@ router.post('/:dateFrom/:dateTo', [auth, adminAuth], async (req, res) => {
 		}
 
 		res.json(disabledDays);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ msg: 'Server Error' });
-	}
-});
-
-//@route    DELETE api/day/:date
-//@desc     Enable a date after it being disabled
-//@access   Private && Admin
-router.delete('/:date', [auth, adminAuth], async (req, res) => {
-	try {
-		await Day.destroy({
-			where: {
-				date: {
-					[Op.between]: [
-						new Date(req.params.date).setUTCHours(00, 00, 00),
-						new Date(req.params.date).setUTCHours(23, 59, 59),
-					],
-				},
-			},
-		});
-
-		res.json({ msg: 'Date Enabled' });
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({ msg: 'Server Error' });

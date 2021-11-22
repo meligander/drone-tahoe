@@ -61,6 +61,20 @@ router.get('/', async (req, res) => {
 	}
 });
 
+//@route    POST api/job/delete/:job_id
+//@desc     Delete job
+//@access   Private && Admin
+router.post('/delete/:job_id', [auth, adminAuth], async (req, res) => {
+	try {
+		await Job.destroy({ where: { id: req.params.job_id } });
+
+		res.json({ msg: 'Job deleted' });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({ msg: 'Server Error' });
+	}
+});
+
 //@route    POST api/job/:job_id
 //@desc     Create or update a job type
 //@access   Private && Auth
@@ -112,19 +126,5 @@ router.post(
 		}
 	}
 );
-
-//@route    DELETE api/job/:job_id
-//@desc     Delete job
-//@access   Private && Admin
-router.delete('/:job_id', [auth, adminAuth], async (req, res) => {
-	try {
-		await Job.destroy({ where: { id: req.params.job_id } });
-
-		res.json({ msg: 'Job deleted' });
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).json({ msg: 'Server Error' });
-	}
-});
 
 module.exports = router;
