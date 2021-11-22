@@ -68,6 +68,7 @@ const UserField = ({
 				autoComplete={autoComplete}
 				onFocus={() => switchDisplay(true)}
 				onChange={(e) => {
+					e.persist();
 					setAdminValues((prev) => ({
 						...prev,
 						email: e.target.value,
@@ -111,7 +112,7 @@ const UserField = ({
 									No matching results
 								</li>
 							)}
-						</ Fragment>
+						</Fragment>
 					)}
 				</ul>
 			)}
