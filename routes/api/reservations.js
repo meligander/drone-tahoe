@@ -162,6 +162,12 @@ router.post(
 			travelExpenses,
 		} = req.body;
 
+		if (travelExpenses !== null && travelExpenses === '')
+			errors.push({
+				msg: 'Travel Expenses fields can not be empty',
+				param: 'travelExpenses',
+			});
+
 		errors = checkReservation(jobs, errors, req.user.type);
 
 		if (errors.length > 0) return res.status(400).json({ errors });
@@ -543,6 +549,12 @@ router.post(
 		let { hourFrom, hourTo, jobs, address, comments, total, travelExpenses } =
 			req.body;
 
+		if (travelExpenses !== null && travelExpenses === '')
+			errors.push({
+				msg: 'Travel Expenses fields can not be empty',
+				param: 'travelExpenses',
+			});
+
 		errors = checkReservation(jobs, errors, req.user.type);
 
 		if (errors.length > 0) return res.status(400).json({ errors });
@@ -803,8 +815,6 @@ const addResToDay = async (reservation) => {
 };
 
 const checkReservation = (jobs, errors, type) => {
-	const regex1 = /^\$?\d+(\.(\d{2}))?$/;
-
 	if (jobs.length === 0)
 		errors.push({ msg: 'You must have at least one job', param: 'jobs' });
 
@@ -829,14 +839,6 @@ const checkReservation = (jobs, errors, type) => {
 					: 'Discount fields can not be empty',
 				param: 'jobs',
 			});
-		else if (
-			jobs.some(
-				(item) =>
-					!regex1.test(item.value) ||
-					(item.discount !== null && !regex1.test(item.discount))
-			)
-		)
-			errors.push({ msg: 'Invalid Value. eg: 350.50', param: 'jobs' });
 	}
 
 	return errors;

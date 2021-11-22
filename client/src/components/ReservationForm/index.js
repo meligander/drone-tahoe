@@ -124,7 +124,7 @@ const ReservationForm = ({
 
 	const onChange = (e) => {
 		e.persist();
-		if (e.target.name === 'travelExpenses') {
+		if (e.target.id === 'travelExpenses') {
 			if (regex.test(e.target.value) || e.target.value === '') {
 				setFormData((prev) => ({
 					...prev,
@@ -560,7 +560,7 @@ const ReservationForm = ({
 						<textarea
 							type='text'
 							className='form__input textarea'
-							value={comments}
+							value={comments === null ? '' : comments}
 							id='comments'
 							disabled={disabled}
 							rows='3'
