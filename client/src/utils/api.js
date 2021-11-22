@@ -10,10 +10,7 @@ const api = axios.create({
 	baseURL: '/api',
 	headers: {
 		'Content-Type': 'application/json',
-		'X-Requested-With': 'XMLHttpRequest',
-		'X-CSRF-TOKEN': localStorage.token,
 	},
-	withCredentials: true,
 });
 
 api.interceptors.response.use(
