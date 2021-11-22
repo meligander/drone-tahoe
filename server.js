@@ -12,7 +12,7 @@ const app = express();
 
 require('./config/db');
 
-app.use(cors());
+app.use(cors({ origin: true }));
 app.use(express.json({ limit: '50mb', extended: false }));
 app.use(express.urlencoded({ limit: '50mb', extended: false }));
 app.use('/api', apiRouter);
