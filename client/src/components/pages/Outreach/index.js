@@ -214,6 +214,7 @@ const Outreach = ({
 															(email) => email === item.reservation.user.email
 														)}
 														onChange={(e) => {
+															e.persist();
 															if (e.target.checked)
 																setAdminValues((prev) => ({
 																	...prev,

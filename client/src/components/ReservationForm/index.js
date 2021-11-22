@@ -458,6 +458,7 @@ const ReservationForm = ({
 															id='discountChk'
 															checked={item.discount !== null}
 															onChange={(e) => {
+																e.persist();
 																if (!e.target.checked) {
 																	jobs[i].discount = null;
 																	percentage[i] = null;
@@ -583,12 +584,13 @@ const ReservationForm = ({
 								type='checkbox'
 								id='commentsChk'
 								name='commentsChk'
-								onChange={(e) =>
+								onChange={(e) => {
+									e.persist();
 									setFormData((prev) => ({
 										...prev,
 										comments: e.target.checked ? '' : null,
-									}))
-								}
+									}));
+								}}
 								className='form__input-switch'
 							/>
 						</div>
@@ -630,13 +632,14 @@ const ReservationForm = ({
 									type='checkbox'
 									id='travelExpChk'
 									name='travelExpChk'
-									onChange={(e) =>
+									onChange={(e) => {
+										e.persist();
 										setFormData((prev) => ({
 											...prev,
 											travelExpenses: e.target.checked ? '' : null,
 											...(!e.target.checked && { total: getTotal(null) }),
-										}))
-									}
+										}));
+									}}
 									className='form__input-switch'
 								/>
 							</div>

@@ -10,11 +10,10 @@ require('dotenv').config({
 
 //Paypal
 const paypal = require('@paypal/checkout-server-sdk');
-/* const Environment =
+const Environment =
 	process.env.NODE_ENV === 'production'
 		? paypal.core.LiveEnvironment
-		: paypal.core.SandboxEnvironment; */
-const Environment = paypal.core.SandboxEnvironment;
+		: paypal.core.SandboxEnvironment;
 const paypalClient = new paypal.core.PayPalHttpClient(
 	new Environment(
 		process.env.PAYPAL_CLIENT_ID,
