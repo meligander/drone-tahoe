@@ -51,7 +51,7 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 
 		const item = container.current.getBoundingClientRect();
 		const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-		window.scrollTo(0, item.bottom + scrollTop);
+		window.scrollTo(0, item.top + scrollTop);
 	};
 
 	return (
