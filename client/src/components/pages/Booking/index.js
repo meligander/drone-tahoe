@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useRef } from 'react';
 import { connect } from 'react-redux';
 
 import { sendEmail } from '../../../actions/auth';
@@ -18,6 +18,7 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 		experience: '',
 		message: '',
 	};
+	const container = useRef();
 
 	const [formData, setFormData] = useState(initialValues);
 
@@ -47,6 +48,10 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 		);
 
 		if (answer) setFormData(initialValues);
+
+		const item = container.current.getBoundingClientRect();
+		const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+		window.scrollTo(0, item.bottom + scrollTop);
 	};
 
 	return (
@@ -55,14 +60,8 @@ const Booking = ({ sendEmail, auth: { loggedUser } }) => {
 			<section className='section-book' id='section-booking'>
 				<div className='row'>
 					<div className='book'>
-						<div className='book__form'>
-							<form
-								onSubmit={onSubmit}
-								/* action='https://formspree.io/f/mzbydvqa'
-								method='POST' */
-								className='form'
-								id='form'
-							>
+						<div className='book__form' ref={container}>
+							<form onSubmit={onSubmit} className='form' id='form'>
 								<div className='u-margin-bottom-6 booking-title'>
 									<h2 className='booking-title-heading'>Contact Us</h2>
 									<h3 className='booking-title-subheading'>

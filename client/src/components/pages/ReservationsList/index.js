@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import Moment from 'react-moment';
+import { format } from 'date-fns';
 
 import {
 	loadReservations,
@@ -240,13 +240,16 @@ const ReservationsList = ({
 										{reservations.map((res) => (
 											<tr key={res.id}>
 												<td>
-													<Moment date={res.hourFrom} utc format='MM/DD/YY' />
+													{format(
+														new Date(res.hourFrom.slice(0, -1)),
+														'MM/dd/yy'
+													)}
 												</td>
 												<td>
-													<Moment date={res.hourFrom} utc format='h a' />
+													{format(new Date(res.hourFrom.slice(0, -1)), 'h aaa')}
 												</td>
 												<td>
-													<Moment date={res.hourTo} utc format='h a' />
+													{format(new Date(res.hourTo.slice(0, -1)), 'h aaa')}
 												</td>
 												<td>
 													<Link

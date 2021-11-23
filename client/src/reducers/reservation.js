@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { differenceInMilliseconds } from 'date-fns';
 import {
 	RESERVATION_LOADED,
 	RESERVATIONS_LOADED,
@@ -42,7 +42,7 @@ const reservationReducer = (state = initialState, action) => {
 		case RESERVATION_REGISTERED:
 			let reservations = [...state.reservations, payload];
 			reservations = reservations.sort((a, b) =>
-				moment(a.hourFrom).diff(moment(b.hourFrom))
+				differenceInMilliseconds(new Date(a.hourFrom), new Date(b.hourFrom))
 			);
 			return {
 				...state,

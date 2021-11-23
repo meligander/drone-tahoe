@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const moment = require('moment');
+const { isAfter, differenceInMilliseconds } = require('date-fns');
 const Op = require('sequelize').Op;
 
 //Middleware
@@ -27,8 +27,8 @@ router.get('/schedule/:month/:year', async (req, res) => {
 			where: {
 				date: {
 					[Op.between]: [
-						new Date(year, month, 1).setUTCHours(0, 0, 0),
-						new Date(year, month, monthDays).setUTCHours(23, 23, 59),
+						new Date(Date.UTC(year, month, 1, 0, 0, 0)),
+						new Date(Date.UTC(year, month, monthDays, 23, 59, 59)),
 					],
 				},
 			},
@@ -68,10 +68,7 @@ router.get('/:date/:reservation_id/:diff', [auth], async (req, res) => {
 		const day = await Day.findOne({
 			where: {
 				date: {
-					[Op.between]: [
-						new Date(date).setUTCHours(00, 00, 00),
-						new Date(date).setUTCHours(23, 59, 59),
-					],
+					[Op.between]: [date, date.setUTCHours(23, 59, 59)],
 				},
 			},
 		});
@@ -94,7 +91,7 @@ router.get('/:date/:reservation_id/:diff', [auth], async (req, res) => {
 		}
 
 		reservations = reservations.sort((a, b) =>
-			moment(a.hourFrom).diff(moment(b.hourFrom))
+			differenceInMilliseconds(a.hourFrom, b.hourFrom)
 		);
 
 		const time =
@@ -113,23 +110,20 @@ router.get('/:date/:reservation_id/:diff', [auth], async (req, res) => {
 		//[8,10], [16,17] ==> [10,16]
 		//[11,14] ==> [8,11],[14,17]
 		//[10,13] ==> [8,10],[13,17]
+		console.log(reservations);
 		for (let x = 0; x < reservations.length; x++) {
 			newArray = [
-				x === 0
-					? 8
-					: moment(reservations[x - 1].hourTo)
-							.utc()
-							.hour(),
-				moment(reservations[x].hourFrom).utc().hour(),
+				x === 0 ? 8 : reservations[x - 1].hourTo.getUTCHours(),
+				reservations[x].hourFrom.getUTCHours(),
 			];
 
 			if (newArray[1] - newArray[0] > time) finalArray.push(newArray);
 
 			if (
 				x === reservations.length - 1 &&
-				17 - Number(moment(reservations[x].hourTo).utc().hour()) > time
+				17 - reservations[x].hourTo.getUTCHours() > time
 			)
-				finalArray.push([moment(reservations[x].hourTo).utc().hour(), 17]);
+				finalArray.push([reservations[x].hourTo.getUTCHours(), 17]);
 		}
 
 		res.json(finalArray);
@@ -190,25 +184,22 @@ router.get('/:month/:year/:reservation_id/:diff', [auth], async (req, res) => {
 					}
 
 					reservations = reservations.sort((a, b) =>
-						moment(a.hourFrom).diff(moment(b.hourFrom))
+						differenceInMilliseconds(a.hourFrom, b.hourFrom)
 					);
 
 					let newArray = [];
 
 					for (let y = 0; y < reservations.length; y++) {
+						console.log(reservations[y].hourFrom.getUTCHours());
 						newArray = [
-							y === 0
-								? 8
-								: moment(reservations[y - 1].hourTo)
-										.utc()
-										.hour(),
-							moment(reservations[y].hourFrom).utc().hour(),
+							y === 0 ? 8 : reservations[y - 1].hourTo.getUTCHours(),
+							reservations[y].hourFrom.getUTCHours(),
 						];
 
 						if (
 							newArray[1] - (newArray[0] + 1) > time ||
 							(y === reservations.length - 1 &&
-								17 - Number(moment(reservations[y].hourTo).utc().hour()) > time)
+								17 - reservations[y].hourTo.getUTCHours() > time)
 						) {
 							pass = true;
 						}
@@ -233,14 +224,13 @@ router.get('/:month/:year/:reservation_id/:diff', [auth], async (req, res) => {
 //@desc     Enable a date after it being disabled
 //@access   Private && Admin
 router.post('/delete/:date', [auth, adminAuth], async (req, res) => {
+	const date = new Date(req.params.date);
+
 	try {
 		await Day.destroy({
 			where: {
 				date: {
-					[Op.between]: [
-						new Date(req.params.date).setUTCHours(00, 00, 00),
-						new Date(req.params.date).setUTCHours(23, 59, 59),
-					],
+					[Op.between]: [date, date.setUTCHours(23, 59, 59)],
 				},
 			},
 		});
@@ -257,13 +247,12 @@ router.post('/delete/:date', [auth, adminAuth], async (req, res) => {
 //@access   Private && Admin
 router.post('/:date', [auth, adminAuth], async (req, res) => {
 	try {
+		const date = new Date(req.params.date);
+
 		const day = await Day.findOne({
 			where: {
 				date: {
-					[Op.between]: [
-						new Date(req.params.date).setUTCHours(00, 00, 00),
-						new Date(req.params.date).setUTCHours(23, 59, 59),
-					],
+					[Op.between]: [date, date.setUTCHours(23, 59, 59)],
 				},
 			},
 		});
@@ -293,26 +282,30 @@ router.post('/:date', [auth, adminAuth], async (req, res) => {
 //@access   Private && Admin
 router.post('/:dateFrom/:dateTo', [auth, adminAuth], async (req, res) => {
 	try {
+		const today = new Date();
+
 		let startDate = new Date(req.params.dateFrom);
 		let endDate = new Date(req.params.dateTo);
+
+		if (isAfter(today, startDate))
+			return res.status(400).json({
+				msg: 'You can not select a time range with a date older than today',
+			});
 
 		let disabledDays = [];
 
 		const days = await Day.findAll({
 			where: {
 				date: {
-					[Op.between]: [
-						startDate.setUTCHours(00, 00, 00),
-						endDate.setUTCHours(23, 59, 59),
-					],
+					[Op.between]: [startDate, endDate],
 				},
 			},
 		});
 
 		if (days.length > 0) {
-			return res
-				.status(400)
-				.json({ msg: 'There are reservations on this date range' });
+			return res.status(400).json({
+				msg: 'You can not select a time range with resevations in between',
+			});
 		} else {
 			const day = 60 * 60 * 24 * 1000;
 			endDate.setUTCHours(0, 0, 0);

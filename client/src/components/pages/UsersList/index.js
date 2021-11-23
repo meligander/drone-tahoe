@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import { clearEmailSent } from '../../../actions/auth';
 import { clearUser, loadUsers } from '../../../actions/user';
 
 import Alert from '../../layouts/Alert';
@@ -11,6 +12,7 @@ const ReservationsList = ({
 	user: { users, loading, error },
 	auth: { loggedUser },
 	clearUser,
+	clearEmailSent,
 }) => {
 	const [formData, setFormData] = useState({
 		name: '',
@@ -177,6 +179,7 @@ const ReservationsList = ({
 															onClick={() => {
 																window.scrollTo(0, 0);
 																clearUser();
+																clearEmailSent();
 															}}
 														>
 															<i className='far fa-edit'></i>
@@ -214,4 +217,5 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
 	clearUser,
 	loadUsers,
+	clearEmailSent,
 })(ReservationsList);

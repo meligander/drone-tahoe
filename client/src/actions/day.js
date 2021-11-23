@@ -119,7 +119,6 @@ export const disableDate = (date) => async (dispatch) => {
 
 export const disableDateRange = (dateFrom, dateTo) => async (dispatch) => {
 	dispatch(updateLoadingSpinner(true));
-	let error = false;
 
 	try {
 		const res = await api.post(`/day/${dateFrom}/${dateTo}`);
@@ -133,17 +132,17 @@ export const disableDateRange = (dateFrom, dateTo) => async (dispatch) => {
 		});
 
 		dispatch(setAlert('Dates successfully disabled', 'success', '2'));
+		window.scrollTo(0, 0);
+		dispatch(updateLoadingSpinner(false));
+		return true;
 	} catch (err) {
 		if (err.response.status !== 401) {
 			dispatch(setAlert(err.response.data.msg, 'danger', '2'));
 			dispatch(setDaysError(DAYSAVAILABILITY_ERROR, err.response));
-			window.scrollTo(0, 0);
 		}
-		error = true;
-	}
-	if (!error) {
 		window.scrollTo(0, 0);
 		dispatch(updateLoadingSpinner(false));
+		return false;
 	}
 };
 

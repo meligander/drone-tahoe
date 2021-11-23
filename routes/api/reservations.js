@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { check, validationResult } = require('express-validator');
-const moment = require('moment');
+const { format } = require('date-fns');
 const Op = require('sequelize').Op;
 const path = require('path');
 
@@ -168,12 +168,9 @@ router.post(
 				param: 'travelExpenses',
 			});
 
-		errors = checkReservation(jobs, errors, req.user.type);
+		//errors = checkReservation(jobs, errors, req.user.type);
 
 		if (errors.length > 0) return res.status(400).json({ errors });
-
-		hourFrom = new Date(hourFrom);
-		hourTo = new Date(hourTo);
 
 		const reservationFields = {
 			hourFrom,
@@ -210,27 +207,27 @@ router.post(
 
 			await addResToDay(reservation);
 
-			hourFrom = moment(hourFrom);
-			hourTo = moment(hourTo);
-
 			if (req.user.type === 'admin') {
 				await sendEmail(
 					reservation.user.email,
 					'Reservation Registered',
 					`Hello ${reservation.user.name} ${reservation.user.lastname}!
 					<br/><br/>
-					A reservation has been registered on the ${hourFrom
-						.utc()
-						.format('MM/DD/YY')} from ${hourFrom
-						.utc()
-						.format('h a')} to ${hourTo
-						.utc()
-						.format('h a')} and its payment is pending.
+					A reservation has been registered on the ${format(
+						new Date(hourFrom.slice(0, -1)),
+						'MM/dd/yy'
+					)} from ${format(
+						new Date(hourFrom.slice(0, -1)),
+						'h aaa'
+					)} to ${format(
+						new Date(hourTo.slice(0, -1)),
+						'h aaa'
+					)} and its payment is pending.
 					<br/>
 					Login into your account <a href='${
 						process.env.WEBPAGE_URI
 					}login/'>Login</a>.<br/>
-					Please follow this <a href='${process.env.WEBPAGE_URI}reservation/0/'>Link</a> 
+					Please follow this <a href='${process.env.WEBPAGE_URI}reservation/0/'>Link</a>
 					and click on the money symbol on the reservation to complete payment.`
 				);
 			} else {
@@ -240,13 +237,15 @@ router.post(
 						reservation.user.lastname
 					}, email ${
 						reservation.user.email
-					}, has requested a reservation for the ${hourFrom
-						.utc()
-						.format('MM/DD/YY')} from ${hourFrom
-						.utc()
-						.format('h a')} to ${hourTo.utc().format('h a')}. 
+					}, has requested a reservation for the ${format(
+						new Date(hourFrom.slice(0, -1)),
+						'MM/dd/yy'
+					)} from ${format(
+						new Date(hourFrom.slice(0, -1)),
+						'h aaa'
+					)} to ${format(new Date(hourTo.slice(0, -1)), 'h aaa')}.
 						<br/>
-						Set the price and correct time for the job 
+						Set the price and correct time for the job
 						so the user can proceed with the payment.`
 				);
 			}
@@ -407,19 +406,18 @@ router.post('/payment/:reservation_id', [auth], async (req, res) => {
 
 		await reservation.save();
 
-		const hourFrom = moment(reservation.hourFrom);
-		const hourTo = moment(reservation.hourTo);
+		const hourFrom = new Date(reservation.hourFrom.toISOString().slice(0, -1));
+		const hourTo = new Date(reservation.hourTo.toISOString().slice(0, -1));
 
 		await sendEmail(
 			reservation.user.email,
 			'Reservation Paid',
 			`Hello ${reservation.user.name} ${reservation.user.lastname}!
 			<br/><br/>
-			The reservation registered on the ${hourFrom
-				.utc()
-				.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
-				.utc()
-				.format('h a')} has been paid.
+			The reservation registered on the ${format(hourFrom, 'MM/dd/yy')} from ${format(
+				hourFrom,
+				'h aaa'
+			)} to ${format(hourTo, 'h aaa')} has been paid.
 				<br/>
 				The amount paid was $${reservation.total}.`
 		);
@@ -431,11 +429,10 @@ router.post('/payment/:reservation_id', [auth], async (req, res) => {
 					reservation.user.lastname
 				}, email ${reservation.user.email}, has paid $${reservation.total} ${
 					reservation.paymentId ? `(PayPal ID: ${reservation.paymentId}) ` : ''
-				}for the reservation on the ${hourFrom
-					.utc()
-					.format('MM/DD/YY')} from ${hourFrom.utc().format('h a')} to ${hourTo
-					.utc()
-					.format('h a')}.`
+				}for the reservation on the ${format(
+					hourFrom,
+					'MM/dd/yy'
+				)} from ${format(hourFrom, 'h aaa')} to ${format(hourTo, 'h aaa')}.`
 			);
 
 		res.json(reservation);
@@ -627,21 +624,18 @@ router.post(
 					await originalJobs[x].destroy();
 
 			if (originalStatus === 'requested' && total) {
-				hourFrom = moment(reservation.hourFrom);
-				hourTo = moment(reservation.hourTo);
+				hourFrom = new Date(reservation.hourFrom.toISOString().slice(0, -1));
+				hourTo = new Date(reservation.hourTo.toISOString().slice(0, -1));
 
 				await sendEmail(
 					reservation.user.email,
 					'Reservation ready for payment',
 					`Hello ${reservation.user.name} ${reservation.user.lastname}!
 					<br/><br/>
-					The reservation registered on the ${hourFrom
-						.utc()
-						.format('MM/DD/YY')} from ${hourFrom
-						.utc()
-						.format('h a')} to ${hourTo
-						.utc()
-						.format('h a')} is ready to be paid.
+					The reservation registered on the ${format(hourFrom, 'MM/dd/yy')} from ${format(
+						hourFrom,
+						'h aaa'
+					)} to ${format(hourTo, 'h aaa')} is ready to be paid.
 					<br/>
 					Login into your account <a href='${
 						process.env.WEBPAGE_URI

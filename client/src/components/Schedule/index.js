@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react';
-import Moment from 'react-moment';
-import moment from 'moment';
 import Calendar from 'react-calendar';
 import { connect } from 'react-redux';
+import {
+	format,
+	addDays,
+	getHours,
+	addYears,
+	getMonth,
+	getYear,
+} from 'date-fns';
 
 import {
 	checkDayAvailability,
@@ -28,7 +34,7 @@ const Schedule = ({
 	updateReservation,
 	registerReservation,
 }) => {
-	const today = moment().add(1, 'day');
+	const today = addDays(new Date(), 1);
 	const disabled =
 		reservation.id !== 0 &&
 		reservation.status !== 'requested' &&
@@ -47,8 +53,8 @@ const Schedule = ({
 		tab: 0,
 		diff: 0,
 		toggleModal: false,
-		month: today.month(),
-		year: today.year(),
+		month: getMonth(today),
+		year: getYear(today),
 	});
 
 	const { date, tab, diff, toggleModal, month, year } = adminValues;
@@ -59,13 +65,12 @@ const Schedule = ({
 
 	useEffect(() => {
 		if (disabled) {
-			const hourFrom = moment(reservation.hourFrom);
-			const hourTo = moment(reservation.hourTo);
+			const hourFrom = getHours(new Date(reservation.hourFrom.slice(0, -1)));
+			const hourTo = getHours(new Date(reservation.hourTo.slice(0, -1)));
 			setAdminValues((prev) => ({
 				...prev,
-				diff: hourTo.utc().hour() - hourFrom.utc().hour(),
+				diff: hourTo - hourFrom,
 			}));
-			console.log(reservation);
 		}
 	}, [reservation, disabled]);
 
@@ -76,7 +81,7 @@ const Schedule = ({
 			tab: changedDate.getMonth() === month ? 1 : 0,
 		}));
 		checkDayAvailability(
-			moment(changedDate).format('YYYY-MM-DD[T00:00:00Z]'),
+			format(changedDate, "yyyy-MM-dd'T00:00:00Z'"),
 			reservation.id,
 			disabled ? diff : 0
 		);
@@ -114,8 +119,8 @@ const Schedule = ({
 				// Check if a date React-Calendar wants to check is on the list of disabled dates
 				return disabledDays.some(
 					(disabledDay) =>
-						moment(disabledDay).utc().format('MM-DD-YYYY') ===
-						moment(date).format('MM-DD-YYYY')
+						format(new Date(disabledDay.slice(0, -1)), 'MM-dd-yyyy') ===
+						format(date, 'MM-dd-yyyy')
 				);
 			}
 		},
@@ -164,7 +169,7 @@ const Schedule = ({
 								}`}
 					</div>
 				))}
-			</ Fragment>
+			</Fragment>
 		) : (
 			<h2 className='schedule-details-main error'>
 				No availability on this day
@@ -173,7 +178,7 @@ const Schedule = ({
 	};
 
 	const endTime = () => {
-		let time = moment(hourFrom).hour();
+		let time = getHours(hourFrom);
 		let posibleHours = [];
 
 		const usedRange = availableHours.filter(
@@ -191,7 +196,7 @@ const Schedule = ({
 			posibleHours.push(time);
 
 		return posibleHours.length > 0 ? (
-			< Fragment>
+			<Fragment>
 				<p className='schedule-details-title'>End Time:</p>{' '}
 				{posibleHours.map((hour, i) => (
 					<div
@@ -202,7 +207,7 @@ const Schedule = ({
 						{`${hour % 12 !== 0 ? hour % 12 : 12} ${hour >= 12 ? 'pm' : 'am'}`}
 					</div>
 				))}
-			</ Fragment>
+			</Fragment>
 		) : (
 			<h2 className='schedule-details-main error'>
 				No availability on this day
@@ -219,7 +224,7 @@ const Schedule = ({
 							Pick up a Date and Time{' '}
 							{loggedUser.type !== 'admin' && 'you are Available'}
 						</h5>
-					</ Fragment>
+					</Fragment>
 				);
 			case 1:
 				return !loadingAvailableHours && startTime();
@@ -246,10 +251,8 @@ const Schedule = ({
 										...(loggedUser.type === 'customer' && {
 											user: loggedUser.id,
 										}),
-										hourFrom: moment(hourFrom).format(
-											'YYYY-MM-DD[T]HH[:00:00Z]'
-										),
-										hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH[:00:00Z]'),
+										hourFrom: format(hourFrom, "yyyy-MM-dd'T'HH':00:00Z'"),
+										hourTo: format(hourTo, "yyyy-MM-dd'T'HH':00:00Z'"),
 									});
 									if (answer) setToggleModal();
 								}
@@ -258,12 +261,11 @@ const Schedule = ({
 							<Alert type='2' />
 							<p className='schedule-details-info'>
 								<span className='schedule-details-subtitle'>Date:</span> &nbsp;
-								<Moment date={hourFrom} format='MM/DD/YY' />
+								{format(hourFrom, 'MM/dd/yy')}
 							</p>
 							<p className='schedule-details-info'>
 								<span className='schedule-details-subtitle'>Time:</span> &nbsp;
-								<Moment format='h a' date={hourFrom} /> -{' '}
-								<Moment format='h a' date={hourTo} />
+								{format(hourFrom, 'h aaa')} - {format(hourTo, 'h aaa')}
 							</p>
 							{loggedUser.type !== 'admin' && reservation.id === 0 && (
 								<p className='text-warning'>
@@ -279,7 +281,7 @@ const Schedule = ({
 								</button>
 							</div>
 						</form>
-					</ Fragment>
+					</Fragment>
 				);
 			default:
 				break;
@@ -300,8 +302,8 @@ const Schedule = ({
 				confirm={async () => {
 					const answer = await updateReservation({
 						...reservation,
-						hourFrom: moment(hourFrom).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
-						hourTo: moment(hourTo).format('YYYY-MM-DD[T]HH:mm:SS[Z]'),
+						hourFrom: format(hourFrom, "yyyy-MM-dd'T'HH':00:00Z'"),
+						hourTo: format(hourTo, "yyyy-MM-dd'T'HH':00:00Z'"),
 					});
 					if (answer) setToggleModal();
 				}}
@@ -312,12 +314,12 @@ const Schedule = ({
 				<Calendar
 					value={date}
 					onChange={onChangeDate}
-					minDate={new Date(today.format())}
-					maxDate={new Date(today.year() + 1, today.month(), today.date())}
+					minDate={today}
+					maxDate={addYears(today, 1)}
 					onActiveStartDateChange={(e) => {
 						if (e.view === 'month' || e.view === 'year') {
-							const month = e.activeStartDate.getMonth();
-							const year = e.activeStartDate.getFullYear();
+							const month = getMonth(e.activeStartDate);
+							const year = getYear(e.activeStartDate);
 							setAdminValues((prev) => ({ ...prev, month, year }));
 						}
 					}}

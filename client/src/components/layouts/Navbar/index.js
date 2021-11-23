@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { logOut } from '../../../actions/auth';
+import { clearEmailSent, logOut } from '../../../actions/auth';
 import { clearReservations } from '../../../actions/reservation';
 import { clearJobsXReservations } from '../../../actions/jobsXReservations';
 import { clearJobs } from '../../../actions/jobs';
@@ -17,6 +17,7 @@ const Navbar = ({
 	clearJobs,
 	clearUsers,
 	clearJobsXReservations,
+	clearEmailSent,
 	setNavbarHeight,
 	auth: { loggedUser, loading },
 }) => {
@@ -64,6 +65,7 @@ const Navbar = ({
 								onClick={() => {
 									closeMobileMenu();
 									clearUsers();
+									clearEmailSent();
 									window.scrollTo(0, 0);
 								}}
 								className='btn-link'
@@ -237,6 +239,7 @@ const Navbar = ({
 						onClick={() => {
 							window.scrollTo(0, 0);
 							clearUsers();
+							clearEmailSent();
 						}}
 						className='btn-link'
 					>
@@ -274,4 +277,5 @@ export default connect(mapStateToProps, {
 	clearUsers,
 	setNavbarHeight,
 	clearJobsXReservations,
+	clearEmailSent,
 })(Navbar);

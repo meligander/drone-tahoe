@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect, Fragment } from 'react';
-import moment from 'moment';
 import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import { connect } from 'react-redux';
+import { format, isBefore, setHours, addHours, addYears } from 'date-fns';
 
 import {
 	checkMonthSchedule,
@@ -17,7 +17,6 @@ import {
 	clearReservations,
 	disableHourRange,
 } from '../../../actions/reservation';
-import { setAlert } from '../../../actions/alert';
 import { clearUsers } from '../../../actions/user';
 import { loadJobs } from '../../../actions/jobs';
 import { clearJobsXReservations } from '../../../actions/jobsXReservations';
@@ -25,7 +24,6 @@ import { clearJobsXReservations } from '../../../actions/jobsXReservations';
 import Alert from '../../layouts/Alert';
 
 import './ManageSchedule.scss';
-import Moment from 'react-moment';
 import PopUp from '../../layouts/PopUp';
 
 const ManageSchedule = ({
@@ -40,21 +38,20 @@ const ManageSchedule = ({
 	disableHourRange,
 	disableDate,
 	enableDate,
-	setAlert,
 	disableDateRange,
 	clearReservations,
 	clearUsers,
 	clearJobsXReservations,
 	loadJobs,
 }) => {
-	const today = moment();
+	const today = new Date();
 
 	const [adminValues, setAdminValues] = useState({
 		date: new Date(),
 		tab: 0,
 		range: false,
-		month: today.month(),
-		year: today.year(),
+		month: today.getMonth(),
+		year: today.getFullYear(),
 		toggleModal: false,
 		toggleReservation: false,
 		reservation: null,
@@ -78,70 +75,6 @@ const ManageSchedule = ({
 	useEffect(() => {
 		if (loadingJobs) loadJobs({}, true);
 	}, [loadingJobs, loadJobs]);
-
-	useEffect(() => {
-		if (range && date[1] && date[0].getDate() !== date[1].getDate()) {
-			const startDate = moment(date[0], 'DD/MM/YYYY');
-			const endDate = moment(date[1], 'DD/MM/YYYY');
-
-			const isAfter = today.isAfter(startDate);
-			const betweenReserved =
-				!isAfter &&
-				reservedDays.some((item) => {
-					const compareDate = moment(item).add(1, 'day');
-					return compareDate.isBetween(startDate, endDate);
-				});
-			const betweenDisabled =
-				!isAfter &&
-				!betweenReserved &&
-				disabledDays.some((item) => {
-					const compareDate = moment(item).add(1, 'day');
-					return compareDate.isBetween(startDate, endDate);
-				});
-			const betweenTimeDisabled =
-				!isAfter &&
-				!betweenReserved &&
-				!betweenDisabled &&
-				timeDisabledDays.some((item) => {
-					const compareDate = moment(item).add(1, 'day');
-					return compareDate.isBetween(startDate, endDate);
-				});
-
-			const notAllowed =
-				isAfter || betweenReserved || betweenDisabled || betweenTimeDisabled;
-
-			if (notAllowed) {
-				setAlert(
-					`Can not choose a range with a ${
-						isAfter
-							? 'date older than today.'
-							: `${
-									betweenReserved
-										? 'reserved date'
-										: betweenDisabled
-										? 'disabled day'
-										: 'disabled time range'
-							  } in between.`
-					}`,
-					'danger',
-					'2'
-				);
-				setAdminValues((prev) => ({
-					...prev,
-					date: [date[0], date[0]],
-					tab: 0,
-				}));
-			}
-		}
-	}, [
-		range,
-		date,
-		setAlert,
-		disabledDays,
-		reservedDays,
-		timeDisabledDays,
-		today,
-	]);
 
 	const onChangeDate = (changedDate) => {
 		let loadRes;
@@ -177,30 +110,20 @@ const ManageSchedule = ({
 
 	const tileClassName = useCallback(
 		(info) => {
-			return info.view === 'month' &&
-				reservedDays.some((item) => {
-					const pastDate = new Date(item);
-					return (
-						pastDate.getUTCDate() === info.date.getDate() &&
-						pastDate.getUTCMonth() === info.date.getMonth()
-					);
-				})
-				? 'reserved'
-				: disabledDays.some((item) => {
-						const pastDate = new Date(item);
-						return (
-							pastDate.getUTCDate() === info.date.getDate() &&
-							pastDate.getUTCMonth() === info.date.getMonth()
-						);
-				  })
-				? 'disabled'
-				: timeDisabledDays.some((item) => {
-						const pastDate = new Date(item);
-						return (
-							pastDate.getUTCDate() === info.date.getDate() &&
-							pastDate.getUTCMonth() === info.date.getMonth()
-						);
-				  }) && 'time-disabled';
+			const list = [reservedDays, disabledDays, timeDisabledDays];
+			const classes = ['reserved', 'disabled', 'time-disabled'];
+
+			if (info.view === 'month')
+				for (let x = 0; x < list.length; x++) {
+					if (
+						list[x].some(
+							(item) =>
+								format(new Date(item.slice(0, -1)), 'dd/MM/yyyy') ===
+								format(info.date, 'dd/MM/yyyy')
+						)
+					)
+						return classes[x];
+				}
 		},
 		[disabledDays, reservedDays, timeDisabledDays]
 	);
@@ -226,7 +149,7 @@ const ManageSchedule = ({
 								{reservations.every((item) => item.status === 'hourRange')
 									? 'Unavailable Time Ranges'
 									: 'Reservations'}{' '}
-								- <Moment format='MM/DD/YY' date={date} />
+								- {format(date, 'MM/dd/yy')}
 							</h5>
 							<div className='manage-schedule-details-res'>
 								{reservations.map((item) => (
@@ -237,17 +160,14 @@ const ManageSchedule = ({
 										key={item.id}
 									>
 										<div>
-											<Moment format='h a' utc date={item.hourFrom} />
+											{format(new Date(item.hourFrom.slice(0, -1)), 'h aaa')}
 											&nbsp; - &nbsp;
-											<Moment
-												format='h a'
-												utc
-												date={
-													item.status !== 'hourRange'
-														? item.hourTo
-														: moment(item.hourTo).add(1, 'hour')
-												}
-											/>
+											{format(
+												item.status !== 'hourRange'
+													? new Date(item.hourTo.slice(0, -1))
+													: addHours(new Date(item.hourTo.slice(0, -1)), 1),
+												'h aaa'
+											)}
 										</div>
 										<Link
 											onClick={() => {
@@ -280,7 +200,7 @@ const ManageSchedule = ({
 													deleteReservation(
 														item,
 														reservations.length === 1 &&
-															moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+															format(date, "yyyy-MM-dd'T00:00:00Z'")
 													);
 												}}
 											>
@@ -290,7 +210,7 @@ const ManageSchedule = ({
 									</div>
 								))}
 							</div>
-							{today.isBefore(moment(date)) && (
+							{isBefore(today, date) && (
 								<div className='btn-right'>
 									<button
 										className='btn btn-quaternary'
@@ -300,7 +220,7 @@ const ManageSchedule = ({
 												toggleModal: !toggleModal,
 											}));
 											checkDayAvailability(
-												moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
+												format(date, "yyyy-MM-dd'T00:00:00Z'"),
 												0,
 												0
 											);
@@ -325,18 +245,16 @@ const ManageSchedule = ({
 								disable && 'text-danger'
 							}`}
 						>
-							<Moment date={date} format='MM/DD/YYYY' />
+							{format(date, 'MM/dd/yyyy')}
 						</h5>
 						<div className='btn-center'>
-							{today.isBefore(moment(date)) && (
+							{isBefore(today, date) && (
 								<Fragment>
 									{disable ? (
 										<button
 											className='btn'
 											onClick={() =>
-												enableDate(
-													moment(date).format('YYYY-MM-DD[T00:00:00Z]')
-												)
+												enableDate(format(date, "yyyy-MM-dd'T00:00:00Z'"))
 											}
 										>
 											<i className='far fa-check-circle'></i> &nbsp; Date
@@ -346,9 +264,7 @@ const ManageSchedule = ({
 											<button
 												className='btn'
 												onClick={() =>
-													disableDate(
-														moment(date).format('YYYY-MM-DD[T00:00:00Z]')
-													)
+													disableDate(format(date, "yyyy-MM-dd'T00:00:00Z'"))
 												}
 											>
 												<i className='fas fa-ban'></i> &nbsp; Date
@@ -362,7 +278,7 @@ const ManageSchedule = ({
 													}));
 													if (reservations.length > 0) clearReservations();
 													checkDayAvailability(
-														moment(date).format('YYYY-MM-DD[T00:00:00Z]'),
+														format(date, "yyyy-MM-dd'T00:00:00Z'"),
 														0,
 														0
 													);
@@ -381,25 +297,24 @@ const ManageSchedule = ({
 				return (
 					<Fragment>
 						<h5 className='manage-schedule-details-title'>
-							<Moment date={date[0]} format='MM/DD/YYYY' /> -{' '}
-							<Moment date={date[1]} format='MM/DD/YYYY' />
+							{format(date[0], 'MM/dd/yyyy')} - {format(date[1], 'MM/dd/yyyy')}
 						</h5>
 
 						<div className='btn-center'>
 							<button
 								className='btn'
-								onClick={() => {
+								onClick={async () => {
+									const answer = await disableDateRange(
+										format(date[0], "yyyy-MM-dd'T00:00:00Z'"),
+										format(date[1], "yyyy-MM-dd'T23:59:59Z'")
+									);
+
 									setAdminValues((prev) => ({
 										...prev,
 										range: !range,
-										date: date[0],
+										date: answer ? date[0] : [date[0], date[0]],
 										tab: 0,
 									}));
-
-									disableDateRange(
-										moment(date[0]).format('YYYY-MM-DD[T00:00:00Z]'),
-										moment(date[1]).format('YYYY-MM-DD[T00:00:00Z]')
-									);
 								}}
 							>
 								<i className='fas fa-ban'></i> &nbsp; Date Range
@@ -435,16 +350,17 @@ const ManageSchedule = ({
 				confirm={async ({ hourFrom, hourTo }) => {
 					const answer = await disableHourRange(
 						{
-							hourFrom: moment(date)
-								.set('hour', hourFrom)
-								.format('YYYY-MM-DD[T]HH[:00:00Z]'),
-							hourTo: moment(date)
-								.set('hour', hourTo - 1)
-								.format('YYYY-MM-DD[T]HH[:00:00Z]'),
+							hourFrom: format(
+								setHours(date, hourFrom),
+								"yyyy-MM-dd'T'HH':00:00Z'"
+							),
+							hourTo: format(
+								setHours(date, hourTo - 1),
+								"yyyy-MM-dd'T'HH':00:00Z'"
+							),
 							user: loggedUser.id,
 						},
-						reservations.length === 0 &&
-							moment(date).format('YYYY-MM-DD[T00:00:00Z]')
+						reservations.length === 0 && format(date, "yyyy-MM-dd'T00:00:00Z'")
 					);
 
 					if (answer)
@@ -470,8 +386,8 @@ const ManageSchedule = ({
 						selectRange={range}
 						onChange={onChangeDate}
 						tileDisabled={tileDisabled}
-						minDate={new Date(2021, 9, 1)}
-						maxDate={new Date(today.year() + 1, today.month(), today.date())}
+						minDate={new Date(2021, 10, 1)}
+						maxDate={addYears(today, 1)}
 						onActiveStartDateChange={(e) => {
 							if (e.view === 'month' || e.view === 'year') {
 								const month = e.activeStartDate.getMonth();
@@ -532,7 +448,6 @@ export default connect(mapStateToProps, {
 	loadReservations,
 	disableDate,
 	enableDate,
-	setAlert,
 	disableDateRange,
 	disableHourRange,
 	clearUsers,

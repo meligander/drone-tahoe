@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom';
 
-import { signup, clearEmailSent } from '../../../actions/auth';
+import { signup } from '../../../actions/auth';
 import { loadUser, updateUser } from '../../../actions/user';
 
 import Alert from '../../layouts/Alert';
@@ -17,7 +17,6 @@ const EditUser = ({
 	signup,
 	loadUser,
 	updateUser,
-	clearEmailSent,
 }) => {
 	const isAdmin = loggedUser && loggedUser.type === 'admin';
 	const pathId = match.params.user_id;
@@ -46,7 +45,6 @@ const EditUser = ({
 			(!userLoaded && adminType !== 'signup' && email === '') ||
 			(adminType === 'profile' && email !== loggedUser.email)
 		) {
-			clearEmailSent();
 			if (pathId) {
 				if (loadingUser) loadUser(pathId);
 				else userLoaded = user;
@@ -63,16 +61,7 @@ const EditUser = ({
 					cel: userLoaded.cel === '0' ? '' : userLoaded.cel,
 				}));
 		}
-	}, [
-		loggedUser,
-		loadingUser,
-		user,
-		pathId,
-		loadUser,
-		email,
-		adminType,
-		clearEmailSent,
-	]);
+	}, [loggedUser, loadingUser, user, pathId, loadUser, email, adminType]);
 
 	useEffect(() => {
 		if (emailSent) window.scrollTo(0, 0);
@@ -297,5 +286,4 @@ export default connect(mapStateToProps, {
 	signup,
 	updateUser,
 	loadUser,
-	clearEmailSent,
 })(withRouter(EditUser));

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import Moment from 'react-moment';
+import { format } from 'date-fns';
 
 import { loadJobs } from '../../../actions/jobs';
 import {
@@ -147,13 +147,11 @@ const Reservation = ({
 							reservations.map((res, i) => (
 								<div className='reservation-item' key={res.id}>
 									<div className='reservation-item-date'>
-										<Moment
-											date={res.hourFrom}
-											className='date'
-											format='MM-DD-YY'
-										/>
-										<Moment date={res.hourFrom} utc format='h a' /> -{' '}
-										<Moment date={res.hourTo} utc format='h a' />
+										<span className='date'>
+											{format(new Date(res.hourFrom.slice(0, -1)), 'MM/dd/yy')}
+										</span>
+										{format(new Date(res.hourFrom.slice(0, -1)), 'h aaa')} -{' '}
+										{format(new Date(res.hourTo.slice(0, -1)), 'h aaa')}
 									</div>
 									<div className='reservation-item-status'>
 										<p>
@@ -273,9 +271,9 @@ const Reservation = ({
 									}
 								/>
 							)}
-						</ Fragment>
+						</Fragment>
 					)}
-				</ Fragment>
+				</Fragment>
 			)}
 		</div>
 	);

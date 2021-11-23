@@ -9,6 +9,7 @@ import {
 	googleLogin,
 	loginUser,
 	sendPasswordLink,
+	clearEmailSent,
 } from '../../../actions/auth';
 import { setAlert } from '../../../actions/alert';
 import { updateLoadingSpinner } from '../../../actions/global';
@@ -25,6 +26,7 @@ const Login = ({
 	setAlert,
 	sendPasswordLink,
 	updateLoadingSpinner,
+	clearEmailSent,
 }) => {
 	const [formData, setFormData] = useState({
 		email: '',
@@ -165,7 +167,10 @@ const Login = ({
 										Don't have an account? &nbsp;
 										<Link
 											className='btn-link'
-											onClick={() => window.scrollTo(0, 0)}
+											onClick={() => {
+												window.scrollTo(0, 0);
+												clearEmailSent();
+											}}
 											to='/signup'
 										>
 											Sign up
@@ -227,4 +232,5 @@ export default connect(mapStateToProps, {
 	setAlert,
 	sendPasswordLink,
 	updateLoadingSpinner,
+	clearEmailSent,
 })(Login);

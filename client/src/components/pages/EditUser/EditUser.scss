@@ -14,6 +14,12 @@
 	@media screen and (max-width: 650px) {
 		margin: 3rem auto;
 		padding: 3rem 1rem;
+
+		background-image: linear-gradient(
+				110deg,
+				(rgba(74, 172, 202, 0.75) 55%, rgba(255, 255, 255, 0.35) 4 5%)
+			),
+			url(../../../img/small/services/consulting.jpg);
 	}
 
 	@media screen and (max-width: 500px) {
@@ -35,6 +41,7 @@
 	&-login {
 		font-size: 1.1rem;
 		margin-top: 1.5rem;
+		text-align: center;
 		color: lighten($color-primary, 35%);
 		font-weight: 200;
 	}

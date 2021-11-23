@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import Moment from 'react-moment';
+import { format } from 'date-fns';
 
 import { updateReservation } from '../../actions/reservation';
 import {
@@ -261,15 +261,12 @@ const ReservationForm = ({
 
 					{reservation && (
 						<p className='heading-primary-subheading-update'>
-							<Moment
-								date={reservation.hourFrom}
-								utc
-								className='date'
-								format='MM-DD-YY'
-							/>{' '}
+							{format(new Date(reservation.hourFrom.slice(0, -1)), 'MM/dd/yy')}{' '}
 							&nbsp;
-							<Moment date={reservation.hourFrom} utc format='h a' /> -{' '}
-							<Moment date={reservation.hourTo} utc format='h a' />
+							{format(
+								new Date(reservation.hourFrom.slice(0, -1)),
+								'h aaa'
+							)} - {format(new Date(reservation.hourTo.slice(0, -1)), 'h aaa')}
 						</p>
 					)}
 					{!changeDate && reservation && <Alert type='2' />}
