@@ -314,8 +314,8 @@ router.post(
 				`Name: ${name} ${lastname} <br/>
 				Phone: ${phone} <br/>
 				Email: ${email} <br/>
-				${company && `Company: ${company} <br/>`}
-				${experience && `Experience: ${experience} <br/>`}
+				${company ? `Company: ${company} <br/>` : ''}
+				${experience ? `Experience: ${experience} <br/>` : ''}
              	Message: <br/>${message}`
 			);
 
