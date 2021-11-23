@@ -237,7 +237,7 @@ router.post(
 						reservation.user.lastname
 					}, email ${
 						reservation.user.email
-					}, has requested a reservation for the ${format(
+					}, has requested a reservation on the ${format(
 						new Date(hourFrom.slice(0, -1)),
 						'MM/dd/yy'
 					)} from ${format(

@@ -74,13 +74,8 @@
 
 @media screen and (min-width: 1963px) {
 	.about {
-		margin: 0 auto;
 		background-image: url(../../img/glenn/touching-stars-expanded2-small.jpg);
-		background-size: cover;
-		background-repeat: no-repeat;
 		background-position: 50% 0%;
-		width: 100%;
-		height: 100vh;
 	}
 }
 
@@ -94,6 +89,7 @@
 
 @media screen and (max-width: 1250px) {
 	.about {
+		height: 110vh;
 		&-text {
 			left: 35%;
 
@@ -109,12 +105,7 @@
 		background: url(../../img/glenn/touching-stars-expanded2-small-tall.jpg) top
 			center/cover no-repeat;
 		text-align: center;
-		height: 150vh;
-		margin: 0 auto;
-		width: 100%;
-		background-color: #fff;
-		padding: 2rem 0;
-		position: relative;
+		height: 170vh;
 
 		&-text {
 			width: 88%;
@@ -135,25 +126,24 @@
 
 @media screen and (max-width: 960px) {
 	.about {
-		background: url(../../img/glenn/touching-stars-expanded2-small-tall.jpg) top
-			center/cover no-repeat;
 		padding: 3rem 0;
-		text-align: center;
-		height: 150vh;
-	}
-	.about-text {
-		width: 90vw;
-		padding: 1rem;
-		top: 49%;
-		color: #000;
-	}
-	.about-text-description {
-		font-size: 1.8rem;
-		font-weight: 300;
-		padding: 0.5rem 0;
+		height: 180vh;
 
-		&:last-child {
-			padding-bottom: 2rem;
+		&-text {
+			width: 90vw;
+			padding: 1rem;
+			top: 49%;
+			color: #000;
+
+			&-description {
+				font-size: 1.8rem;
+				font-weight: 300;
+				padding: 0.5rem 0;
+
+				&:last-child {
+					padding-bottom: 2rem;
+				}
+			}
 		}
 	}
 }
@@ -162,10 +152,7 @@
 	.about {
 		background: url(../../img/glenn/touching-stars-small-tall3.jpg) top/cover
 			no-repeat;
-		padding: 3rem 0;
-		text-align: center;
-		width: 100vw;
-		height: 120vh;
+		height: 140vh;
 
 		&-text {
 			top: 36%;
@@ -177,40 +164,38 @@
 	}
 }
 
-@media screen and (max-width: 500px) {
-	.about-text {
-		&-description {
-			font-size: 1.4rem;
-		}
+@media screen and (max-width: 650px) {
+	.about {
+		&-text {
+			&-description {
+				font-size: 1.4rem;
+			}
 
-		&-link {
-			width: 90%;
+			&-link {
+				width: 90%;
+			}
 		}
 	}
 }
 
 @media screen and (max-width: 500px) {
 	.about {
-		background: url(../../img/glenn/touching-stars-small-tall3.jpg) top/cover
-			no-repeat;
-		padding: 3rem 0;
-		text-align: center;
-		width: 100vw;
-		height: 125vh;
-
+		height: 115vh;
 		&-credentials {
 			font-size: 1rem;
 		}
-	}
-	.about-text {
-		padding: 1rem;
-		margin-bottom: 1rem;
-		position: absolute;
-		top: 26%;
-		left: 50%;
-		transform: translateX(-50%);
-	}
-	.about-text-description {
-		font-size: 1.1rem;
+
+		&-text {
+			padding: 1rem;
+			margin-bottom: 1rem;
+			position: absolute;
+			top: 26%;
+			left: 50%;
+			transform: translateX(-50%);
+
+			&-description {
+				font-size: 1.1rem;
+			}
+		}
 	}
 }
