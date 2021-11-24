@@ -259,7 +259,7 @@ const EditUser = ({
 								<span className='user-email-text-email'>{email}</span>.
 								<br />
 								Click the confirmation link in that email to start using our
-								servicies.
+								services.
 							</h4>
 							<div className='user-email-subtext'>
 								<p>If you did not recieve the email,&nbsp;</p>

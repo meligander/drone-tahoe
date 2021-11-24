@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import './HeroSection.scss';
 
-import Logo from '../../img/logoDRONE-dark-cropped-final.png';
-import HeroVideo from '../../img/glenn/landing-video.m4v';
+//import Logo from '../../img/logoDRONE-dark-cropped-final.png';
+import HeroVideo from '../../img/glenn/drone-tahoe-video.mp4';
+//import HeroVideo from '../../img/glenn/landing-video.m4v';
 
 const HeroSection = ({
 	clearReservations,
@@ -22,7 +23,7 @@ const HeroSection = ({
 				playsInline
 			/>
 			<div className='hero-container-image'></div>
-			<div className='hero-box'>
+			{/* <div className='hero-box'>
 				<div className='hero-container-logo'>
 					<img src={Logo} alt='' className='hero-container-logo-img' />
 				</div>
@@ -49,7 +50,7 @@ const HeroSection = ({
 							: 'Reservations'}
 					</Link>
 				</div>
-			</div>
+			</div> */}
 			<div className='hero-bottom'>
 				360 Virtual Walkthrough brings drone data + 360 videos and photos into
 				one solution -{' '}
