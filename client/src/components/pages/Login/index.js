@@ -202,6 +202,7 @@ const Login = ({
 										/>
 										<span className='btn-facebook'>
 											<FacebookLogin
+												isMobile={false}
 												onClick={() => updateLoadingSpinner(true)}
 												appId={process.env.REACT_APP_FACEBOOK_KEY}
 												autoLoad={false}

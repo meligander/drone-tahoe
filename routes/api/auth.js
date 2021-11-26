@@ -495,7 +495,7 @@ const loginToken = (user) => {
 		};
 
 		return jwt.sign(payload, process.env.JWT_SECRET, {
-			expiresIn: 2 * 60 * 60 /*2 hora */,
+			expiresIn: 2 * 60 * 60 /*2 horas */,
 		});
 	} catch (err) {
 		console.error(err.message);
