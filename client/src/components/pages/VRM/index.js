@@ -6,10 +6,6 @@ import Booking from '../Booking';
 import img1 from '../../../img/glenn/Icons/global.png';
 import img2 from '../../../img/glenn/Icons/progress.png';
 import img3 from '../../../img/glenn/Icons/safety.png';
-import Bruin from '../../../img/glenn/partners/small/bruin.jpg';
-import Brassfield from '../../../img/glenn/partners/small/brassfield.jpg';
-import Corteva from '../../../img/glenn/partners/small/corteva.jpg';
-import Mccarthy from '../../../img/glenn/partners/small/mccarthy.jpg';
 
 const VRM = () => {
 	return (
@@ -69,12 +65,6 @@ const VRM = () => {
 					entire team can inspect, validate, and comprehend site progress – no
 					matter where they are in the world - with a 360° perspective.
 				</p>
-				<div className='vrm-group'>
-					<img src={Bruin} alt='' className='vrm-group-item' />
-					<img src={Brassfield} alt='' className='vrm-group-item' />
-					<img src={Corteva} alt='' className='vrm-group-item' />
-					<img src={Mccarthy} alt='' className='vrm-group-item' />
-				</div>
 			</section>
 			<Booking />
 		</div>

@@ -2,10 +2,6 @@ import React from 'react';
 
 import './Testimonials.scss';
 
-import Bruin from '../../img/glenn/partners/small/bruin.jpg';
-import Brassfield from '../../img/glenn/partners/small/brassfield.jpg';
-import Corteva from '../../img/glenn/partners/small/corteva.jpg';
-import Mccarthy from '../../img/glenn/partners/small/mccarthy.jpg';
 import TahoeNalu from '../../img/glenn/partners/tahoenalu.jpg';
 import TahoeGal from '../../img/glenn/partners/tahoegal.jpg';
 import TahoeYachtClub from '../../img/glenn/partners/tahoeyachtclub.jpg';
@@ -28,19 +24,9 @@ const Testimonials = () => {
 						className='testimonials-clients-group-item gray'
 					/>
 					<img
-						src={Brassfield}
-						alt='Brass Field'
-						className='testimonials-clients-group-item'
-					/>
-					<img
 						src={TahoeYachtClub}
 						alt='Tahoe Yacth Club'
 						className='testimonials-clients-group-item gray'
-					/>
-					<img
-						src={Mccarthy}
-						alt='Mccarthy'
-						className='testimonials-clients-group-item'
 					/>
 					<img
 						src={TahoeGal}
@@ -68,20 +54,9 @@ const Testimonials = () => {
 					/>
 
 					<img
-						src={Corteva}
-						alt='Corteva'
-						className='testimonials-clients-group-item'
-					/>
-					<img
 						src={TGMA}
 						alt='TGMA'
 						className='testimonials-clients-group-item gray'
-					/>
-
-					<img
-						src={Bruin}
-						alt='Bruin'
-						className='testimonials-clients-group-item smaller'
 					/>
 				</div>
 			</div>

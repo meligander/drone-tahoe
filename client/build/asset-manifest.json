@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/static/css/main.d8857686.chunk.css",
-    "main.js": "/static/js/main.867ad8bb.chunk.js",
-    "main.js.map": "/static/js/main.867ad8bb.chunk.js.map",
+    "main.js": "/static/js/main.92f24863.chunk.js",
+    "main.js.map": "/static/js/main.92f24863.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.e630037e.js",
     "runtime-main.js.map": "/static/js/runtime-main.e630037e.js.map",
     "static/js/2.0b34e52e.chunk.js": "/static/js/2.0b34e52e.chunk.js",
@@ -10,11 +10,8 @@
     "index.html": "/index.html",
     "static/css/main.d8857686.chunk.css.map": "/static/css/main.d8857686.chunk.css.map",
     "static/js/2.0b34e52e.chunk.js.LICENSE.txt": "/static/js/2.0b34e52e.chunk.js.LICENSE.txt",
-    "static/media/brassfield.d8a6f31e.jpg": "/static/media/brassfield.d8a6f31e.jpg",
-    "static/media/bruin.c3c4b2f1.jpg": "/static/media/bruin.c3c4b2f1.jpg",
     "static/media/ServicesFull.scss": "/static/media/vrm-cropped.c048dfeb.jpg",
     "static/media/EditUser.scss": "/static/media/consulting.9889725f.jpg",
-    "static/media/corteva.e0f1eadd.jpg": "/static/media/corteva.e0f1eadd.jpg",
     "static/media/drone-tahoe-video.d4cc4c38.mp4": "/static/media/drone-tahoe-video.d4cc4c38.mp4",
     "static/media/main.scss": "/static/media/drone-xray.43f379c9.jpg",
     "static/media/eaa.ead83013.jpg": "/static/media/eaa.ead83013.jpg",
@@ -24,7 +21,6 @@
     "static/media/greybluerealty.58255b7d.jpg": "/static/media/greybluerealty.58255b7d.jpg",
     "static/media/inspection.843d2f0f.jpg": "/static/media/inspection.843d2f0f.jpg",
     "static/media/Login.scss": "/static/media/logoDRONE-dark-cropped-final.b2f133be.png",
-    "static/media/mccarthy.abf978dd.jpg": "/static/media/mccarthy.abf978dd.jpg",
     "static/media/VRM.scss": "/static/media/walkthrough.04aa9223.png",
     "static/media/progress.9a7ba162.png": "/static/media/progress.9a7ba162.png",
     "static/media/safety.c8723814.png": "/static/media/safety.c8723814.png",
@@ -39,6 +35,6 @@
     "static/js/runtime-main.e630037e.js",
     "static/js/2.0b34e52e.chunk.js",
     "static/css/main.d8857686.chunk.css",
-    "static/js/main.867ad8bb.chunk.js"
+    "static/js/main.92f24863.chunk.js"
   ]
 }
